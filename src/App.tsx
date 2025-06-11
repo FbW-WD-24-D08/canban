@@ -3,15 +3,18 @@ import { lazy } from "react";
 
 import "./App.css";
 
-const IndexPage = lazy(() => import("./components/pages/index.page"));
-const SigninPage = lazy(() => import("./components/pages/signin.page"));
-const SignUpPage = lazy(() => import("./components/pages/signup.page"));
+const IndexPage = lazy(() => import("./components/pages/index.page.tsx"));
+const SigninPage = lazy(() => import("./components/pages/signin.page.tsx"));
+const SignUpPage = lazy(() => import("./components/pages/signup.page.tsx"));
+const AboutPage = lazy(() => import("./components/pages/about.page.tsx"));
 
 function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Routes>
+        {/* Public Routes */}
         <Route element={<IndexPage />} path="/" />
+        <Route element={<AboutPage />} path="/about" />
 
         {/* Signin/Signout */}
         <Route element={<SigninPage />} path="/signin" />

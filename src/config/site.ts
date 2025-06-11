@@ -9,7 +9,19 @@ export const siteConfig = {
       bots: true,
       keywords: "canban, home, startseite, kanban, board, projektmanagement",
     },
-
+    dashboard: {
+      title: "Canban | Dashboard",
+      desc: "Dein persönliches Kanban-Board für effizientes Projektmanagement.",
+      bots: true,
+      keywords:
+        "canban, dashboard, projektmanagement, kanban board, aufgabenverwaltung",
+    },
+    about: {
+      title: "Canban | About",
+      desc: "Erfahre mehr über Canban.",
+      bots: true,
+      keywords: "canban, about, über uns, projektmanagement, kanban",
+    },
     signin: {
       title: "Canban | SignIn",
       desc: "Melde dich bei deinem Konto an.",
