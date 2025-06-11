@@ -12,10 +12,7 @@ export default function IndexPage() {
         keywords={siteConfig.meta.index.keywords}
       />
       <DefaultLayout withHero>
-        <main>
-          <h1>Welcome to the site</h1>
-          <p>Main content goes here</p>
-        </main>
+        <main></main>
       </DefaultLayout>
     </>
   );

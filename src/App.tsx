@@ -9,7 +9,7 @@ const SignUpPage = lazy(() => import("./components/pages/signup.page"));
 
 function App() {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Routes>
         <Route element={<IndexPage />} path="/" />
 
@@ -22,7 +22,7 @@ function App() {
         <Route element={<SignUpPage />} path="/signup" />
         <Route element={<SignUpPage />} path="/signup/verify-email-address" />
       </Routes>
-    </>
+    </div>
   );
 }
 

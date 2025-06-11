@@ -1,15 +1,8 @@
 import { type ReactNode } from "react";
 
 import { Navbar } from "../organisms/navbar.org.tsx";
+import { Hero } from "../organisms/hero.org.tsx";
 import { Footer } from "../organisms/footer.org.tsx";
-
-function Hero() {
-  return (
-    <section>
-      <h2>Hero Section</h2>
-    </section>
-  );
-}
 
 interface DefaultLayoutProps {
   children: ReactNode;
@@ -18,11 +11,11 @@ interface DefaultLayoutProps {
 
 export function DefaultLayout({ children, withHero }: DefaultLayoutProps) {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       {withHero && <Hero />}
-      {children}
+      <main className="flex-1">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }
