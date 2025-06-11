@@ -1,54 +1,92 @@
-# React + TypeScript + Vite
+# Canban - Modernes Kanban Board
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Eine moderne Kanban-Board-Anwendung für effizientes Projektmanagement und Aufgabenverwaltung. Entwickelt mit React, TypeScript und modernen Web-Technologien.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Visuelles Projektmanagement**: Intuitive Kanban-Board-Oberfläche
+- **Benutzerauthentifizierung**: Sichere Anmeldung mit Clerk Auth
+- **Responsive Design**: Optimiert für Desktop und mobile Geräte
+- **Moderne UI**: Dunkles Theme mit Tailwind CSS
+- **Atomic Design**: Strukturierte Komponentenarchitektur
 
-## Expanding the ESLint configuration
+## 🛠️ Technologien
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Frontend
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- **React 19** - UI-Framework
+- **TypeScript** - Typisierte Programmierung
+- **Vite** - Build-Tool und Entwicklungsserver
+- **React Router** - Client-seitiges Routing
+
+### Styling & UI
+
+- **Tailwind CSS** - Utility-first CSS Framework
+- **Radix UI** - Hochwertige UI-Komponenten
+- **Lucide React** - Icon-Bibliothek
+- **shadcn/ui** - UI-Komponenten-System
+
+### Authentication & Backend
+
+- **Clerk** - Benutzerauthentifizierung und -verwaltung
+
+### Development Tools
+
+- **ESLint** - Code-Linting
+- **TypeScript ESLint** - TypeScript-spezifische Regeln
+
+## 📁 Projektstruktur
+
+Das Projekt folgt der **Atomic Design Methodology**:
+
+```
+src/
+├── components/
+│   ├── atoms/          # Grundlegende UI-Elemente
+│   ├── molecules/      # Zusammengesetzte Komponenten
+│   ├── organisms/      # Komplexe UI-Bereiche
+│   ├── layouts/        # Seitenlayouts
+│   └── pages/          # Vollständige Seiten
+├── config/             # Konfigurationsdateien
+└── lib/                # Utility-Funktionen
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚦 Installation & Start
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Repository klonen
+git clone https://github.com/FbW-WD-24-D08/canban.git
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+# In das Projektverzeichnis wechseln
+cd canban
+
+# Abhängigkeiten installieren
+npm install
+
+# Umgebungsvariablen einrichten
+cp example.env .env
+# .env-Datei mit Ihren Clerk-Schlüsseln bearbeiten
+
+# Entwicklungsserver starten
+npm run dev
 ```
+
+## 📝 Verfügbare Skripte
+
+- `npm run dev` - Startet den Entwicklungsserver
+- `npm run build` - Erstellt die Produktionsversion
+- `npm run lint` - Führt ESLint-Prüfung durch
+- `npm run preview` - Vorschau der Produktionsversion
+
+## 👥 Team
+
+- **[Kai](https://github.com/2701kai)** - Developer
+- **[Payermann](https://github.com/payermann)** - Developer
+
+## 📄 Lizenz
+
+Alle Rechte vorbehalten © 2025
+
+---
+
+**[⬆️ Nach oben](#canban---modernes-kanban-board)**
