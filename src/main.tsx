@@ -15,7 +15,7 @@ if (!PUBLISHABLE_KEY) {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Theme>
+    <Theme appearance="dark" accentColor="teal" grayColor="olive">
       <ClerkProvider afterSignOutUrl={"/"} publishableKey={PUBLISHABLE_KEY}>
         <BrowserRouter>
           <App />

@@ -1,26 +1,13 @@
 import { type ReactNode } from "react";
 
-function Navbar() {
-  return (
-    <nav>
-      <h1>Navbar</h1>
-    </nav>
-  );
-}
+import { Navbar } from "../organisms/navbar.org.tsx";
+import { Footer } from "../organisms/footer.org.tsx";
 
 function Hero() {
   return (
     <section>
       <h2>Hero Section</h2>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer>
-      <p>© Footer</p>
-    </footer>
   );
 }
 
