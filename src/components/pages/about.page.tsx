@@ -10,7 +10,7 @@ export default function AboutPage() {
         desc={siteConfig.meta.about.desc}
         bots={siteConfig.meta.about.bots}
         keywords={siteConfig.meta.about.keywords}
-      />{" "}
+      />
       <DefaultLayout>
         <div className="max-w-4xl mx-auto px-4 py-12">
           <div className="text-center mb-12">
