@@ -14,7 +14,7 @@ import type { Board } from "../../types/api.types.ts";
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { currentUser } = useUserContext();
-  const { boards, loading, refetch } = useBoards(currentUser?.id || null);
+  const { boards, loading } = useBoards(currentUser?.id || null);
   const { sortBy, sortOrder, sortedBoards, handleSortChange } =
     useBoardSorting(boards);
   const {
@@ -43,9 +43,6 @@ export default function DashboardPage() {
         },
         currentUser.id
       );
-
-      await refetch();
-      navigate(`/dashboard/board/${newBoard.id}`);
     } catch (error) {
       console.error("Error creating board:", error);
     }
