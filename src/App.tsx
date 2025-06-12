@@ -13,6 +13,9 @@ const DashboardPage = lazy(
   () => import("./components/pages/dashboard.page.tsx")
 );
 const NotFoundPage = lazy(() => import("./components/pages/notfound.page.tsx"));
+const ProtectedRoute = lazy(
+  () => import("./components/molecules/protected-route.comp.tsx")
+);
 
 function App() {
   return (
@@ -35,7 +38,9 @@ function App() {
         <Route
           element={
             <UserProvider>
-              <DashboardLayout />
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
             </UserProvider>
           }
           path="/dashboard"
