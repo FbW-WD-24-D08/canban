@@ -1,0 +1,134 @@
+{
+  "boards": [
+    {
+      "id": 1,
+      "title": "Website Redesign",
+      "description": "Komplette Überarbeitung der Firmen-Website",
+      "ownerId": "user_2NNEqL2nrIRdJ194ndJqAHtrEuC",
+      "createdAt": "2024-12-01T10:00:00Z",
+      "updatedAt": "2024-12-01T15:30:00Z"
+    },
+    {
+      "id": 2,
+      "title": "Mobile App Development",
+      "description": "Entwicklung einer neuen mobilen Anwendung",
+      "ownerId": "user_2NNEqL2nrIRdJ194ndJqAHtrEuC",
+      "createdAt": "2024-12-05T09:00:00Z",
+      "updatedAt": "2024-12-05T09:00:00Z"
+    }
+  ],
+  "boardMembers": [
+    {
+      "id": 1,
+      "boardId": 1,
+      "userId": "user_2NNEqL2nrIRdJ194ndJqAHtrEuC"
+    },
+    {
+      "id": 2,
+      "boardId": 2,
+      "userId": "user_2NNEqL2nrIRdJ194ndJqAHtrEuC"
+    }
+  ],
+  "columns": [
+    {
+      "id": 1,
+      "title": "Backlog",
+      "boardId": 1,
+      "position": 0
+    },
+    {
+      "id": 2,
+      "title": "In Bearbeitung",
+      "boardId": 1,
+      "position": 1
+    },
+    {
+      "id": 3,
+      "title": "Review",
+      "boardId": 1,
+      "position": 2
+    },
+    {
+      "id": 4,
+      "title": "Fertig",
+      "boardId": 1,
+      "position": 3
+    },
+    {
+      "id": 5,
+      "title": "To Do",
+      "boardId": 2,
+      "position": 0
+    },
+    {
+      "id": 6,
+      "title": "In Progress",
+      "boardId": 2,
+      "position": 1
+    },
+    {
+      "id": 7,
+      "title": "Done",
+      "boardId": 2,
+      "position": 2
+    }
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Login-System mit Clerk implementieren",
+      "description": "Benutzerauthentifizierung und Registrierung einrichten",
+      "columnId": 2,
+      "position": 0
+    },
+    {
+      "id": 2,
+      "title": "Dashboard UI Design",
+      "description": "Responsive Dashboard mit dunklem Theme erstellen",
+      "columnId": 1,
+      "position": 0
+    },
+    {
+      "id": 3,
+      "title": "API Endpoints erstellen",
+      "description": "REST API für CRUD Operationen entwickeln",
+      "columnId": 1,
+      "position": 1
+    },
+    {
+      "id": 4,
+      "title": "Testing implementieren",
+      "description": "Unit Tests und Integration Tests schreiben",
+      "columnId": 4,
+      "position": 0
+    },
+    {
+      "id": 5,
+      "title": "Responsive Design",
+      "description": "Mobile-first Ansatz für alle Komponenten",
+      "columnId": 3,
+      "position": 0
+    },
+    {
+      "id": 6,
+      "title": "App Store Setup",
+      "description": "Vorbereitung für App Store und Google Play",
+      "columnId": 5,
+      "position": 0
+    },
+    {
+      "id": 7,
+      "title": "Native Features",
+      "description": "Kamera, GPS und Push Notifications",
+      "columnId": 6,
+      "position": 0
+    },
+    {
+      "id": 8,
+      "title": "Beta Testing",
+      "description": "Closed Beta mit ausgewählten Nutzern",
+      "columnId": 7,
+      "position": 0
+    }
+  ]
+}
