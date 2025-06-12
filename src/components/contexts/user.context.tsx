@@ -1,5 +1,12 @@
-import { createContext, useContext, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  type ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { useUser } from "@clerk/clerk-react";
+import { usersApi } from "../../api/users.api";
 
 interface User {
   id: string;
@@ -14,15 +21,46 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const { user: clerkUser } = useUser();
-  const currentUser: User | null = clerkUser
-    ? {
-        id: clerkUser.id,
-        name:
-          `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() ||
-          clerkUser.emailAddresses?.[0]?.emailAddress?.split("@")[0] ||
-          "Unknown User",
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  const generateUsername = (clerkUser: any): string => {
+    return (
+      `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() ||
+      clerkUser.emailAddresses?.[0]?.emailAddress?.split("@")[0] ||
+      "Unknown User"
+    );
+  };
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!clerkUser) {
+        setCurrentUser(null);
+        return;
       }
-    : null;
+
+      try {
+        let existingUser = await usersApi.getUserName(clerkUser.id);
+
+        if (!existingUser) {
+          const username = generateUsername(clerkUser);
+          existingUser = await usersApi.createUserName(clerkUser.id, username);
+        }
+
+        setCurrentUser({
+          id: clerkUser.id,
+          name: existingUser.username,
+        });
+      } catch (error) {
+        console.error("Error loading user:", error);
+        setCurrentUser({
+          id: clerkUser.id,
+          name: generateUsername(clerkUser),
+        });
+      }
+    };
+
+    loadUser();
+  }, [clerkUser]);
 
   return (
     <UserContext.Provider value={{ currentUser }}>
