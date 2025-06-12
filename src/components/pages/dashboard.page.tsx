@@ -1,8 +1,12 @@
 import { siteConfig } from "../../config/site.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
+import { useUserContext } from "../contexts/user.context.tsx";
 
 export default function DashboardPage() {
+  const { currentUser } = useUserContext();
+  const userName = currentUser?.name || "User";
+
   return (
     <>
       <MetaTags
@@ -17,8 +21,8 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-xl text-zinc-300 leading-relaxed max-w-2xl mx-auto">
-            Welcome to your dashboard! Here you can manage your tasks, view
-            analytics, and customize your settings.
+            Welcome to your dashboard {userName}! Here you can manage your
+            tasks, view analytics, and customize your settings.
           </p>
         </div>
       </DefaultLayout>
