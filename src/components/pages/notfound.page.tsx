@@ -2,15 +2,16 @@ import { Link } from "react-router";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
 import { Button } from "../atoms/button.comp.tsx";
+import { siteConfig } from "@/config/site.ts";
 
 export default function NotFoundPage() {
   return (
     <>
       <MetaTags
-        title="404 - Page Not Found | Canban"
-        desc="The page you're looking for doesn't exist."
-        bots={false}
-        keywords="404, not found, error"
+        title={siteConfig.meta.notfound.title}
+        desc={siteConfig.meta.notfound.desc}
+        bots={siteConfig.meta.notfound.bots}
+        keywords={siteConfig.meta.notfound.keywords}
       />
       <DefaultLayout>
         <div className="min-h-screen bg-zinc-950 flex items-center justify-center px-4">

@@ -1,0 +1,13 @@
+interface BoardColumnsProps {
+  boardId: number;
+}
+
+export function BoardColumns({ boardId }: BoardColumnsProps) {
+  return (
+    <div className="flex gap-6 overflow-x-auto pb-4">
+      <div className="text-zinc-400 text-center py-12">
+        Columns will be displayed here
+      </div>
+    </div>
+  );
+}

@@ -16,6 +16,7 @@ const NotFoundPage = lazy(() => import("./components/pages/notfound.page.tsx"));
 const ProtectedRoute = lazy(
   () => import("./components/molecules/protected-route.comp.tsx")
 );
+const BoardPage = lazy(() => import("./components/pages/board.page.tsx"));
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           path="/dashboard"
         >
           <Route element={<DashboardPage />} index />
+          <Route element={<BoardPage />} path="board/:id" />
         </Route>
         {/* Error */}
         <Route element={<NotFoundPage />} path="*" />

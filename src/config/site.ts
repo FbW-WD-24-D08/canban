@@ -35,5 +35,11 @@ export const siteConfig = {
       bots: true,
       keywords: "Registrierung, Konto erstellen",
     },
+    notfound: {
+      title: "Canban | 404 - Page Not Found",
+      desc: "Die Seite, die du suchst, existiert nicht.",
+      bots: false,
+      keywords: "404, not found, error",
+    },
   },
 };
