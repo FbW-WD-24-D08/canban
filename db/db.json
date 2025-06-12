@@ -183,122 +183,135 @@
       "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
       "createdAt": "2024-12-30T16:55:00Z",
       "updatedAt": "2024-12-30T16:55:00Z"
+    },
+    {
+      "id": "bcdf",
+      "title": "New Board",
+      "description": "",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2025-06-12T21:59:16.665Z",
+      "updatedAt": "2025-06-12T21:59:16.665Z"
     }
   ],
   "boardMembers": [
     {
       "id": "1",
-      "boardId": 1,
+      "boardId": "1",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "2",
-      "boardId": 2,
+      "boardId": "2",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "3",
-      "boardId": 3,
+      "boardId": "3",
       "userId": "user_testuser123"
     },
     {
       "id": "4",
-      "boardId": 4,
+      "boardId": "4",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "5",
-      "boardId": 5,
+      "boardId": "5",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "6",
-      "boardId": 6,
+      "boardId": "6",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "7",
-      "boardId": 7,
+      "boardId": "7",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "8",
-      "boardId": 8,
+      "boardId": "8",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "9",
-      "boardId": 9,
+      "boardId": "9",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "10",
-      "boardId": 10,
+      "boardId": "10",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "11",
-      "boardId": 11,
+      "boardId": "11",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "12",
-      "boardId": 12,
+      "boardId": "12",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "13",
-      "boardId": 13,
+      "boardId": "13",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "14",
-      "boardId": 14,
+      "boardId": "14",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "15",
-      "boardId": 15,
+      "boardId": "15",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "16",
-      "boardId": 16,
+      "boardId": "16",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "17",
-      "boardId": 17,
+      "boardId": "17",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "18",
-      "boardId": 18,
+      "boardId": "18",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "19",
-      "boardId": 19,
+      "boardId": "19",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "20",
-      "boardId": 20,
+      "boardId": "20",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "21",
-      "boardId": 21,
+      "boardId": "21",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "22",
-      "boardId": 22,
+      "boardId": "22",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
       "id": "23",
-      "boardId": 23,
+      "boardId": "23",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "5ff6",
+      "boardId": "bcdf",
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     }
   ],
@@ -306,43 +319,43 @@
     {
       "id": "1",
       "title": "Backlog",
-      "boardId": 1,
+      "boardId": "1",
       "position": 0
     },
     {
       "id": "2",
       "title": "In Bearbeitung",
-      "boardId": 1,
+      "boardId": "1",
       "position": 1
     },
     {
       "id": "3",
       "title": "Review",
-      "boardId": 1,
+      "boardId": "1",
       "position": 2
     },
     {
       "id": "4",
       "title": "Fertig",
-      "boardId": 1,
+      "boardId": "1",
       "position": 3
     },
     {
       "id": "5",
       "title": "To Do",
-      "boardId": 2,
+      "boardId": "2",
       "position": 0
     },
     {
       "id": "6",
       "title": "In Progress",
-      "boardId": 2,
+      "boardId": "2",
       "position": 1
     },
     {
       "id": "7",
       "title": "Done",
-      "boardId": 2,
+      "boardId": "2",
       "position": 2
     }
   ],
@@ -351,56 +364,56 @@
       "id": "1",
       "title": "Login-System mit Clerk implementieren",
       "description": "Benutzerauthentifizierung und Registrierung einrichten",
-      "columnId": 2,
+      "columnId": "2",
       "position": 0
     },
     {
       "id": "2",
       "title": "Dashboard UI Design",
       "description": "Responsive Dashboard mit dunklem Theme erstellen",
-      "columnId": 1,
+      "columnId": "1",
       "position": 0
     },
     {
       "id": "3",
       "title": "API Endpoints erstellen",
       "description": "REST API für CRUD Operationen entwickeln",
-      "columnId": 1,
+      "columnId": "1",
       "position": 1
     },
     {
       "id": "4",
       "title": "Testing implementieren",
       "description": "Unit Tests und Integration Tests schreiben",
-      "columnId": 4,
+      "columnId": "4",
       "position": 0
     },
     {
       "id": "5",
       "title": "Responsive Design",
       "description": "Mobile-first Ansatz für alle Komponenten",
-      "columnId": 3,
+      "columnId": "3",
       "position": 0
     },
     {
       "id": "6",
       "title": "App Store Setup",
       "description": "Vorbereitung für App Store und Google Play",
-      "columnId": 5,
+      "columnId": "5",
       "position": 0
     },
     {
       "id": "7",
       "title": "Native Features",
       "description": "Kamera, GPS und Push Notifications",
-      "columnId": 6,
+      "columnId": "6",
       "position": 0
     },
     {
       "id": "8",
       "title": "Beta Testing",
       "description": "Closed Beta mit ausgewählten Nutzern",
-      "columnId": 7,
+      "columnId": "7",
       "position": 0
     }
   ],

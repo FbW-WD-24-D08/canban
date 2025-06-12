@@ -17,11 +17,7 @@ export function useBoard(boardId: string | null, userId: string | null) {
     try {
       setLoading(true);
       setError(null);
-
-      const accessGranted = await boardsApi.checkAccess(
-        Number(boardId),
-        userId
-      );
+      const accessGranted = await boardsApi.checkAccess(boardId, userId);
       setHasAccess(accessGranted);
 
       if (!accessGranted) {
@@ -30,7 +26,7 @@ export function useBoard(boardId: string | null, userId: string | null) {
         return;
       }
 
-      const boardData = await boardsApi.getBoardById(Number(boardId));
+      const boardData = await boardsApi.getBoardById(boardId);
       setBoard(boardData);
     } catch (err) {
       console.error("Error fetching board:", err);

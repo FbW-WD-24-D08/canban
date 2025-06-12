@@ -8,12 +8,13 @@ import { BoardList } from "../organisms/board-list.org.tsx";
 import { useBoards } from "../../hooks/useBoards.ts";
 import { useBoardSorting } from "../../hooks/useBoardSorting.ts";
 import { usePagination } from "../../hooks/usePagination.ts";
+import { boardsApi } from "../../api/boards.api.ts";
 import type { Board } from "../../types/api.types.ts";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { currentUser } = useUserContext();
-  const { boards, loading } = useBoards(currentUser?.id || null);
+  const { boards, loading, refetch } = useBoards(currentUser?.id || null);
   const { sortBy, sortOrder, sortedBoards, handleSortChange } =
     useBoardSorting(boards);
   const {
@@ -31,9 +32,23 @@ export default function DashboardPage() {
     handleSortChange(newSortBy, newSortOrder);
     resetPage();
   };
+  const handleCreateBoard = async () => {
+    if (!currentUser) return;
 
-  const handleCreateBoard = () => {
-    console.log("Create new board");
+    try {
+      const newBoard = await boardsApi.createBoard(
+        {
+          title: "New Board",
+          description: "",
+        },
+        currentUser.id
+      );
+
+      await refetch();
+      navigate(`/dashboard/board/${newBoard.id}`);
+    } catch (error) {
+      console.error("Error creating board:", error);
+    }
   };
   const handleBoardClick = (board: Board) => {
     navigate(`/dashboard/board/${board.id}`);

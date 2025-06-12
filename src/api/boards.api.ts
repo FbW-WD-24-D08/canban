@@ -28,8 +28,7 @@ export const boardsApi = {
       throw error;
     }
   },
-
-  getBoardById: async (boardId: number): Promise<Board> => {
+  getBoardById: async (boardId: string): Promise<Board> => {
     try {
       return await apiClient.get(`/boards/${boardId}`);
     } catch (error) {
@@ -63,9 +62,8 @@ export const boardsApi = {
       throw error;
     }
   },
-
   updateBoard: async (
-    boardId: number,
+    boardId: string,
     data: UpdateBoardData
   ): Promise<Board> => {
     try {
@@ -78,8 +76,7 @@ export const boardsApi = {
       throw error;
     }
   },
-
-  deleteBoard: async (boardId: number): Promise<void> => {
+  deleteBoard: async (boardId: string): Promise<void> => {
     try {
       await apiClient.delete(`/boards/${boardId}`);
     } catch (error) {
@@ -89,7 +86,7 @@ export const boardsApi = {
   },
 
   checkAccess: async (
-    boardId: number,
+    boardId: string,
     clerkUserId: string
   ): Promise<boolean> => {
     try {
@@ -103,7 +100,7 @@ export const boardsApi = {
     }
   },
 
-  addMember: async (boardId: number, userId: string): Promise<BoardMember> => {
+  addMember: async (boardId: string, userId: string): Promise<BoardMember> => {
     try {
       return await apiClient.post("/boardMembers", {
         boardId,
@@ -115,7 +112,7 @@ export const boardsApi = {
     }
   },
 
-  removeMember: async (boardId: number, userId: string): Promise<void> => {
+  removeMember: async (boardId: string, userId: string): Promise<void> => {
     try {
       const memberships: BoardMember[] = await apiClient.get(
         `/boardMembers?boardId=${boardId}&userId=${userId}`

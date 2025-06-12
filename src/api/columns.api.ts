@@ -6,7 +6,7 @@ import type {
 } from "@/types/api.types";
 
 export const columnsApi = {
-  getBoardColumns: async (boardId: number): Promise<Column[]> => {
+  getBoardColumns: async (boardId: string): Promise<Column[]> => {
     try {
       return await apiClient.get(`/columns?boardId=${boardId}&_sort=position`);
     } catch (error) {
@@ -34,9 +34,8 @@ export const columnsApi = {
       throw error;
     }
   },
-
   updateColumn: async (
-    columnId: number,
+    columnId: string,
     data: UpdateColumnData
   ): Promise<Column> => {
     try {
@@ -47,7 +46,7 @@ export const columnsApi = {
     }
   },
 
-  deleteColumn: async (columnId: number): Promise<void> => {
+  deleteColumn: async (columnId: string): Promise<void> => {
     try {
       await apiClient.delete(`/columns/${columnId}`);
     } catch (error) {
@@ -57,7 +56,7 @@ export const columnsApi = {
   },
 
   updateColumnPositions: async (
-    updates: { id: number; position: number }[]
+    updates: { id: string; position: number }[]
   ): Promise<void> => {
     try {
       const promises = updates.map(({ id, position }) =>

@@ -1,5 +1,5 @@
 export interface Board {
-  id: number;
+  id: string;
   title: string;
   description?: string;
   ownerId: string;
@@ -8,23 +8,23 @@ export interface Board {
 }
 
 export interface BoardMember {
-  id: number;
-  boardId: number;
+  id: string;
+  boardId: string;
   userId: string;
 }
 
 export interface Column {
-  id: number;
+  id: string;
   title: string;
-  boardId: number;
+  boardId: string;
   position: number;
 }
 
 export interface Task {
-  id: number;
+  id: string;
   title: string;
   description?: string;
-  columnId: number;
+  columnId: string;
   position: number;
 }
 
@@ -35,13 +35,13 @@ export interface CreateBoardData {
 
 export interface CreateColumnData {
   title: string;
-  boardId: number;
+  boardId: string;
 }
 
 export interface CreateTaskData {
   title: string;
   description?: string;
-  columnId: number;
+  columnId: string;
 }
 
 export interface UpdateBoardData {
@@ -57,6 +57,6 @@ export interface UpdateColumnData {
 export interface UpdateTaskData {
   title?: string;
   description?: string;
-  columnId?: number;
+  columnId?: string;
   position?: number;
 }

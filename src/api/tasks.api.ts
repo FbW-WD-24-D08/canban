@@ -2,7 +2,7 @@ import { apiClient } from "./client";
 import type { Task, CreateTaskData, UpdateTaskData } from "@/types/api.types";
 
 export const tasksApi = {
-  getBoardTasks: async (boardId: number): Promise<Task[]> => {
+  getBoardTasks: async (boardId: string): Promise<Task[]> => {
     try {
       const columns = await apiClient.get(`/columns?boardId=${boardId}`);
 
@@ -11,7 +11,7 @@ export const tasksApi = {
       }
 
       const columnIds = columns.map((c: any) => c.id);
-      const tasksPromises = columnIds.map((id: number) =>
+      const tasksPromises = columnIds.map((id: string) =>
         apiClient.get(`/tasks?columnId=${id}&_sort=position`)
       );
 
@@ -42,8 +42,7 @@ export const tasksApi = {
       throw error;
     }
   },
-
-  updateTask: async (taskId: number, data: UpdateTaskData): Promise<Task> => {
+  updateTask: async (taskId: string, data: UpdateTaskData): Promise<Task> => {
     try {
       return await apiClient.put(`/tasks/${taskId}`, data);
     } catch (error) {
@@ -52,7 +51,7 @@ export const tasksApi = {
     }
   },
 
-  deleteTask: async (taskId: number): Promise<void> => {
+  deleteTask: async (taskId: string): Promise<void> => {
     try {
       await apiClient.delete(`/tasks/${taskId}`);
     } catch (error) {
@@ -62,7 +61,7 @@ export const tasksApi = {
   },
 
   updateTaskPositions: async (
-    updates: { id: number; position: number; columnId?: number }[]
+    updates: { id: string; position: number; columnId?: string }[]
   ): Promise<void> => {
     try {
       const promises = updates.map(({ id, position, columnId }) => {
