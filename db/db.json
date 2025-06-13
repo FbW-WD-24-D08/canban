@@ -1,0 +1,434 @@
+{
+  "boards": [
+    {
+      "id": "1",
+      "title": "Website Redesign",
+      "description": "Komplette Überarbeitung der Firmen-Website",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-01T10:00:00Z",
+      "updatedAt": "2024-12-01T15:30:00Z"
+    },
+    {
+      "id": "2",
+      "title": "Mobile App Development",
+      "description": "Entwicklung einer neuen mobilen Anwendung",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-05T09:00:00Z",
+      "updatedAt": "2024-12-05T09:00:00Z"
+    },
+    {
+      "id": "3",
+      "title": "Private Board",
+      "description": "Eine private Tafel nur für Test-User",
+      "ownerId": "user_testuser123",
+      "createdAt": "2024-12-10T09:00:00Z",
+      "updatedAt": "2024-12-10T09:00:00Z"
+    },
+    {
+      "id": "4",
+      "title": "E-Commerce Platform",
+      "description": "Entwicklung einer vollständigen E-Commerce-Lösung",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-11T08:00:00Z",
+      "updatedAt": "2024-12-11T08:00:00Z"
+    },
+    {
+      "id": "5",
+      "title": "Marketing Campaign Q1",
+      "description": "Planung und Durchführung der Marketingkampagne für Q1 2025",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-12T09:30:00Z",
+      "updatedAt": "2024-12-12T09:30:00Z"
+    },
+    {
+      "id": "6",
+      "title": "API Documentation",
+      "description": "Umfassende Dokumentation aller API-Endpunkte",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-13T10:15:00Z",
+      "updatedAt": "2024-12-13T10:15:00Z"
+    },
+    {
+      "id": "7",
+      "title": "User Experience Redesign",
+      "description": "Neugestaltung der Benutzeroberfläche basierend auf Feedback",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-14T11:00:00Z",
+      "updatedAt": "2024-12-14T11:00:00Z"
+    },
+    {
+      "id": "8",
+      "title": "Database Migration",
+      "description": "Migration der Datenbank auf eine modernere Architektur",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-15T13:45:00Z",
+      "updatedAt": "2024-12-15T13:45:00Z"
+    },
+    {
+      "id": "9",
+      "title": "Security Audit",
+      "description": "Umfassende Sicherheitsüberprüfung der gesamten Anwendung",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-16T14:20:00Z",
+      "updatedAt": "2024-12-16T14:20:00Z"
+    },
+    {
+      "id": "10",
+      "title": "Performance Optimization",
+      "description": "Optimierung der Anwendungsleistung und Ladezeiten",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-17T15:30:00Z",
+      "updatedAt": "2024-12-17T15:30:00Z"
+    },
+    {
+      "id": "11",
+      "title": "Customer Support Portal",
+      "description": "Entwicklung eines Self-Service-Portals für Kunden",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-18T16:10:00Z",
+      "updatedAt": "2024-12-18T16:10:00Z"
+    },
+    {
+      "id": "12",
+      "title": "Analytics Dashboard",
+      "description": "Echtzeit-Dashboard für Geschäftsanalysen",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-19T17:25:00Z",
+      "updatedAt": "2024-12-19T17:25:00Z"
+    },
+    {
+      "id": "13",
+      "title": "Content Management System",
+      "description": "Flexibles CMS für dynamische Inhalte",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-20T18:40:00Z",
+      "updatedAt": "2024-12-20T18:40:00Z"
+    },
+    {
+      "id": "14",
+      "title": "Payment Integration",
+      "description": "Integration verschiedener Zahlungsanbieter",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-21T19:15:00Z",
+      "updatedAt": "2024-12-21T19:15:00Z"
+    },
+    {
+      "id": "15",
+      "title": "Notification System",
+      "description": "Push-Benachrichtigungen für Web und Mobile",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-22T08:30:00Z",
+      "updatedAt": "2024-12-22T08:30:00Z"
+    },
+    {
+      "id": "16",
+      "title": "Multi-language Support",
+      "description": "Internationalisierung für verschiedene Sprachen",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-23T09:45:00Z",
+      "updatedAt": "2024-12-23T09:45:00Z"
+    },
+    {
+      "id": "17",
+      "title": "Social Media Integration",
+      "description": "Verknüpfung mit Social Media Plattformen",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-24T10:20:00Z",
+      "updatedAt": "2024-12-24T10:20:00Z"
+    },
+    {
+      "id": "18",
+      "title": "Email Marketing Tool",
+      "description": "Automatisierte E-Mail-Kampagnen und Newsletter",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-25T11:35:00Z",
+      "updatedAt": "2024-12-25T11:35:00Z"
+    },
+    {
+      "id": "19",
+      "title": "Inventory Management",
+      "description": "System zur Verwaltung von Lagerbeständen",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-26T12:50:00Z",
+      "updatedAt": "2024-12-26T12:50:00Z"
+    },
+    {
+      "id": "20",
+      "title": "Machine Learning Pipeline",
+      "description": "Automatisierte ML-Pipeline für Datenanalyse",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-27T13:25:00Z",
+      "updatedAt": "2024-12-27T13:25:00Z"
+    },
+    {
+      "id": "21",
+      "title": "Quality Assurance Framework",
+      "description": "Umfassendes QA-Framework für alle Projekte",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-28T14:10:00Z",
+      "updatedAt": "2024-12-28T14:10:00Z"
+    },
+    {
+      "id": "22",
+      "title": "DevOps Automation",
+      "description": "CI/CD Pipeline und Infrastruktur-Automatisierung",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-29T15:40:00Z",
+      "updatedAt": "2024-12-29T15:40:00Z"
+    },
+    {
+      "id": "23",
+      "title": "Customer Feedback System",
+      "description": "System zur Sammlung und Auswertung von Kundenfeedback",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2024-12-30T16:55:00Z",
+      "updatedAt": "2024-12-30T16:55:00Z"
+    },
+    {
+      "id": "bcdf",
+      "title": "New Board",
+      "description": "",
+      "ownerId": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "createdAt": "2025-06-12T21:59:16.665Z",
+      "updatedAt": "2025-06-12T21:59:16.665Z"
+    }
+  ],
+  "boardMembers": [
+    {
+      "id": "1",
+      "boardId": "1",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "2",
+      "boardId": "2",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "3",
+      "boardId": "3",
+      "userId": "user_testuser123"
+    },
+    {
+      "id": "4",
+      "boardId": "4",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "5",
+      "boardId": "5",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "6",
+      "boardId": "6",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "7",
+      "boardId": "7",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "8",
+      "boardId": "8",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "9",
+      "boardId": "9",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "10",
+      "boardId": "10",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "11",
+      "boardId": "11",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "12",
+      "boardId": "12",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "13",
+      "boardId": "13",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "14",
+      "boardId": "14",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "15",
+      "boardId": "15",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "16",
+      "boardId": "16",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "17",
+      "boardId": "17",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "18",
+      "boardId": "18",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "19",
+      "boardId": "19",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "20",
+      "boardId": "20",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "21",
+      "boardId": "21",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "22",
+      "boardId": "22",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "23",
+      "boardId": "23",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    },
+    {
+      "id": "5ff6",
+      "boardId": "bcdf",
+      "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
+    }
+  ],
+  "columns": [
+    {
+      "id": "1",
+      "title": "Backlog",
+      "boardId": "1",
+      "position": 0
+    },
+    {
+      "id": "2",
+      "title": "In Bearbeitung",
+      "boardId": "1",
+      "position": 1
+    },
+    {
+      "id": "3",
+      "title": "Review",
+      "boardId": "1",
+      "position": 2
+    },
+    {
+      "id": "4",
+      "title": "Fertig",
+      "boardId": "1",
+      "position": 3
+    },
+    {
+      "id": "5",
+      "title": "To Do",
+      "boardId": "2",
+      "position": 0
+    },
+    {
+      "id": "6",
+      "title": "In Progress",
+      "boardId": "2",
+      "position": 1
+    },
+    {
+      "id": "7",
+      "title": "Done",
+      "boardId": "2",
+      "position": 2
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Login-System mit Clerk implementieren",
+      "description": "Benutzerauthentifizierung und Registrierung einrichten",
+      "columnId": "2",
+      "position": 0
+    },
+    {
+      "id": "2",
+      "title": "Dashboard UI Design",
+      "description": "Responsive Dashboard mit dunklem Theme erstellen",
+      "columnId": "1",
+      "position": 0
+    },
+    {
+      "id": "3",
+      "title": "API Endpoints erstellen",
+      "description": "REST API für CRUD Operationen entwickeln",
+      "columnId": "1",
+      "position": 1
+    },
+    {
+      "id": "4",
+      "title": "Testing implementieren",
+      "description": "Unit Tests und Integration Tests schreiben",
+      "columnId": "4",
+      "position": 0
+    },
+    {
+      "id": "5",
+      "title": "Responsive Design",
+      "description": "Mobile-first Ansatz für alle Komponenten",
+      "columnId": "3",
+      "position": 0
+    },
+    {
+      "id": "6",
+      "title": "App Store Setup",
+      "description": "Vorbereitung für App Store und Google Play",
+      "columnId": "5",
+      "position": 0
+    },
+    {
+      "id": "7",
+      "title": "Native Features",
+      "description": "Kamera, GPS und Push Notifications",
+      "columnId": "6",
+      "position": 0
+    },
+    {
+      "id": "8",
+      "title": "Beta Testing",
+      "description": "Closed Beta mit ausgewählten Nutzern",
+      "columnId": "7",
+      "position": 0
+    }
+  ],
+  "usernames": [
+    {
+      "id": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "username": "Felix Fischer"
+    },
+    {
+      "id": "user_testuser123",
+      "username": "testuser"
+    },
+    {
+      "id": "user_2yPUYsC0dJNEAHpXA4GBqb1AjqK",
+      "username": "Felix Fischer"
+    }
+  ]
+}

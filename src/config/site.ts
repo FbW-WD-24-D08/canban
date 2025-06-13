@@ -1,4 +1,5 @@
 export const siteConfig = {
+  API_BASE_URL: "http://localhost:3001",
   social: {
     github: "https://github.com/FbW-WD-24-D08/canban",
   },
@@ -33,6 +34,12 @@ export const siteConfig = {
       desc: "Erstelle dein Konto.",
       bots: true,
       keywords: "Registrierung, Konto erstellen",
+    },
+    notfound: {
+      title: "Canban | 404 - Page Not Found",
+      desc: "Die Seite, die du suchst, existiert nicht.",
+      bots: false,
+      keywords: "404, not found, error",
     },
   },
 };

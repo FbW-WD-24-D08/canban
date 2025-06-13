@@ -115,16 +115,18 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html,
-  body {
-    height: 100%;
+  html {
+    @apply bg-background;
+    min-height: 100%;
   }
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
   }
   #root {
-    height: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    @apply bg-background;
   }
 }
