@@ -54,7 +54,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
     }
 
     try {
-      const targetColumn = columns.find((c) => c.id === targetColumnId);
+      const targetColumn = columns.find((c: ColumnType) => c.id === targetColumnId);
       const isMovingToDone = targetColumn?.title.trim().toLowerCase() === "done";
 
       await tasksApi.updateTask(taskId, {
@@ -121,7 +121,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
               className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
               placeholder="Column title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
             />
             <div className="flex gap-2 mt-2">
               <button

@@ -31,8 +31,7 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     transition,
   };
 
-  const archiveTask = async (e: React.SyntheticEvent) => {
-    (e as React.SyntheticEvent).stopPropagation();
+  const archiveTaskAction = async () => {
     try {
       setArchiving(true);
       await tasksApi.updateTask(task.id, { archived: true });
@@ -44,8 +43,7 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     }
   };
 
-  const restoreTask = async (e: React.SyntheticEvent) => {
-    (e as React.SyntheticEvent).stopPropagation();
+  const restoreTaskAction = async () => {
     try {
       setArchiving(true);
       await tasksApi.updateTask(task.id, { archived: false });
@@ -55,6 +53,16 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     } finally {
       setArchiving(false);
     }
+  };
+
+  const archiveTask = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    archiveTaskAction();
+  };
+
+  const restoreTask = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    restoreTaskAction();
   };
 
   const statusMap: Record<string, string> = {
@@ -112,13 +120,13 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
                 >Edit…</DropdownMenu.Item>
                 {!isArchived && (
                   <DropdownMenu.Item
-                    onSelect={archiveTask}
+                    onSelect={archiveTaskAction}
                     className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
                   >Archive</DropdownMenu.Item>
                 )}
                 {isArchived && (
                   <DropdownMenu.Item
-                    onSelect={restoreTask}
+                    onSelect={restoreTaskAction}
                     className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
                   >Restore</DropdownMenu.Item>
                 )}
