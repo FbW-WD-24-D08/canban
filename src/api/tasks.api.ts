@@ -1,52 +1,41 @@
+import type { CreateTaskData, Task, UpdateTaskData } from "@/types/api.types";
 import { apiClient } from "./client";
-import type { Task, CreateTaskData, UpdateTaskData } from "@/types/api.types";
 
 export const tasksApi = {
-  getBoardTasks: async (boardId: string): Promise<Task[]> => {
+  /**
+   * Fetch tasks for a given column. When includeArchived is false (default)
+   * we remove tasks that have `archived === true` on the client side so we
+   * don\'t miss records that were created before the `archived` flag existed.
+   */
+  getColumnTasks: async (
+    columnId: string,
+    includeArchived = false
+  ): Promise<Task[]> => {
     try {
-      const columns = await apiClient.get(`/columns?boardId=${boardId}`);
-
-      if (columns.length === 0) {
-        return [];
-      }
-
-      const columnIds = columns.map((c: any) => c.id);
-      const tasksPromises = columnIds.map((id: string) =>
-        apiClient.get(`/tasks?columnId=${id}&_sort=position`)
+      const all = await apiClient.get(
+        `/tasks?columnId=${columnId}&_sort=position`
       );
-
-      const tasksArrays = await Promise.all(tasksPromises);
-      return tasksArrays.flat();
+      return includeArchived ? all : all.filter((t: Task) => !t.archived);
     } catch (error) {
-      console.error(`Error fetching tasks for board ${boardId}:`, error);
+      console.error("Error fetching tasks:", error);
       throw error;
     }
   },
 
   createTask: async (data: CreateTaskData): Promise<Task> => {
     try {
-      const existingTasks = await apiClient.get(
-        `/tasks?columnId=${data.columnId}`
-      );
-      const maxPosition =
-        existingTasks.length > 0
-          ? Math.max(...existingTasks.map((t: Task) => t.position))
-          : -1;
-
-      return await apiClient.post("/tasks", {
-        ...data,
-        position: maxPosition + 1,
-      });
+      return await apiClient.post("/tasks", data);
     } catch (error) {
       console.error("Error creating task:", error);
       throw error;
     }
   },
+
   updateTask: async (taskId: string, data: UpdateTaskData): Promise<Task> => {
     try {
-      return await apiClient.put(`/tasks/${taskId}`, data);
+      return await apiClient.patch(`/tasks/${taskId}`, data);
     } catch (error) {
-      console.error(`Error updating task ${taskId}:`, error);
+      console.error("Error updating task:", error);
       throw error;
     }
   },
@@ -55,7 +44,7 @@ export const tasksApi = {
     try {
       await apiClient.delete(`/tasks/${taskId}`);
     } catch (error) {
-      console.error(`Error deleting task ${taskId}:`, error);
+      console.error("Error deleting task:", error);
       throw error;
     }
   },
@@ -69,7 +58,7 @@ export const tasksApi = {
         if (columnId !== undefined) {
           updateData.columnId = columnId;
         }
-        return apiClient.put(`/tasks/${id}`, updateData);
+        return apiClient.patch(`/tasks/${id}`, updateData);
       });
       await Promise.all(promises);
     } catch (error) {

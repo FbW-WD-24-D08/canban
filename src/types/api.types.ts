@@ -26,6 +26,16 @@ export interface Task {
   description?: string;
   columnId: string;
   position: number;
+  status?: "todo" | "in-progress" | "done";
+  archived?: boolean;
+  attachments?: Attachment[];
+}
+
+export interface Attachment {
+  id: string; // uuid
+  name: string;
+  type: string; // mime type
+  data?: string; // base64 string (optional)
 }
 
 export interface CreateBoardData {
@@ -36,12 +46,16 @@ export interface CreateBoardData {
 export interface CreateColumnData {
   title: string;
   boardId: string;
+  position?: number;
 }
 
 export interface CreateTaskData {
   title: string;
   description?: string;
   columnId: string;
+  position?: number;
+  status?: "todo" | "in-progress" | "done";
+  attachments?: Attachment[];
 }
 
 export interface UpdateBoardData {
@@ -59,4 +73,7 @@ export interface UpdateTaskData {
   description?: string;
   columnId?: string;
   position?: number;
+  status?: "todo" | "in-progress" | "done";
+  archived?: boolean;
+  attachments?: Attachment[];
 }

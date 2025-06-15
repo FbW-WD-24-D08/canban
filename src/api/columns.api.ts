@@ -1,34 +1,24 @@
-import { apiClient } from "./client";
 import type {
   Column,
   CreateColumnData,
   UpdateColumnData,
 } from "@/types/api.types";
+import { apiClient } from "./client";
 
 export const columnsApi = {
   getBoardColumns: async (boardId: string): Promise<Column[]> => {
     try {
       return await apiClient.get(`/columns?boardId=${boardId}&_sort=position`);
     } catch (error) {
-      console.error(`Error fetching columns for board ${boardId}:`, error);
+      console.error("Error fetching columns:", error);
       throw error;
     }
   },
 
   createColumn: async (data: CreateColumnData): Promise<Column> => {
     try {
-      const existingColumns = await apiClient.get(
-        `/columns?boardId=${data.boardId}`
-      );
-      const maxPosition =
-        existingColumns.length > 0
-          ? Math.max(...existingColumns.map((c: Column) => c.position))
-          : -1;
-
-      return await apiClient.post("/columns", {
-        ...data,
-        position: maxPosition + 1,
-      });
+      // compute max position client side optional; json server can handle reorder later
+      return await apiClient.post("/columns", data);
     } catch (error) {
       console.error("Error creating column:", error);
       throw error;
@@ -41,7 +31,7 @@ export const columnsApi = {
     try {
       return await apiClient.put(`/columns/${columnId}`, data);
     } catch (error) {
-      console.error(`Error updating column ${columnId}:`, error);
+      console.error("Error updating column:", error);
       throw error;
     }
   },
@@ -50,7 +40,7 @@ export const columnsApi = {
     try {
       await apiClient.delete(`/columns/${columnId}`);
     } catch (error) {
-      console.error(`Error deleting column ${columnId}:`, error);
+      console.error("Error deleting column:", error);
       throw error;
     }
   },

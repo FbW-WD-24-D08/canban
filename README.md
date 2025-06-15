@@ -9,6 +9,7 @@ Eine moderne Kanban-Board-Anwendung für effizientes Projektmanagement und Aufga
 - **Responsive Design**: Optimiert für Desktop und mobile Geräte
 - **Moderne UI**: Dunkles Theme mit Tailwind CSS
 - **Atomic Design**: Strukturierte Komponentenarchitektur
+- **Cross-Platform**: Funktioniert auf Windows und Linux/Ubuntu
 
 ## 🛠️ Technologien
 
@@ -53,6 +54,8 @@ src/
 
 ## 🚦 Installation & Start
 
+### Für Windows und Linux/Ubuntu
+
 ```bash
 # Repository klonen
 git clone https://github.com/FbW-WD-24-D08/canban.git
@@ -60,23 +63,28 @@ git clone https://github.com/FbW-WD-24-D08/canban.git
 # In das Projektverzeichnis wechseln
 cd canban
 
-# Abhängigkeiten installieren
+# Abhängigkeiten installieren (funktioniert auf Windows und Linux)
 npm install
 
-# Umgebungsvariablen einrichten
-cp example.env .env
-# .env-Datei mit Ihren Clerk-Schlüsseln bearbeiten
-
 # Entwicklungsserver starten
-npm run dev
+npm run dev:full
 ```
+
+Die Installation richtet automatisch die notwendigen Dateien ein:
+
+- Erstellt eine `.env` Datei aus `example.env`
+- Stellt sicher, dass ein `db` Verzeichnis existiert
+- Initialisiert eine leere `db.json` Datei, falls nötig
 
 ## 📝 Verfügbare Skripte
 
 - `npm run dev` - Startet den Entwicklungsserver
+- `npm run api` - Startet den JSON-Server für die API
+- `npm run dev:full` - Startet beide Server gleichzeitig
 - `npm run build` - Erstellt die Produktionsversion
 - `npm run lint` - Führt ESLint-Prüfung durch
 - `npm run preview` - Vorschau der Produktionsversion
+- `npm run setup` - Richtet die Entwicklungsumgebung ein
 
 ## 👥 Team
 

@@ -1,20 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { siteConfig } from "../../config/site.ts";
-import { MetaTags } from "../atoms/metatags.comp.tsx";
-import { DefaultLayout } from "../layouts/default.layout.tsx";
-import { useUserContext } from "../contexts/user.context.tsx";
-import { BoardToolbar } from "../organisms/board-toolbar.org.tsx";
-import { BoardList } from "../organisms/board-list.org.tsx";
 import { useBoards } from "../../hooks/useBoards.ts";
 import { useBoardSorting } from "../../hooks/useBoardSorting.ts";
 import { usePagination } from "../../hooks/usePagination.ts";
-import { boardsApi } from "../../api/boards.api.ts";
 import type { Board } from "../../types/api.types.ts";
+import { MetaTags } from "../atoms/metatags.comp.tsx";
+import { useUserContext } from "../contexts/user.context.tsx";
+import { DefaultLayout } from "../layouts/default.layout.tsx";
+import { CreateBoardDialog } from "../molecules/create-board-dialog.comp";
+import { BoardList } from "../organisms/board-list.org.tsx";
+import { BoardToolbar } from "../organisms/board-toolbar.org.tsx";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { currentUser } = useUserContext();
-  const { boards, loading } = useBoards(currentUser?.id || null);
+  const { boards, loading, refetch } = useBoards(currentUser?.id || null);
   const { sortBy, sortOrder, sortedBoards, handleSortChange } =
     useBoardSorting(boards);
   const {
@@ -24,6 +25,7 @@ export default function DashboardPage() {
     handlePageChange,
     resetPage,
   } = usePagination(sortedBoards, 20);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleSortChangeWithReset = (
     newSortBy: "title" | "date",
@@ -32,23 +34,16 @@ export default function DashboardPage() {
     handleSortChange(newSortBy, newSortOrder);
     resetPage();
   };
-  const handleCreateBoard = async () => {
-    if (!currentUser) return;
-
-    try {
-      const newBoard = await boardsApi.createBoard(
-        {
-          title: "New Board",
-          description: "",
-        },
-        currentUser.id
-      );
-    } catch (error) {
-      console.error("Error creating board:", error);
-    }
-  };
   const handleBoardClick = (board: Board) => {
     navigate(`/dashboard/board/${board.id}`);
+  };
+
+  const handleBoardCreated = () => {
+    refetch();
+  };
+
+  const openCreateDialog = () => {
+    setDialogOpen(true);
   };
 
   const userName = currentUser?.name || "User";
@@ -75,7 +70,7 @@ export default function DashboardPage() {
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSortChange={handleSortChangeWithReset}
-            onCreateBoard={handleCreateBoard}
+            onCreateBoard={openCreateDialog}
           />
           {loading ? (
             <div className="text-center py-12">
@@ -90,6 +85,12 @@ export default function DashboardPage() {
               onBoardClick={handleBoardClick}
             />
           )}
+          <CreateBoardDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            ownerId={currentUser?.id || ""}
+            onBoardCreated={handleBoardCreated}
+          />
         </div>
       </DefaultLayout>
     </>

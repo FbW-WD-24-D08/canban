@@ -1,9 +1,12 @@
+import { boardsApi } from "@/api/boards.api";
+import { useState } from "react";
 import { useParams } from "react-router";
+import { useBoard } from "../../hooks/useBoard.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
+import { useUserContext } from "../contexts/user.context.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
 import { BoardColumns } from "../organisms/board-columns.org.tsx";
-import { useBoard } from "../../hooks/useBoard.ts";
-import { useUserContext } from "../contexts/user.context.tsx";
+import { BoardSideboard } from "../organisms/board-sideboard.org";
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +15,20 @@ export default function BoardPage() {
     id || null,
     currentUser?.id || null
   );
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [title, setTitle] = useState(board?.title || "");
+  const [desc, setDesc] = useState(board?.description || "");
+
+  const saveBoard = async () => {
+    if (!board) return;
+    try {
+      await boardsApi.updateBoard(board.id, { title, description: desc });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   if (loading) {
     return (
@@ -78,19 +95,55 @@ export default function BoardPage() {
       />
       <DefaultLayout>
         <div className="min-h-screen bg-zinc-950">
-          <div className="max-w-full px-6 py-8">
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                {board.title}
-              </h1>
-              {board.description && (
-                <p className="text-zinc-400 text-lg max-w-4xl">
-                  {board.description}
-                </p>
-              )}
+          <div className="flex">
+            <BoardSideboard board={board} />
+            <div className="flex-1 min-w-0 px-6 py-8">
+              <div className="mb-8">
+                {editingTitle ? (
+                  <input
+                    className="text-3xl md:text-4xl font-bold bg-transparent outline-none border-b border-teal-500 text-white mb-2 w-full"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={() => {
+                      setEditingTitle(false);
+                      saveBoard();
+                    }}
+                    autoFocus
+                    placeholder="Board title"
+                  />
+                ) : (
+                  <h1
+                    className="text-3xl md:text-4xl font-bold text-white mb-2 cursor-pointer"
+                    onClick={() => setEditingTitle(true)}
+                  >
+                    {title}
+                  </h1>
+                )}
+                {editingDesc ? (
+                  <textarea
+                    className="w-full bg-transparent border border-teal-500 rounded-md p-2 text-zinc-300 focus:outline-none"
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    onBlur={() => {
+                      setEditingDesc(false);
+                      saveBoard();
+                    }}
+                    rows={3}
+                    autoFocus
+                    placeholder="Board description"
+                  />
+                ) : desc ? (
+                  <p className="text-zinc-400 max-w-4xl cursor-pointer" onClick={() => setEditingDesc(true)}>
+                    {desc}
+                  </p>
+                ) : (
+                  <p className="text-zinc-500 text-sm cursor-pointer" onClick={() => setEditingDesc(true)}>
+                    Add description...
+                  </p>
+                )}
+              </div>
+              <BoardColumns boardId={board.id} />
             </div>
-
-            <BoardColumns boardId={board.id} />
           </div>
         </div>
       </DefaultLayout>
