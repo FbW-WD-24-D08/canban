@@ -1,5 +1,5 @@
 import { boardsApi } from "@/api/boards.api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { useBoard } from "../../hooks/useBoard.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
@@ -17,8 +17,15 @@ export default function BoardPage() {
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
-  const [title, setTitle] = useState(board?.title || "");
-  const [desc, setDesc] = useState(board?.description || "");
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+
+  useEffect(() => {
+    if (board) {
+      setTitle(board.title);
+      setDesc(board.description || "");
+    }
+  }, [board]);
 
   const saveBoard = async () => {
     if (!board) return;

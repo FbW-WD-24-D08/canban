@@ -69,7 +69,10 @@ export const boardsApi = {
     data: UpdateBoardData
   ): Promise<Board> => {
     try {
+      const currentBoard = await apiClient.get(`/boards/${boardId}`);
+
       return await apiClient.put(`/boards/${boardId}`, {
+        ...currentBoard,
         ...data,
         updatedAt: new Date().toISOString(),
       });
