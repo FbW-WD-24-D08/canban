@@ -6,7 +6,6 @@ import { MetaTags } from "../atoms/metatags.comp.tsx";
 import { useUserContext } from "../contexts/user.context.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
 import { BoardColumns } from "../organisms/board-columns.org.tsx";
-import { BoardSideboard } from "../organisms/board-sideboard.org";
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
@@ -96,7 +95,6 @@ export default function BoardPage() {
       <DefaultLayout>
         <div className="min-h-screen bg-zinc-950">
           <div className="flex">
-            <BoardSideboard board={board} />
             <div className="flex-1 min-w-0 px-6 py-8">
               <div className="mb-8">
                 {editingTitle ? (
@@ -133,11 +131,17 @@ export default function BoardPage() {
                     placeholder="Board description"
                   />
                 ) : desc ? (
-                  <p className="text-zinc-400 max-w-4xl cursor-pointer" onClick={() => setEditingDesc(true)}>
+                  <p
+                    className="text-zinc-400 max-w-4xl cursor-pointer"
+                    onClick={() => setEditingDesc(true)}
+                  >
                     {desc}
                   </p>
                 ) : (
-                  <p className="text-zinc-500 text-sm cursor-pointer" onClick={() => setEditingDesc(true)}>
+                  <p
+                    className="text-zinc-500 text-sm cursor-pointer"
+                    onClick={() => setEditingDesc(true)}
+                  >
                     Add description...
                   </p>
                 )}

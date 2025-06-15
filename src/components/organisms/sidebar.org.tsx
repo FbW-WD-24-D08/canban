@@ -1,14 +1,40 @@
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
-import { ChevronRight, Home, Settings, HelpCircle, X } from "lucide-react";
+import {
+  ChevronRight,
+  Home,
+  Settings,
+  HelpCircle,
+  X,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/atoms/button.comp";
+import { boardsApi } from "@/api/boards.api";
+import { useUserName } from "@/hooks/useUserName";
+import type { Board } from "@/types/api.types";
+import { useNavigate } from "react-router";
 
 interface SidebarProps {
   children: ReactNode;
+  board?: Board;
+  onDelete?: () => void;
 }
 
-export function Sidebar({ children }: SidebarProps) {
+export function Sidebar({ children, board, onDelete }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { userName, loading } = useUserName(board?.ownerId || "");
+
+  const handleDelete = async () => {
+    if (!board || !confirm("Delete this board?")) return;
+    try {
+      await boardsApi.deleteBoard(board.id);
+      onDelete?.();
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <>
@@ -76,6 +102,28 @@ export function Sidebar({ children }: SidebarProps) {
               </Link>
             </li>
           </ul>
+          {board && (
+            <div className="mt-6 p-3 bg-zinc-800 rounded-lg space-y-3 text-sm">
+              <div>
+                <div className="text-zinc-400 text-xs mb-1">Updated</div>
+                <div className="text-white">
+                  {new Date(board.updatedAt).toLocaleString()}
+                </div>
+              </div>
+              <div>
+                <div className="text-zinc-400 text-xs mb-1">Owner</div>
+                <div className="text-white">
+                  {loading ? "Loading..." : userName}
+                </div>
+              </div>
+              <button
+                onClick={handleDelete}
+                className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
+              >
+                <XCircle className="w-4 h-4" /> Delete board
+              </button>
+            </div>
+          )}
         </nav>
       </div>
       <main className="w-full">{children}</main>
