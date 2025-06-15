@@ -24,6 +24,7 @@ export default defineConfig({
   server: {
     watch: {
       usePolling: process.platform === "win32", // Enable polling on Windows
+      ignored: ["**/db/**"], // Ignore JSON-server DB to avoid full-page reloads on every write
     },
   },
 });

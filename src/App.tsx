@@ -1,4 +1,6 @@
-import { HelpOverlay } from "@/components/molecules/help-overlay.comp.tsx";
+import { CommandPalette } from "@/components/molecules/command-palette.comp";
+import { HelpOverlay } from "@/components/molecules/help-overlay.comp";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Route, Routes } from "react-router";
 
@@ -21,6 +23,7 @@ const BoardPage = lazy(() => import("./components/pages/board.page.tsx"));
 
 function App() {
   const [showHelp, setShowHelp] = useState(false);
+  const [showCmd, setShowCmd] = useState(false);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -33,6 +36,7 @@ function App() {
   }, []);
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="flex flex-col min-h-screen">
       <Suspense fallback={<div className="flex flex-1 items-center justify-center p-8 text-zinc-400">Loading...</div>}>
         <Routes>
@@ -68,6 +72,7 @@ function App() {
         </Routes>
       </Suspense>
       {showHelp && <HelpOverlay onClose={() => setShowHelp(false)} />}
+      {showCmd && <CommandPalette open={showCmd} onOpenChange={setShowCmd} />}
       {/* floating help button */}
       <button
         onClick={() => setShowHelp((p) => !p)}
@@ -77,6 +82,7 @@ function App() {
         ?
       </button>
     </div>
+    </TooltipProvider>
   );
 }
 

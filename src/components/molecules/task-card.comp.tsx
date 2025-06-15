@@ -2,7 +2,8 @@ import { tasksApi } from "@/api/tasks.api";
 import type { Task } from "@/types/api.types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Archive, Paperclip, RotateCcw } from "lucide-react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { MoreVertical, Paperclip } from "lucide-react";
 import { useState } from "react";
 import { TaskDialog } from "./task-dialog.comp";
 
@@ -16,7 +17,8 @@ interface TaskCardProps {
 export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = false }: TaskCardProps) {
   const [open, setOpen] = useState(false);
 
-  const [archiving, setArchiving] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_archiving, setArchiving] = useState(false);
 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: task.id,
@@ -95,27 +97,37 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
           )}
           <div className="font-medium truncate flex-1">{task.title}</div>
 
-          {isDoneColumn && !isArchived && (
-            <button
-              title="Archive"
-              onClick={archiveTask}
-              className="text-zinc-400 hover:text-zinc-200"
-              disabled={archiving}
-            >
-              <Archive className="w-3 h-3" />
-            </button>
-          )}
-
-          {isArchived && (
-            <button
-              title="Restore"
-              onClick={restoreTask}
-              className="text-zinc-400 hover:text-zinc-200"
-              disabled={archiving}
-            >
-              <RotateCcw className="w-3 h-3" />
-            </button>
-          )}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button title="More actions" aria-label="More actions" className="text-zinc-400 hover:text-zinc-200 focus:outline-none">
+                <MoreVertical className="w-4 h-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content className="min-w-[140px] rounded-md bg-zinc-800 border border-zinc-700 p-1 shadow-lg">
+                <DropdownMenu.Item
+                  onSelect={() => setOpen(true)}
+                  className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
+                >Edit…</DropdownMenu.Item>
+                {!isArchived && (
+                  <DropdownMenu.Item
+                    onSelect={archiveTask}
+                    className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
+                  >Archive</DropdownMenu.Item>
+                )}
+                {isArchived && (
+                  <DropdownMenu.Item
+                    onSelect={restoreTask}
+                    className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
+                  >Restore</DropdownMenu.Item>
+                )}
+                <DropdownMenu.Item
+                  onSelect={() => setOpen(true)}
+                  className="px-2 py-1 text-sm text-red-400 hover:bg-zinc-700 rounded-sm cursor-pointer"
+                >Delete…</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </div>
         {task.description && (
           <p className="text-xs text-zinc-400 line-clamp-2 mb-2">{task.description}</p>

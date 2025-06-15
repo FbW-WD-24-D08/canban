@@ -13,6 +13,8 @@ interface BoardColumnsProps {
 }
 
 export function BoardColumns({ boardId }: BoardColumnsProps) {
+  // (Debug log removed for production)
+
   const { columns, loading, refetch } = useColumns(boardId);
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
@@ -47,10 +49,51 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
     const sourceColumnId = (active.data.current as { columnId: string })?.columnId;
     const targetColumnId = (over.data.current as { columnId?: string })?.columnId || (over.id as string);
 
-    if (!targetColumnId || targetColumnId === sourceColumnId) return;
+    if (!targetColumnId || targetColumnId === sourceColumnId) {
+      return;
+    }
 
     try {
-      await tasksApi.updateTask(taskId, { columnId: targetColumnId });
+      const targetColumn = columns.find((c) => c.id === targetColumnId);
+      const isMovingToDone = targetColumn?.title.trim().toLowerCase() === "done";
+
+      await tasksApi.updateTask(taskId, {
+        columnId: targetColumnId,
+        ...(isMovingToDone ? { status: "done" } : {}),
+      });
+
+      if (isMovingToDone) {
+        let confetti;
+        try {
+          const mod = await import("canvas-confetti");
+          confetti = mod.default;
+        } catch (importErr) {
+          console.error("Failed to load canvas-confetti", importErr);
+        }
+        if (confetti) {
+          const duration = 1500; // 1.5s
+          const defaults = { startVelocity: 30, spread: 60, ticks: 200, zIndex: 999999 };
+
+          function randomInRange(min: number, max: number) {
+            return Math.random() * (max - min) + min;
+          }
+
+          const interval: NodeJS.Timer = setInterval(() => {
+            confetti({
+              ...defaults,
+              particleCount: 8,
+              origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            });
+            confetti({
+              ...defaults,
+              particleCount: 8,
+              origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            });
+          }, 300);
+
+          setTimeout(() => clearInterval(interval), duration);
+        }
+      }
       setRefreshToken((t) => t + 1);
       refetch();
     } catch (err) {

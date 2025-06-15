@@ -3,6 +3,7 @@ import { useTasks } from "@/hooks/useTasks";
 import type { Column, Task } from "@/types/api.types";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import * as Collapsible from "@radix-ui/react-collapsible";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { TaskCard } from "../molecules/task-card.comp";
@@ -70,77 +71,137 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
         <span className="text-xs text-zinc-400">{activeTasks.length}</span>
       </div>
 
-      {isDoneColumn && (
-        <button
-          onClick={() => setShowArchive((prev) => !prev)}
-          className="text-[10px] text-teal-400 hover:underline mb-1"
-        >
-          {showArchive ? "Hide" : "Show"} archive ({archivedTasks.length})
-        </button>
-      )}
-      <div className="space-y-4">
-        <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-          {loading ? (
-            <div className="text-zinc-400 text-sm">Loading tasks...</div>
-          ) : activeTasks.length === 0 ? (
-            <div className="text-zinc-500 text-sm">No tasks</div>
-          ) : (
-            activeTasks.map((task: Task) => (
-              <TaskCard key={task.id} task={task} isDoneColumn={isDoneColumn} onUpdated={refetch} />
-            ))
-          )}
-        </SortableContext>
+      {isDoneColumn ? (
+        <Collapsible.Root open={showArchive} onOpenChange={setShowArchive}>
+          <Collapsible.Trigger asChild>
+            <button className="text-[10px] text-teal-400 hover:underline mb-1">
+              {showArchive ? "Hide" : "Show"} archive ({archivedTasks.length})
+            </button>
+          </Collapsible.Trigger>
 
-        {/* Archived tasks list */}
-        {isDoneColumn && showArchive && archivedTasks.length > 0 && (
-          <div className="pt-2 border-t border-zinc-700 space-y-2">
-            {archivedTasks.map((task: Task) => (
-              <TaskCard key={task.id} task={task} isArchived onUpdated={refetch} />
-            ))}
+          <div className="space-y-4">
+            <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+              {loading ? (
+                <div className="text-zinc-400 text-sm">Loading tasks...</div>
+              ) : activeTasks.length === 0 ? (
+                <div className="text-zinc-500 text-sm">No tasks</div>
+              ) : (
+                activeTasks.map((task: Task) => (
+                  <TaskCard key={task.id} task={task} isDoneColumn onUpdated={refetch} />
+                ))
+              )}
+            </SortableContext>
+
+            <Collapsible.Content className="overflow-hidden data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
+              {archivedTasks.length > 0 && (
+                <div className="pt-2 border-t border-zinc-700 space-y-2">
+                  {archivedTasks.map((task: Task) => (
+                    <TaskCard key={task.id} task={task} isArchived onUpdated={refetch} />
+                  ))}
+                </div>
+              )}
+            </Collapsible.Content>
+
+            {adding ? (
+              <div className="mt-4 space-y-2">
+                <input
+                  className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                  placeholder="Task title"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                />
+                <textarea
+                  className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm h-16 focus:border-teal-500 focus:outline-none"
+                  placeholder="Description (optional)"
+                  value={newDesc}
+                  onChange={(e) => setNewDesc(e.target.value)}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleAddTask}
+                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2 rounded-md"
+                  >
+                    Add
+                  </button>
+                  <button
+                    onClick={() => {
+                      setAdding(false);
+                      setNewTitle("");
+                      setNewDesc("");
+                    }}
+                    className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white text-xs py-2 rounded-md"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setAdding(true)}
+                className="mt-4 w-full flex items-center justify-center gap-1 text-xs text-zinc-300 hover:text-white"
+              >
+                <Plus className="w-3 h-3" /> Add task
+              </button>
+            )}
           </div>
-        )}
-        {adding ? (
-          <div className="mt-4 space-y-2">
-            <input
-              className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
-              placeholder="Task title"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-            />
-            <textarea
-              className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm h-16 focus:border-teal-500 focus:outline-none"
-              placeholder="Description (optional)"
-              value={newDesc}
-              onChange={(e) => setNewDesc(e.target.value)}
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={handleAddTask}
-                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2 rounded-md"
-              >
-                Add
-              </button>
-              <button
-                onClick={() => {
-                  setAdding(false);
-                  setNewTitle("");
-                  setNewDesc("");
-                }}
-                className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white text-xs py-2 rounded-md"
-              >
-                Cancel
-              </button>
+        </Collapsible.Root>
+      ) : (
+        <div className="space-y-4">
+          <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+            {loading ? (
+              <div className="text-zinc-400 text-sm">Loading tasks...</div>
+            ) : activeTasks.length === 0 ? (
+              <div className="text-zinc-500 text-sm">No tasks</div>
+            ) : (
+              activeTasks.map((task: Task) => (
+                <TaskCard key={task.id} task={task} onUpdated={refetch} />
+              ))
+            )}
+          </SortableContext>
+
+          {adding ? (
+            <div className="mt-4 space-y-2">
+              <input
+                className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                placeholder="Task title"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+              />
+              <textarea
+                className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm h-16 focus:border-teal-500 focus:outline-none"
+                placeholder="Description (optional)"
+                value={newDesc}
+                onChange={(e) => setNewDesc(e.target.value)}
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleAddTask}
+                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2 rounded-md"
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => {
+                    setAdding(false);
+                    setNewTitle("");
+                    setNewDesc("");
+                  }}
+                  className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white text-xs py-2 rounded-md"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <button
-            onClick={() => setAdding(true)}
-            className="mt-4 w-full flex items-center justify-center gap-1 text-xs text-zinc-300 hover:text-white"
-          >
-            <Plus className="w-3 h-3" /> Add task
-          </button>
-        )}
-      </div>
+          ) : (
+            <button
+              onClick={() => setAdding(true)}
+              className="mt-4 w-full flex items-center justify-center gap-1 text-xs text-zinc-300 hover:text-white"
+            >
+              <Plus className="w-3 h-3" /> Add task
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 } 
