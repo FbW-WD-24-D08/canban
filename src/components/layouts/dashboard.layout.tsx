@@ -6,14 +6,15 @@ import { useUser } from "@clerk/clerk-react";
 export default function DashboardLayout() {
   const location = useLocation();
   const { user } = useUser();
-  const boardId = location.pathname.startsWith("/dashboard/board/")
+  const isBoardPage = location.pathname.startsWith("/dashboard/board/");
+  const boardId = isBoardPage
     ? location.pathname.split("/dashboard/board/")[1]
     : null;
   const { board } = useBoard(boardId, user?.id || null);
 
   return (
     <>
-      <Sidebar board={board || undefined}>
+      <Sidebar board={isBoardPage && board ? board : undefined}>
         <Outlet />
       </Sidebar>
     </>
