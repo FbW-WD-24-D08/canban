@@ -4,6 +4,8 @@ import type {
   BoardMember,
   CreateBoardData,
   UpdateBoardData,
+  Column,
+  Task,
 } from "@/types/api.types";
 
 export const boardsApi = {
@@ -78,15 +80,36 @@ export const boardsApi = {
   },
   deleteBoard: async (boardId: string): Promise<void> => {
     try {
+      const columns: Column[] = await apiClient.get(
+        `/columns?boardId=${boardId}`
+      );
+
+      const tasks: Task[] = await apiClient.get(
+        `/tasks?columnId=${columns.map((c) => c.id).join("&columnId=")}`
+      );
+
       const memberships: BoardMember[] = await apiClient.get(
         `/boardMembers?boardId=${boardId}`
       );
 
-      const deletePromises = memberships.map((membership) =>
+      const deleteTaskPromises = tasks.map((task) =>
+        apiClient.delete(`/tasks/${task.id}`)
+      );
+
+      const deleteColumnPromises = columns.map((column) =>
+        apiClient.delete(`/columns/${column.id}`)
+      );
+
+      const deleteMemberPromises = memberships.map((membership) =>
         apiClient.delete(`/boardMembers/${membership.id}`)
       );
 
-      await Promise.all(deletePromises);
+      await Promise.all([
+        ...deleteTaskPromises,
+        ...deleteColumnPromises,
+        ...deleteMemberPromises,
+      ]);
+
       await apiClient.delete(`/boards/${boardId}`);
     } catch (error) {
       console.error(`Error deleting board ${boardId}:`, error);
