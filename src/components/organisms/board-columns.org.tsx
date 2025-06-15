@@ -78,7 +78,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
             return Math.random() * (max - min) + min;
           }
 
-          const interval: NodeJS.Timer = setInterval(() => {
+          const interval: ReturnType<typeof setInterval> = setInterval(() => {
             confetti({
               ...defaults,
               particleCount: 8,

@@ -30,8 +30,9 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     transition,
   };
 
-  const archiveTask = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const archiveTask = async (e: any) => {
+    (e as any).stopPropagation();
     try {
       setArchiving(true);
       await tasksApi.updateTask(task.id, { archived: true });
@@ -43,8 +44,9 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     }
   };
 
-  const restoreTask = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const restoreTask = async (e: any) => {
+    (e as any).stopPropagation();
     try {
       setArchiving(true);
       await tasksApi.updateTask(task.id, { archived: false });
@@ -73,10 +75,10 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
             setOpen(true);
           }
           if (!isArchived && isDoneColumn && e.key.toLowerCase() === "a") {
-            archiveTask(e as any);
+            archiveTask(e);
           }
           if (isArchived && e.key.toLowerCase() === "r") {
-            restoreTask(e as any);
+            restoreTask(e);
           }
         }}
         className="bg-zinc-800/80 border border-zinc-700 rounded-lg p-3 text-sm text-white hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition cursor-pointer select-none"
