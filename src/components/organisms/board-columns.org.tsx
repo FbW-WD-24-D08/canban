@@ -1,8 +1,8 @@
 import { columnsApi } from "@/api/columns.api";
 import { tasksApi } from "@/api/tasks.api";
 import { useColumns } from "@/hooks/useColumns";
-import type { Column as ColumnType } from "@/types/api.types";
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { Column as ColumnType, Task } from "@/types/api.types";
+import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { closestCorners, DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -19,12 +19,12 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
   const [refreshToken, setRefreshToken] = useState(0);
-  const [activeTask, setActiveTask] = useState<any | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-  const handleDragStart = (event: any) => {
-    setActiveTask(event.active?.data?.current?.task || null);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveTask((event.active.data.current as { task?: Task })?.task ?? null);
   };
 
   const handleAddColumn = async () => {
@@ -54,7 +54,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
     }
 
     try {
-      const targetColumn = columns.find((c) => c.id === targetColumnId);
+      const targetColumn = columns.find((c: ColumnType) => c.id === targetColumnId);
       const isMovingToDone = targetColumn?.title.trim().toLowerCase() === "done";
 
       await tasksApi.updateTask(taskId, {
@@ -121,7 +121,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
               className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
               placeholder="Column title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
             />
             <div className="flex gap-2 mt-2">
               <button

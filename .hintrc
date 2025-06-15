@@ -1,0 +1,6 @@
+{
+  "extends": "webhint-recommended-web",
+  "hints": {
+    "no-inline-styles": "off",
+  },
+}

@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MoreVertical, Paperclip } from "lucide-react";
+import type React from "react";
 import { useState } from "react";
 import { TaskDialog } from "./task-dialog.comp";
 
@@ -30,9 +31,7 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     transition,
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const archiveTask = async (e: any) => {
-    (e as any).stopPropagation();
+  const archiveTaskAction = async () => {
     try {
       setArchiving(true);
       await tasksApi.updateTask(task.id, { archived: true });
@@ -44,9 +43,7 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const restoreTask = async (e: any) => {
-    (e as any).stopPropagation();
+  const restoreTaskAction = async () => {
     try {
       setArchiving(true);
       await tasksApi.updateTask(task.id, { archived: false });
@@ -56,6 +53,16 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     } finally {
       setArchiving(false);
     }
+  };
+
+  const archiveTask = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    archiveTaskAction();
+  };
+
+  const restoreTask = (e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    restoreTaskAction();
   };
 
   const statusMap: Record<string, string> = {
@@ -70,7 +77,7 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
     <>
       <div
         onClick={() => setOpen(true)}
-        onKeyDown={(e) => {
+        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
           if (e.key === "Enter") {
             setOpen(true);
           }
@@ -113,13 +120,13 @@ export function TaskCard({ task, onUpdated, isDoneColumn = false, isArchived = f
                 >Edit…</DropdownMenu.Item>
                 {!isArchived && (
                   <DropdownMenu.Item
-                    onSelect={archiveTask}
+                    onSelect={archiveTaskAction}
                     className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
                   >Archive</DropdownMenu.Item>
                 )}
                 {isArchived && (
                   <DropdownMenu.Item
-                    onSelect={restoreTask}
+                    onSelect={restoreTaskAction}
                     className="px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 rounded-sm cursor-pointer"
                   >Restore</DropdownMenu.Item>
                 )}
