@@ -1,8 +1,7 @@
 import { SignUp } from "@clerk/clerk-react";
-import { DefaultLayout } from "../layouts/default.layout.js";
-import { MetaTags } from "../atoms/metatags.comp.js";
 import { siteConfig } from "../../config/site.js";
-MetaTags;
+import { MetaTags } from "../atoms/metatags.comp.js";
+import { DefaultLayout } from "../layouts/default.layout.js";
 
 export default function SignUpPage() {
   return (
