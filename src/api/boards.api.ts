@@ -78,6 +78,15 @@ export const boardsApi = {
   },
   deleteBoard: async (boardId: string): Promise<void> => {
     try {
+      const memberships: BoardMember[] = await apiClient.get(
+        `/boardMembers?boardId=${boardId}`
+      );
+
+      const deletePromises = memberships.map((membership) =>
+        apiClient.delete(`/boardMembers/${membership.id}`)
+      );
+
+      await Promise.all(deletePromises);
       await apiClient.delete(`/boards/${boardId}`);
     } catch (error) {
       console.error(`Error deleting board ${boardId}:`, error);
