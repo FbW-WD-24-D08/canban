@@ -326,6 +326,11 @@
       "id": "4ed6",
       "boardId": "1f9f",
       "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
+    },
+    {
+      "id": "4255",
+      "boardId": "bcdf",
+      "userId": "user_2yPUYsC0dJNEAHpXA4GBqb1AjqK"
     }
   ],
   "columns": [
@@ -582,5 +587,22 @@
       "username": "2701 kai"
     }
   ],
-  "useremails": []
+  "useremails": [
+    {
+      "id": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "email": "felix.job2025@outlook.de"
+    },
+    {
+      "id": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "email": "felix.job2025@outlook.de"
+    },
+    {
+      "id": "user_2yPUYsC0dJNEAHpXA4GBqb1AjqK",
+      "email": "felix.fischer@dci-student.org"
+    },
+    {
+      "id": "user_2yPUYsC0dJNEAHpXA4GBqb1AjqK",
+      "email": "felix.fischer@dci-student.org"
+    }
+  ]
 }
