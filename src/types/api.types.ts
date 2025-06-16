@@ -77,3 +77,13 @@ export interface UpdateTaskData {
   archived?: boolean;
   attachments?: Attachment[];
 }
+
+export interface UserName {
+  id: string;
+  username: string;
+}
+
+export interface UserEmail {
+  id: string;
+  email: string;
+}

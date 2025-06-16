@@ -46,6 +46,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
           existingUser = await usersApi.createUserName(clerkUser.id, username);
         }
 
+        let email = await usersApi.getUserEmailById(clerkUser.id);
+
+        if (!email) {
+          email = clerkUser.emailAddresses[0].emailAddress || "";
+          await usersApi.createUserEmail(clerkUser.id, email);
+        }
+
         setCurrentUser({
           id: clerkUser.id,
           name: existingUser.username,
