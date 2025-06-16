@@ -1,3 +1,4 @@
+import type { get } from "http";
 import { apiClient } from "./client";
 import type {
   Board,
@@ -138,6 +139,15 @@ export const boardsApi = {
     } catch (error) {
       console.error("Error checking board access:", error);
       return false;
+    }
+  },
+
+  getBoardMembers: async (boardId: string): Promise<BoardMember[]> => {
+    try {
+      return await apiClient.get(`/boardMembers?boardId=${boardId}`);
+    } catch (error) {
+      console.error("Error fetching board members:", error);
+      throw error;
     }
   },
 

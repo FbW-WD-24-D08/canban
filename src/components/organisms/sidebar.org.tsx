@@ -11,8 +11,10 @@ import {
 import { Button } from "@/components/atoms/button.comp";
 import { boardsApi } from "@/api/boards.api";
 import { useUserName } from "@/hooks/useUserName";
+import { useBoardMembers } from "@/hooks/useBoardMembers";
 import type { Board } from "@/types/api.types";
 import { useNavigate } from "react-router";
+import { MemberItem } from "@/components/atoms/member.comp";
 
 interface SidebarProps {
   children: ReactNode;
@@ -23,7 +25,12 @@ interface SidebarProps {
 export function Sidebar({ children, board, onDelete }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { userName, loading } = useUserName(board?.ownerId || "");
+  const { userName, loading: userLoading } = useUserName(board?.ownerId || "");
+  const {
+    members,
+    loading: membersLoading,
+    refetch: refetchMembers,
+  } = useBoardMembers(board?.id || null);
 
   const handleDelete = async () => {
     if (!board || !confirm("Delete this board?")) return;
@@ -34,6 +41,10 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleMemberRemove = () => {
+    refetchMembers();
   };
 
   return (
@@ -110,10 +121,27 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                   {new Date(board.updatedAt).toLocaleString()}
                 </div>
               </div>
+
               <div>
-                <div className="text-zinc-400 text-xs mb-1">Owner</div>
-                <div className="text-white">
-                  {loading ? "Loading..." : userName}
+                <div className="text-zinc-400 text-xs mb-1">
+                  Members ({members.length})
+                </div>
+                <div className="text-white text-xs">
+                  {membersLoading ? (
+                    "Loading..."
+                  ) : (
+                    <div className="space-y-1 max-h-20 overflow-y-auto">
+                      {members.map((member) => (
+                        <MemberItem
+                          key={member.id}
+                          userId={member.userId}
+                          boardId={board?.id}
+                          ownerId={board?.ownerId}
+                          onRemove={handleMemberRemove}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <button
