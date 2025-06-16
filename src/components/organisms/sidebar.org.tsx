@@ -10,11 +10,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/atoms/button.comp";
 import { boardsApi } from "@/api/boards.api";
-import { useUserName } from "@/hooks/useUserName";
+
 import { useBoardMembers } from "@/hooks/useBoardMembers";
 import type { Board } from "@/types/api.types";
 import { useNavigate } from "react-router";
 import { MemberItem } from "@/components/atoms/member.comp";
+import { AddMember } from "../atoms/add-member.comp";
 
 interface SidebarProps {
   children: ReactNode;
@@ -25,7 +26,7 @@ interface SidebarProps {
 export function Sidebar({ children, board, onDelete }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { userName, loading: userLoading } = useUserName(board?.ownerId || "");
+
   const {
     members,
     loading: membersLoading,
@@ -144,6 +145,7 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                   )}
                 </div>
               </div>
+              <AddMember />
               <button
                 onClick={handleDelete}
                 className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
