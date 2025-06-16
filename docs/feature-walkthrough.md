@@ -60,4 +60,15 @@ This document outlines the recent creative and functional amendments made to the
 
 ---
 
+### 5. Responsive Viewport & Layout Fixes
+
+- **Objective:** Solve the final responsive layout bugs which caused horizontal overflow on mobile and "letterboxing" (black bars) on desktop.
+- **Problem:** The `w-screen` utility on the hero section was slightly wider than the visible viewport due to the browser's scrollbar, causing layout shifts. Previous global or wrapper-based fixes were either too aggressive (disabling all horizontal scroll) or ineffective.
+- **Solution (The Definitive Fix):**
+  - **Scoped Body Class:** A `useEffect` hook was added to `src/components/pages/index.page.tsx`. This hook programmatically adds a `.homepage-body-active` class to the `<body>` element when the homepage mounts and cleanly removes it upon unmounting.
+  - **Targeted CSS:** A corresponding CSS rule was added to `src/index.css`. This rule targets the `.homepage-body-active` class and applies `overflow-x: hidden` only to the body.
+  - **Result:** This elegant solution scopes the overflow fix exclusively to the homepage, preventing any side effects on other routes (like the dashboard) where horizontal scrolling is a feature. It resolves both the mobile overflow and desktop letterboxing issues permanently.
+
+---
+
 This series of changes has transformed the user's initial experience into a modern, immersive, and highly polished welcome.
