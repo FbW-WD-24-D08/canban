@@ -40,7 +40,7 @@ function App() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="flex flex-col min-h-screen">
+      <>
         <Suspense
           fallback={
             <div className="flex flex-1 items-center justify-center p-8 text-zinc-400">
@@ -98,7 +98,7 @@ function App() {
             ?
           </button>
         )}
-      </div>
+      </>
     </TooltipProvider>
   );
 }

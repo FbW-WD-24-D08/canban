@@ -125,10 +125,12 @@
   }
   #root {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
     @apply bg-background;
   }
+}
+
+.homepage-body-active {
+  overflow-x: hidden;
 }
 
 @layer components {
@@ -154,4 +156,20 @@
   .animate-slideUp {
     animation: slideUp 250ms cubic-bezier(0.87, 0, 0.13, 1);
   }
+}
+
+@keyframes smooth-loop {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+}
+
+.animate-smooth-loop {
+  /* Change 15s to your video's duration! */
+  animation: smooth-loop 15s ease-in-out infinite;
 }

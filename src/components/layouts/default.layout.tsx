@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
 
-import { Navbar } from "../organisms/navbar.org.tsx";
-import { Hero } from "../organisms/hero.org.tsx";
 import { Footer } from "../organisms/footer.org.tsx";
+import { Hero } from "../organisms/hero.org.tsx";
+import { Navbar } from "../organisms/navbar.org.tsx";
 
 interface DefaultLayoutProps {
   children: ReactNode;
