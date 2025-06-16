@@ -193,14 +193,6 @@
       "updatedAt": "2025-06-12T21:59:16.665Z"
     },
     {
-      "id": "f79a",
-      "title": "New Board",
-      "description": "",
-      "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
-      "createdAt": "2025-06-15T18:13:53.606Z",
-      "updatedAt": "2025-06-15T18:13:53.606Z"
-    },
-    {
       "id": "1f9f",
       "title": "another one",
       "description": "whatever\n",
@@ -331,11 +323,6 @@
       "userId": "user_2xRwhdVhgUleoDVLS0CQB0338hk"
     },
     {
-      "id": "e9d7",
-      "boardId": "f79a",
-      "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
-    },
-    {
       "id": "4ed6",
       "boardId": "1f9f",
       "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
@@ -406,12 +393,6 @@
       "title": "Ideas",
       "boardId": "1f9f",
       "position": 2
-    },
-    {
-      "id": "b3af",
-      "title": "htgf",
-      "boardId": "f79a",
-      "position": 0
     },
     {
       "id": "edc0",
