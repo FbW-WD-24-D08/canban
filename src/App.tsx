@@ -37,51 +37,63 @@ function App() {
 
   return (
     <TooltipProvider delayDuration={200}>
-    <div className="flex flex-col min-h-screen">
-      <Suspense fallback={<div className="flex flex-1 items-center justify-center p-8 text-zinc-400">Loading...</div>}>
-        <Routes>
-          {/* Public Routes */}
-          <Route element={<IndexPage />} path="/" />
-          <Route element={<AboutPage />} path="/about" />
+      <div className="flex flex-col min-h-screen">
+        <Suspense
+          fallback={
+            <div className="flex flex-1 items-center justify-center p-8 text-zinc-400">
+              Loading...
+            </div>
+          }
+        >
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<IndexPage />} path="/" />
+            <Route element={<AboutPage />} path="/about" />
 
-          {/* Signin/Signout */}
-          <Route element={<SigninPage />} path="/signin" />
-          <Route element={<SigninPage />} path="/signin/factor-one" />
-          <Route element={<SigninPage />} path="/signin/reset-password" />
-          <Route element={<SigninPage />} path="/signin/reset-password-success" />
-          <Route element={<SigninPage />} path="/signin/sso-callback" />
-          <Route element={<SignUpPage />} path="/signup" />
-          <Route element={<SignUpPage />} path="/signup/verify-email-address" />
+            {/* Signin/Signout */}
+            <Route element={<SigninPage />} path="/signin" />
+            <Route element={<SigninPage />} path="/signin/factor-one" />
+            <Route element={<SigninPage />} path="/signin/reset-password" />
+            <Route
+              element={<SigninPage />}
+              path="/signin/reset-password-success"
+            />
+            <Route element={<SigninPage />} path="/signin/sso-callback" />
+            <Route element={<SignUpPage />} path="/signup" />
+            <Route
+              element={<SignUpPage />}
+              path="/signup/verify-email-address"
+            />
 
-          {/* Dashboard Routes */}
-          <Route
-            element={
-              <UserProvider>
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
-              </UserProvider>
-            }
-            path="/dashboard"
-          >
-            <Route element={<DashboardPage />} index />
-            <Route element={<BoardPage />} path="board/:id" />
-          </Route>
-          {/* Error */}
-          <Route element={<NotFoundPage />} path="*" />
-        </Routes>
-      </Suspense>
-      {showHelp && <HelpOverlay onClose={() => setShowHelp(false)} />}
-      {showCmd && <CommandPalette open={showCmd} onOpenChange={setShowCmd} />}
-      {/* floating help button */}
-      <button
-        onClick={() => setShowHelp((p) => !p)}
-        title="Help ( ? )"
-        className="fixed bottom-4 right-4 z-30 w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
-      >
-        ?
-      </button>
-    </div>
+            {/* Dashboard Routes */}
+            <Route
+              element={
+                <UserProvider>
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                </UserProvider>
+              }
+              path="/dashboard"
+            >
+              <Route element={<DashboardPage />} index />
+              <Route element={<BoardPage />} path="board/:id" />
+            </Route>
+            {/* Error */}
+            <Route element={<NotFoundPage />} path="*" />
+          </Routes>
+        </Suspense>
+        {showHelp && <HelpOverlay onClose={() => setShowHelp(false)} />}
+        {showCmd && <CommandPalette open={showCmd} onOpenChange={setShowCmd} />}
+        {/* floating help button */}
+        <button
+          onClick={() => setShowHelp((p) => !p)}
+          title="Help ( ? )"
+          className="fixed bottom-16 right-4 z-55 w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
+        >
+          ?
+        </button>
+      </div>
     </TooltipProvider>
   );
 }
