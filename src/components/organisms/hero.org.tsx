@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router";
+import { ParticlesComponent } from "../atoms/particles.comp";
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -13,24 +14,16 @@ export function Hero() {
 
   return (
     <section className="relative flex items-center justify-center h-screen w-screen text-white overflow-hidden">
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover -z-10 animate-smooth-loop"
-      >
-        <source src="/header-video.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      <ParticlesComponent />
       <div className="absolute inset-0 bg-black/60 -z-10" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 text-center">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 break-words">
           Welcome to Canban
         </h1>
-        <p className="text-base sm:text-lg md:text-xl mb-8">
-          <b>Yes, we CAN!</b> - ban.<br />Kanban reloaded.
+        <p className="text-base sm:text-lg md:text-xl mb-8 py-8">
+          <b>Yes, we CAN!</b> - ban.
+          <br />
+          Kanban reloaded.
         </p>
         <Link
           to="/signup"
