@@ -44,10 +44,6 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
     }
   };
 
-  const handleMemberRemove = () => {
-    refetchMembers();
-  };
-
   return (
     <>
       <Button
@@ -138,14 +134,14 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                           userId={member.userId}
                           boardId={board?.id}
                           ownerId={board?.ownerId}
-                          onRemove={handleMemberRemove}
+                          onRemove={refetchMembers}
                         />
                       ))}
                     </div>
                   )}
                 </div>
               </div>
-              <AddMember />
+              <AddMember boardId={board?.id} onMemberAdded={refetchMembers} />
               <button
                 onClick={handleDelete}
                 className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"

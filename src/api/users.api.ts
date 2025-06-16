@@ -27,6 +27,16 @@ export const usersApi = {
     }
   },
 
+  gesUserIdByEmail: async (email: string): Promise<UserEmail | null> => {
+    try {
+      const useremails: UserEmail[] = await apiClient.get("/useremails");
+      return useremails.find((user) => user.email === email) || null;
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
+      return null;
+    }
+  },
+
   createUserEmail: async (id: string, email: string): Promise<UserEmail> => {
     const newEmail: UserEmail = { id, email };
     return await apiClient.post("/useremails", newEmail);
