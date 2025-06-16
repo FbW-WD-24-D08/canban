@@ -2,6 +2,7 @@ import type {
   Column,
   CreateColumnData,
   UpdateColumnData,
+  Task,
 } from "@/types/api.types";
 import { apiClient } from "./client";
 
@@ -17,7 +18,6 @@ export const columnsApi = {
 
   createColumn: async (data: CreateColumnData): Promise<Column> => {
     try {
-      // compute max position client side optional; json server can handle reorder later
       return await apiClient.post("/columns", data);
     } catch (error) {
       console.error("Error creating column:", error);
@@ -38,6 +38,13 @@ export const columnsApi = {
 
   deleteColumn: async (columnId: string): Promise<void> => {
     try {
+      const tasks: Task[] = await apiClient.get(`/tasks?columnId=${columnId}`);
+
+      const deleteTaskPromises = tasks.map((task) =>
+        apiClient.delete(`/tasks/${task.id}`)
+      );
+
+      await Promise.all(deleteTaskPromises);
       await apiClient.delete(`/columns/${columnId}`);
     } catch (error) {
       console.error("Error deleting column:", error);

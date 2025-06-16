@@ -87,15 +87,21 @@ export const boardsApi = {
         `/columns?boardId=${boardId}`
       );
 
-      const tasks: Task[] = await apiClient.get(
-        `/tasks?columnId=${columns.map((c) => c.id).join("&columnId=")}`
-      );
+      const columnIds = columns.map((c) => c.id);
+      const allTasks: Task[] = [];
+
+      for (const columnId of columnIds) {
+        const tasks: Task[] = await apiClient.get(
+          `/tasks?columnId=${columnId}`
+        );
+        allTasks.push(...tasks);
+      }
 
       const memberships: BoardMember[] = await apiClient.get(
         `/boardMembers?boardId=${boardId}`
       );
 
-      const deleteTaskPromises = tasks.map((task) =>
+      const deleteTaskPromises = allTasks.map((task) =>
         apiClient.delete(`/tasks/${task.id}`)
       );
 
