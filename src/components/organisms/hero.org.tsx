@@ -30,7 +30,7 @@ export function Hero() {
           Welcome to Canban
         </h1>
         <p className="text-base sm:text-lg md:text-xl mb-8">
-          Your personal kanban board for managing tasks efficiently.
+          <b>Yes, we CAN!</b> - ban.<br />Kanban reloaded.
         </p>
         <Link
           to="/signup"
