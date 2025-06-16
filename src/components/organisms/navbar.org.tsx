@@ -1,6 +1,6 @@
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Button } from "../atoms/button.comp";
 import {
@@ -13,7 +13,7 @@ import {
 export function Navbar() {
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
 
   const isHomePage = location.pathname === "/";
 
@@ -23,14 +23,21 @@ export function Navbar() {
       return;
     }
 
+    // Hide navbar after a delay on the homepage
+    const timer = setTimeout(() => {
+      if (window.scrollY < 100) {
+        setIsVisible(false);
+      }
+    }, 3000); // 3-second delay
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY < lastScrollY || currentScrollY < 100) {
+      if (currentScrollY < lastScrollY.current || currentScrollY < 100) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
-      setLastScrollY(currentScrollY);
+      lastScrollY.current = currentScrollY;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -43,10 +50,11 @@ export function Navbar() {
     window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [isHomePage, lastScrollY]);
+  }, [isHomePage]);
 
   const navClasses = isHomePage
     ? "absolute top-0 left-0 right-0 z-50 bg-gradient-to-b from-black/50 to-transparent"

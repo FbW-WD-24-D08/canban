@@ -125,10 +125,12 @@
   }
   #root {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
     @apply bg-background;
   }
+}
+
+.homepage-body-active {
+  overflow-x: hidden;
 }
 
 @layer components {

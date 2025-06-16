@@ -1,8 +1,17 @@
+import { useEffect } from "react";
 import { siteConfig } from "../../config/site.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
 
 export default function IndexPage() {
+  useEffect(() => {
+    document.body.classList.add("homepage-body-active");
+
+    return () => {
+      document.body.classList.remove("homepage-body-active");
+    };
+  }, []);
+
   return (
     <>
       <MetaTags
