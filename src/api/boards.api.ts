@@ -1,13 +1,12 @@
-import type { get } from "http";
-import { apiClient } from "./client";
 import type {
   Board,
   BoardMember,
-  CreateBoardData,
-  UpdateBoardData,
   Column,
+  CreateBoardData,
   Task,
+  UpdateBoardData,
 } from "@/types/api.types";
+import { apiClient } from "./client";
 
 export const boardsApi = {
   getUserBoards: async (clerkUserId: string): Promise<Board[]> => {
