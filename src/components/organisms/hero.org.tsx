@@ -1,21 +1,31 @@
 import { ChevronDown } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 
 export function Hero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.75;
+    }
+  }, []);
+
   return (
-    <section className="relative flex items-center justify-center min-h-screen text-white overflow-hidden">
+    <section className="relative flex items-center justify-center h-screen text-white overflow-hidden">
       <video
+        ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover -z-10"
+        className="absolute top-0 left-0 w-full h-full object-cover -z-10 animate-smooth-loop"
       >
         <source src="/header-video.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       <div className="absolute inset-0 bg-black/60 -z-10" />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 text-center">
+      <div className="relative w-full px-4 sm:px-6 lg:px-8 z-10 text-center">
         <h1 className="text-5xl md:text-6xl font-bold mb-4">Welcome to Canban</h1>
         <p className="text-lg md:text-xl mb-8">
           Your personal kanban board for managing tasks efficiently.

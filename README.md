@@ -31,6 +31,10 @@ Eine moderne Kanban-Board-Anwendung für effizientes Projektmanagement und Aufga
 
 > **Neu 2025-06-XX:** Done-Automation, Archiv-Collapsible und Command-Palette-Skeleton sind live 🚀
 
+## 📖 Dokumentation
+
+- **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Eine detaillierte Übersicht der jüngsten UI/UX-Verbesserungen an der Landing Page.
+
 ## 🛠️ Technologien
 
 ### Frontend
