@@ -31,6 +31,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const getUserEmail = (clerkUser: any): string => {
+    return (
+      clerkUser.emailAddresses?.[0]?.emailAddress ||
+      `${clerkUser.firstName || "user"}@example.com`
+    );
+  };
+
   useEffect(() => {
     const loadUser = async () => {
       if (!clerkUser) {
@@ -40,17 +47,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       try {
         let existingUser = await usersApi.getUserName(clerkUser.id);
+        let existingEmail = await usersApi.getUserEmailById(clerkUser.id);
 
         if (!existingUser) {
           const username = generateUsername(clerkUser);
           existingUser = await usersApi.createUserName(clerkUser.id, username);
         }
 
-        let email = await usersApi.getUserEmailById(clerkUser.id);
-
-        if (!email) {
-          email = clerkUser.emailAddresses[0].emailAddress || "";
-          await usersApi.createUserEmail(clerkUser.id, email);
+        if (!existingEmail) {
+          const email = getUserEmail(clerkUser);
+          existingEmail = await usersApi.createUserEmail(clerkUser.id, email);
         }
 
         setCurrentUser({

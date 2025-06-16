@@ -17,17 +17,17 @@ export const usersApi = {
     return await apiClient.post("/usernames", newUser);
   },
 
-  getUserEmailById: async (id: string): Promise<string | null> => {
+  getUserEmailById: async (id: string): Promise<UserEmail | null> => {
     try {
-      const userEmails: UserEmail[] = await apiClient.get("/useremails");
-      return userEmails.find((email) => email.id === id)?.email || null;
+      const useremails: UserEmail[] = await apiClient.get("/useremails");
+      return useremails.find((email) => email.id === id) || null;
     } catch (error) {
       console.error("Error fetching user email:", error);
       return null;
     }
   },
 
-  createUserEmail: async (id: string, email: string): Promise<void> => {
+  createUserEmail: async (id: string, email: string): Promise<UserEmail> => {
     const newEmail: UserEmail = { id, email };
     return await apiClient.post("/useremails", newEmail);
   },
