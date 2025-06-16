@@ -2,7 +2,7 @@ import { CommandPalette } from "@/components/molecules/command-palette.comp";
 import { HelpOverlay } from "@/components/molecules/help-overlay.comp";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Route, Routes } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 
 import "./App.css";
 import { UserProvider } from "./components/contexts/user.context.tsx";
@@ -24,6 +24,9 @@ const BoardPage = lazy(() => import("./components/pages/board.page.tsx"));
 function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [showCmd, setShowCmd] = useState(false);
+  const location = useLocation();
+
+  const isDashboard = location.pathname.startsWith("/dashboard");
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -86,13 +89,15 @@ function App() {
         {showHelp && <HelpOverlay onClose={() => setShowHelp(false)} />}
         {showCmd && <CommandPalette open={showCmd} onOpenChange={setShowCmd} />}
         {/* floating help button */}
-        <button
-          onClick={() => setShowHelp((p) => !p)}
-          title="Help ( ? )"
-          className="fixed bottom-16 right-4 z-55 w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
-        >
-          ?
-        </button>
+        {isDashboard && (
+          <button
+            onClick={() => setShowHelp((p) => !p)}
+            title="Help ( ? )"
+            className="fixed bottom-16 right-4 z-55 w-10 h-10 flex items-center justify-center rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xl shadow-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
+          >
+            ?
+          </button>
+        )}
       </div>
     </TooltipProvider>
   );
