@@ -326,11 +326,6 @@
       "id": "4ed6",
       "boardId": "1f9f",
       "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
-    },
-    {
-      "id": "test2",
-      "boardId": "1",
-      "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
     }
   ],
   "columns": [
@@ -580,6 +575,10 @@
     },
     {
       "id": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
+      "username": "2701 kai"
+    },
+    {
+      "id": "user_2ybFNz7LYXNZHAvL544iLOcpDo3",
       "username": "2701 kai"
     }
   ]
