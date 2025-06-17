@@ -38,10 +38,10 @@ server.post("/upload", upload.single("file"), (req, res) => {
     return res.status(400).send("No file uploaded.");
   }
 
-  // Respond with the path to the uploaded file
+  // Respond with the URL to the uploaded file
   res.json({
     message: "File uploaded successfully",
-    filePath: `/uploads/${req.file.filename}`,
+    url: `http://localhost:${port}/uploads/${req.file.filename}`,
   });
 });
 

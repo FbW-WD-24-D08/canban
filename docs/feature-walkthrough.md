@@ -1,10 +1,10 @@
-# Feature Walkthrough: Landing Page & UI Enhancements
+# Feature Walkthrough: Canban Application
 
-This document outlines the recent creative and functional amendments made to the Canban application, focusing on the landing page hero section and dynamic UI elements.
+This document outlines the key features and recent enhancements made to the Canban application, covering UI improvements, file management, and advanced preview capabilities.
 
 ---
 
-### 1. Dynamic Help Button
+## 1. Dynamic Help Button
 
 - **Objective:** The floating help button (`?`) should only be visible on dashboard-related pages.
 - **Implementation:**
@@ -14,7 +14,7 @@ This document outlines the recent creative and functional amendments made to the
 
 ---
 
-### 2. Cinematic Video Hero Section
+## 2. Cinematic Video Hero Section
 
 - **Objective:** Replace the static gradient on the homepage hero with a dynamic, fullscreen video background.
 - **Implementation:**
@@ -32,7 +32,7 @@ This document outlines the recent creative and functional amendments made to the
 
 ---
 
-### 3. Video Playback Refinements
+## 3. Video Playback Refinements
 
 - **Objective:** Improve the user experience of the background video by smoothing its loop and adjusting its speed.
 - **Implementation:**
@@ -46,7 +46,7 @@ This document outlines the recent creative and functional amendments made to the
 
 ---
 
-### 4. Intelligent Auto-Hiding Navbar
+## 4. Intelligent Auto-Hiding Navbar
 
 - **Objective:** On the homepage, the main navigation should disappear to provide an immersive experience, but reappear when needed.
 - **Implementation:**
@@ -60,7 +60,7 @@ This document outlines the recent creative and functional amendments made to the
 
 ---
 
-### 5. Responsive Viewport & Layout Fixes
+## 5. Responsive Viewport & Layout Fixes
 
 - **Objective:** Solve the final responsive layout bugs which caused horizontal overflow on mobile and "letterboxing" (black bars) on desktop.
 - **Problem:** The `w-screen` utility on the hero section was slightly wider than the visible viewport due to the browser's scrollbar, causing layout shifts. Previous global or wrapper-based fixes were either too aggressive (disabling all horizontal scroll) or ineffective.
@@ -71,4 +71,87 @@ This document outlines the recent creative and functional amendments made to the
 
 ---
 
-This series of changes has transformed the user's initial experience into a modern, immersive, and highly polished welcome.
+## 6. Smart File Preview System
+
+- **Objective:** Provide rich file previews without permanently bloating the database.
+- **Implementation:**
+
+  ### 6.1 Smart Preview Caching (`src/lib/preview-cache.ts`)
+  
+  The preview system uses a sophisticated caching strategy:
+  
+  - **Temporary Storage:** When a user clicks to preview a file, the system temporarily stores the base64 data in the database's `attachment.data` field
+  - **Automatic Cleanup:** When the preview closes, the base64 data is automatically removed from the database
+  - **Metadata Persistence:** File metadata (name, type, URLs) remains permanently stored
+  - **Performance Optimization:** Subsequent preview requests fetch fresh content to ensure accuracy
+
+  ### 6.2 Universal File Preview Component (`src/components/molecules/universal-file-preview.comp.tsx`)
+  
+  Features comprehensive preview support:
+  
+  - **Markdown Rendering:** Uses `react-markdown` with `remark-gfm` for GitHub Flavored Markdown support
+  - **Image Display:** Full-screen image viewing with zoom capabilities
+  - **Code Syntax:** Proper highlighting for JavaScript, TypeScript, JSON, XML files
+  - **Text Files:** Monospace display for plain text files
+  - **Download Support:** Direct download links for all file types
+  - **Error Handling:** Graceful fallbacks when preview is not supported
+
+  ### 6.3 File Management in Task Dialog
+  
+  - **File Upload:** Support for multiple file selection
+  - **External URLs:** Ability to paste links to external files (Google Drive, Dropbox, etc.)
+  - **Preview on Click:** Instant preview generation when clicking any attachment
+  - **Remove Files:** Delete attachments with confirmation
+  - **Visual Indicators:** Clear UI showing file status and types
+
+  ### 6.4 Database Architecture
+  
+  ```typescript
+  interface Attachment {
+    id: string;           // UUID for unique identification
+    name: string;         // Original file name
+    type: string;         // MIME type (e.g., "text/markdown", "image/png")
+    url?: string;         // Optional URL for external links
+    data?: string;        // Temporary base64 data (auto-cleaned)
+  }
+  ```
+
+  ### 6.5 Key Benefits
+  
+  - ✅ **Rich Previews:** Markdown, images, code files with proper syntax highlighting
+  - ✅ **Zero Database Bloat:** Automatic cleanup prevents permanent storage of file content
+  - ✅ **External File Support:** Works with cloud storage links
+  - ✅ **Performance Optimized:** Lazy loading and on-demand processing
+  - ✅ **User-Friendly:** Intuitive interface with clear visual feedback
+  - ✅ **Download Capability:** Always available fallback for unsupported formats
+
+  ### 6.6 Technical Stack Integration
+  
+  - **React 19:** Leverages latest React features for optimal performance
+  - **TypeScript:** Full type safety throughout the preview system
+  - **Tailwind CSS 4:** Beautiful, responsive UI with dark theme optimization
+  - **@tailwindcss/typography:** Professional prose styling for markdown content
+  - **Radix UI:** Accessible dialog components for preview modals
+  - **Lucide React:** Consistent iconography throughout the interface
+
+---
+
+## 7. Member Management & Ownership
+
+- **User Authentication:** Integrated with Clerk for secure user management
+- **Board Ownership:** Clear ownership model with owner permissions
+- **Member Invitations:** Ability to add and remove board members
+- **Access Control:** Permission-based features depending on user role
+
+---
+
+## 8. Drag & Drop Functionality
+
+- **@dnd-kit Integration:** Modern drag-and-drop using @dnd-kit library
+- **Task Movement:** Seamless task movement between columns
+- **Visual Feedback:** Clear indicators during drag operations
+- **Touch Support:** Mobile-friendly drag interactions
+
+---
+
+This series of changes has transformed the Canban application into a modern, feature-rich project management tool with sophisticated file handling capabilities while maintaining excellent performance and user experience.
