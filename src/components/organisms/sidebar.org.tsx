@@ -1,20 +1,20 @@
+import { boardsApi } from "@/api/boards.api";
+import { Button } from "@/components/atoms/button.comp";
+import {
+    ChevronRight,
+    HelpCircle,
+    Home,
+    Settings,
+    X,
+    XCircle,
+} from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
-import {
-  ChevronRight,
-  Home,
-  Settings,
-  HelpCircle,
-  X,
-  XCircle,
-} from "lucide-react";
-import { Button } from "@/components/atoms/button.comp";
-import { boardsApi } from "@/api/boards.api";
 
+import { MemberItem } from "@/components/atoms/member.comp";
 import { useBoardMembers } from "@/hooks/useBoardMembers";
 import type { Board } from "@/types/api.types";
 import { useNavigate } from "react-router";
-import { MemberItem } from "@/components/atoms/member.comp";
 import { AddMember } from "../atoms/add-member.comp";
 import { useUserContext } from "../contexts/user.context.tsx";
 
@@ -144,19 +144,17 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                   )}
                 </div>
               </div>
+              <AddMember
+                boardId={board?.id}
+                onMemberAdded={refetchMembers}
+              />
               {isUserOwner && (
-                <>
-                  <AddMember
-                    boardId={board?.id}
-                    onMemberAdded={refetchMembers}
-                  />
-                  <button
-                    onClick={handleDelete}
-                    className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
-                  >
-                    <XCircle className="w-4 h-4" /> Delete board
-                  </button>
-                </>
+                <button
+                  onClick={handleDelete}
+                  className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
+                >
+                  <XCircle className="w-4 h-4" /> Delete board
+                </button>
               )}
             </div>
           )}

@@ -2,35 +2,84 @@ import { columnsApi } from "@/api/columns.api";
 import { tasksApi } from "@/api/tasks.api";
 import { useColumns } from "@/hooks/useColumns";
 import type { Column as ColumnType, Task } from "@/types/api.types";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
-import { closestCorners, DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
+import {
+    closestCorners,
+    DndContext,
+    DragOverlay,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from "@dnd-kit/core";
+import { arrayMove, horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Column } from "./column.org";
+
+// Wrapper component to make columns sortable
+function SortableColumn({ id, column, children }: { id: UniqueIdentifier; column: ColumnType; children: React.ReactElement }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    data: {
+      type: "Column",
+      column,
+    },
+  });
+
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {React.cloneElement(children, {
+        listeners,
+        isDragging,
+      })}
+    </div>
+  );
+}
 
 interface BoardColumnsProps {
   boardId: string;
 }
 
 export function BoardColumns({ boardId }: BoardColumnsProps) {
-  // (Debug log removed for production)
-
   const { columns, loading, refetch } = useColumns(boardId);
+  const [sortedColumns, setSortedColumns] = useState<ColumnType[]>([]);
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
   const [refreshToken, setRefreshToken] = useState(0);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  useEffect(() => {
+    if (columns) {
+      setSortedColumns(columns);
+    }
+  }, [columns]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveTask((event.active.data.current as { task?: Task })?.task ?? null);
+    const { active } = event;
+    if (active.data.current?.type === "Column") {
+      setActiveColumn(active.data.current.column);
+    } else {
+      setActiveTask((active.data.current as { task?: Task })?.task ?? null);
+    }
   };
 
   const handleAddColumn = async () => {
     if (!title.trim()) return;
     try {
-      const position = columns.length;
+      const position = sortedColumns.length;
       await columnsApi.createColumn({ title, boardId, position });
       setTitle("");
       setAdding(false);
@@ -42,9 +91,40 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     setActiveTask(null);
+    setActiveColumn(null);
+
     const { active, over } = event;
     if (!over) return;
 
+    const activeType = active.data.current?.type;
+
+    if (activeType === "Column") {
+      // Handle column drag and drop
+      const activeId = active.id;
+      const overId = over.id;
+
+      if (activeId !== overId) {
+        setSortedColumns((currentColumns) => {
+          const activeIndex = currentColumns.findIndex((c) => c.id === activeId);
+          const overIndex = currentColumns.findIndex((c) => c.id === overId);
+          const newOrder = arrayMove(currentColumns, activeIndex, overIndex);
+
+          // Update positions for the backend
+          const updates = newOrder.map((col, index) => ({
+            id: col.id,
+            position: index,
+          }));
+          columnsApi.updateColumnPositions(updates).catch((err) => {
+            console.error("Failed to update column positions", err);
+            // Optionally revert state on failure
+            setSortedColumns(columns);
+          });
+
+          return newOrder;
+        });
+      }
+    } else {
+      // Handle task drag and drop
     const taskId = active.id as string;
     const sourceColumnId = (active.data.current as { columnId: string })?.columnId;
     const targetColumnId = (over.data.current as { columnId?: string })?.columnId || (over.id as string);
@@ -98,20 +178,32 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
       refetch();
     } catch (err) {
       console.error(err);
+      }
     }
   };
+
+  const columnIds = sortedColumns.map((c) => c.id);
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
         {loading ? (
           <div className="text-zinc-400 text-sm">Loading columns...</div>
-        ) : columns.length === 0 ? (
+        ) : sortedColumns.length === 0 ? (
           <div className="text-zinc-500 text-sm">No columns yet</div>
         ) : (
-          columns.map((col: ColumnType) => (
-            <Column key={`${col.id}-${refreshToken}`} column={col} refreshToken={refreshToken} />
-          ))
+          <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
+            {sortedColumns.map((col: ColumnType) => (
+              <SortableColumn key={col.id} id={col.id} column={col}>
+                <Column
+                  column={col}
+                  refreshToken={refreshToken}
+                  onColumnDeleted={refetch}
+                  onColumnUpdated={refetch}
+                />
+              </SortableColumn>
+            ))}
+          </SortableContext>
         )}
 
         {/* Add column UI */}
@@ -152,7 +244,15 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
       </div>
 
       <DragOverlay dropAnimation={null}>
-        {activeTask ? (
+        {activeColumn ? (
+          <Column
+            key="active-column"
+            column={activeColumn}
+            onColumnDeleted={() => {}}
+            onColumnUpdated={() => {}}
+            isDragging
+          />
+        ) : activeTask ? (
           <div className="bg-zinc-800/80 border border-teal-500 rounded-lg p-3 text-sm text-white w-64 pointer-events-none">
             <div className="font-medium mb-1">{activeTask.title}</div>
             {activeTask.description && (

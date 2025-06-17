@@ -3,6 +3,8 @@ import type { Task } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { ImagePreview } from "./image-preview.comp.tsx";
+import { MarkdownPreview } from "./markdown-preview.comp";
 
 interface TaskDialogProps {
   task: Task;
@@ -20,10 +22,23 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   const [status, setStatus] = useState<"todo" | "in-progress" | "done">(
     (task.status as any) || "todo"
   );
+  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<{ src: string; name: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleMarkdownPreview = async (data: string) => {
+    try {
+      const response = await fetch(data);
+      const text = await response.text();
+      setPreviewContent(text);
+    } catch (error) {
+      console.error("Error fetching file for preview:", error);
+      setPreviewContent("Could not load file content.");
     }
   };
 
@@ -80,6 +95,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   };
 
   return (
+    <>
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
@@ -129,6 +145,21 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
                   {task.attachments.map((att) => (
                     <li key={att.id} className="flex items-center gap-1">
                       📎
+                        {att.type === "text/markdown" ? (
+                          <button
+                            onClick={() => handleMarkdownPreview(att.data || "")}
+                            className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis text-left"
+                          >
+                            {att.name}
+                          </button>
+                        ) : att.type.startsWith("image/") ? (
+                          <button
+                            onClick={() => setImagePreview({ src: att.data || "", name: att.name })}
+                            className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis text-left"
+                          >
+                            {att.name}
+                          </button>
+                        ) : (
                       <a
                         href={att.data || "#"}
                         download={att.name}
@@ -136,6 +167,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
                       >
                         {att.name}
                       </a>
+                        )}
                     </li>
                   ))}
                 </ul>
@@ -184,5 +216,21 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+      {imagePreview && (
+        <ImagePreview
+          src={imagePreview.src}
+          fileName={imagePreview.name}
+          open={!!imagePreview}
+          onOpenChange={() => setImagePreview(null)}
+        />
+      )}
+      {previewContent && (
+        <MarkdownPreview
+          content={previewContent}
+          open={!!previewContent}
+          onOpenChange={() => setPreviewContent(null)}
+        />
+      )}
+    </>
   );
 }

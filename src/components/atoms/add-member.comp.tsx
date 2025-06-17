@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { usersApi } from "@/api/users.api";
 import { boardsApi } from "@/api/boards.api";
+import { usersApi } from "@/api/users.api";
+import { useState } from "react";
 
 export function AddMember({
   boardId,
@@ -15,7 +15,7 @@ export function AddMember({
     if (!email) return;
     if (!boardId) return;
 
-    const user = await usersApi.gesUserIdByEmail(email);
+    const user = await usersApi.getUserIdByEmail(email);
     if (!user) return;
 
     await boardsApi.addMember(boardId, user.id);
