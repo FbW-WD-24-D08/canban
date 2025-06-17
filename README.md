@@ -1,132 +1,200 @@
-# Canban - Modernes Kanban Board
+# Canban - Modern Kanban Board Application
 
-Eine moderne Kanban-Board-Anwendung für effizientes Projektmanagement und Aufgabenverwaltung. Entwickelt mit React, TypeScript und modernen Web-Technologien.
+A modern Kanban board application for efficient project management and task organization. Built with React 19, TypeScript, and cutting-edge web technologies.
 
 ## 🚀 Features
 
-### Core Board
+### Core Board Management
 
-- **Visuelles Projektmanagement** – Spalten & Karten lassen sich frei per Drag-and-Drop sortieren
-- **Done-Automation** – Zieht man eine Karte in die "Done"-Spalte, wechselt ihr Status automatisch auf `DONE`
-- **Archive** – Erledigte Tickets können archiviert und per Collapsible-Section ein-/ausgeklappt werden
+- **Visual Project Management** – Drag-and-drop columns and cards for seamless organization
+- **Done Automation** – Tasks automatically switch to `DONE` status when moved to "Done" column
+- **Archive System** – Completed tickets can be archived with collapsible sections for clean organization
+- **Multi-User Collaboration** – Board sharing with member management and ownership controls
+
+### File Management & Preview System
+
+- **Smart File Attachments** – Upload files or add external URLs (Google Drive, Dropbox, etc.)
+- **Rich Preview Experience** – Click any attachment for instant preview with:
+  - **Markdown Rendering** – GitHub Flavored Markdown with beautiful typography
+  - **Image Display** – Full-screen image viewing with zoom capabilities  
+  - **Code Syntax Highlighting** – Support for JavaScript, TypeScript, JSON, XML
+  - **Download Support** – Direct download for all file types
+- **Zero Database Bloat** – Smart caching temporarily stores preview data, auto-cleans after use
+- **Performance Optimized** – On-demand loading with lazy evaluation
 
 ### Productivity & UX
 
-- **Command-Palette ⌘/Ctrl + K** – Grundgerüst steht und öffnet sich bereits, weitere Commands folgen
-- **Shortcut-Overlay Shift + ?** – Alle Hotkeys kompakt in einer Radix Dialog-Übersicht
-- **Dropdown- & Context-Menus** – Einheitliche Radix Komponenten sorgen für saubere Accessibility
+- **Command Palette ⌘/Ctrl + K** – Quick access to board actions and navigation
+- **Shortcut Overlay Shift + ?** – Comprehensive hotkey reference in elegant dialog
+- **Context Menus** – Consistent Radix UI components for accessibility
+- **Responsive Design** – Optimized for desktop and mobile experiences
 
-### Tech & Toolchain
+### Authentication & Security
 
-- **Clerk Auth** – Sichere Anmeldung & Session-Handling
-- **Tailwind CSS 4 + Radix UI** – Dark-Mode optimiertes Design-System
-- **JSON-Server** – Schnelles Mock-Backend (HMR ignoriert DB-Writes, keine lästigen Reloads)
-- **Vite** – Blitzschneller Dev-Server & Build (DB-Ordner aus HMR-Watch ausgeschlossen)
+- **Clerk Integration** – Secure authentication with session management
+- **User Profiles** – Comprehensive user management with email and username support
+- **Access Control** – Permission-based features depending on user role and board ownership
 
-### Architektur
+### Tech Stack & Performance
 
-- **Atomic Design** – atoms / molecules / organisms / layouts / pages
-- **TypeScript** – Strenge Typisierung & ESLint-Regeln
-- **Custom Hooks** – `useBoard`, `useColumns`, `useTasks` usw.
+- **React 19** – Latest React features for optimal performance
+- **TypeScript** – Full type safety throughout the application
+- **Tailwind CSS 4** – Modern styling with dark-mode optimization
+- **Vite** – Lightning-fast development server and build process
+- **JSON Server** – Rapid mock backend (HMR ignores DB writes for smooth development)
 
-> **Neu 2025-06-XX:** Done-Automation, Archiv-Collapsible und Command-Palette-Skeleton sind live 🚀
+### Architecture
 
-## 📖 Dokumentation
+- **Atomic Design Pattern** – atoms / molecules / organisms / layouts / pages
+- **Custom Hooks** – `useBoard`, `useColumns`, `useTasks`, `useBoardMembers` for state management
+- **Component Reusability** – Modular design with consistent patterns
+- **Type-Safe API Layer** – Comprehensive TypeScript interfaces for all data operations
 
-- **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Eine detaillierte Übersicht der jüngsten UI/UX-Verbesserungen an der Landing Page.
+## 📖 Documentation
 
-## 🛠️ Technologien
+- **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Detailed overview of recent enhancements including file preview system, UI improvements, and advanced functionality
 
-### Frontend
+## 🛠️ Technologies
 
-- **React 19** - UI-Framework
-- **TypeScript** - Typisierte Programmierung
-- **Vite** - Build-Tool und Entwicklungsserver
-- **React Router** - Client-seitiges Routing
+### Frontend Stack
 
-### Styling & UI
+- **React 19** - Modern UI framework with latest features
+- **TypeScript 5.8** - Static typing and enhanced developer experience
+- **Vite 6.3** - Next-generation build tool and dev server
+- **React Router 7.6** - Declarative client-side routing
 
-- **Tailwind CSS** - Utility-first CSS Framework
-- **Radix UI** - Hochwertige UI-Komponenten
-- **Lucide React** - Icon-Bibliothek
-- **shadcn/ui** - UI-Komponenten-System
+### Styling & UI Components
 
-### Authentication & Backend
+- **Tailwind CSS 4.1** - Utility-first CSS framework
+- **Radix UI** - Accessible, unstyled UI primitives
+- **Lucide React** - Beautiful & consistent icon library
+- **@tailwindcss/typography** - Professional prose styling
 
-- **Clerk** - Benutzerauthentifizierung und -verwaltung
+### File & Preview System
+
+- **react-markdown** - Markdown rendering with GitHub Flavored Markdown
+- **remark-gfm** - Enhanced markdown features (tables, task lists, etc.)
+- **IndexedDB Integration** - Client-side file storage capabilities
+- **Smart Caching System** - Temporary database storage with auto-cleanup
+
+### Authentication & Data
+
+- **Clerk** - Complete user authentication and management
+- **JSON Server** - Development API with file upload support
+- **Custom API Client** - Type-safe fetch-based communication layer
 
 ### Development Tools
 
-- **ESLint** - Code-Linting
-- **TypeScript ESLint** - TypeScript-spezifische Regeln
+- **ESLint** - Code linting with TypeScript support
+- **Prettier** - Code formatting
+- **Concurrently** - Parallel script execution for development
 
-## 📁 Projektstruktur
+## 📁 Project Structure
 
-Das Projekt folgt der **Atomic Design Methodology**:
+The project follows **Atomic Design Methodology** for scalable component organization:
 
 ```
 src/
 ├── components/
-│   ├── atoms/          # Grundlegende UI-Elemente
-│   ├── molecules/      # Zusammengesetzte Komponenten
-│   ├── organisms/      # Komplexe UI-Bereiche
-│   ├── layouts/        # Seitenlayouts
-│   └── pages/          # Vollständige Seiten
-├── config/             # Konfigurationsdateien
-└── lib/                # Utility-Funktionen
+│   ├── atoms/          # Basic UI elements (buttons, inputs, etc.)
+│   ├── molecules/      # Composed components (cards, dialogs, etc.)
+│   ├── organisms/      # Complex UI sections (navbar, board columns, etc.)
+│   ├── layouts/        # Page layouts (dashboard, default)
+│   ├── pages/          # Complete pages (landing, dashboard, board views)
+│   └── contexts/       # React contexts for state management
+├── api/                # API client and service functions
+├── hooks/              # Custom React hooks
+├── types/              # TypeScript type definitions
+├── config/             # Configuration files
+├── lib/                # Utility functions and helpers
+└── assets/             # Static assets
 ```
 
-## 🚦 Installation & Start
+## 🚦 Installation & Setup
 
-### Für Windows und Linux/Ubuntu
+### For Windows, Linux, and macOS
 
 ```bash
-# Repository klonen
+# Clone the repository
 git clone https://github.com/FbW-WD-24-D08/canban.git
 
-# In das Projektverzeichnis wechseln
+# Navigate to project directory
 cd canban
 
-# Abhängigkeiten installieren (funktioniert auf Windows und Linux)
+# Install dependencies
 npm install
 
-# Entwicklungsserver starten
+# Start development servers (API + Frontend)
 npm run dev:full
 ```
 
-Die Installation richtet automatisch die notwendigen Dateien ein:
+The installation automatically sets up necessary files:
 
-- Erstellt eine `.env` Datei aus `example.env`
-- Stellt sicher, dass ein `db` Verzeichnis existiert
-- Initialisiert eine leere `db.json` Datei, falls nötig
+- Creates `.env` file from `example.env`
+- Ensures `db` directory exists
+- Initializes empty `db.json` file if needed
+- Configures development environment
 
-## 📝 Verfügbare Skripte
+## 📝 Available Scripts
 
-- `npm run dev` - Startet den Entwicklungsserver
-- `npm run api` - Startet den JSON-Server für die API
-- `npm run dev:full` - Startet beide Server gleichzeitig
-- `npm run build` - Erstellt die Produktionsversion
-- `npm run lint` - Führt ESLint-Prüfung durch
-- `npm run preview` - Vorschau der Produktionsversion
-- `npm run setup` - Richtet die Entwicklungsumgebung ein
+- `npm run dev` - Start frontend development server
+- `npm run api` - Start JSON-Server backend API
+- `npm run dev:full` - Start both servers concurrently
+- `npm run build` - Build production version
+- `npm run lint` - Run ESLint code analysis
+- `npm run check` - TypeScript type checking
+- `npm run preview` - Preview production build
+- `npm run setup` - Initialize development environment
 
-## 👥 Team
+## 🎯 Key Features Deep Dive
 
-- **[Payermann](https://github.com/payermann)** - Developer
-- **[Kai](https://github.com/2701kai)** - Developer
+### Smart File Preview System
 
-## 📄 Lizenz
+The application features a sophisticated file management system:
 
-Alle Rechte vorbehalten © 2025
+1. **Upload Process**: Select files or paste external URLs
+2. **Preview Generation**: Click any attachment for instant rich preview
+3. **Temporary Caching**: System stores base64 data temporarily in database for fast access
+4. **Auto Cleanup**: Preview data automatically removed when preview closes
+5. **Format Support**: Comprehensive support for markdown, images, code files, and more
 
----
+### Collaborative Workspace
 
-**[⬆️ Nach oben](#canban---modernes-kanban-board)**
+- **Multi-User Boards**: Share boards with team members
+- **Role-Based Access**: Owner and member permissions
+- **Real-Time Updates**: Changes reflected across all connected users
+- **Member Management**: Add/remove team members with email invitations
+
+### Performance Optimizations
+
+- **Lazy Loading**: Components and content loaded on-demand
+- **Smart Caching**: Intelligent preview data management
+- **Optimistic Updates**: UI updates immediately for better user experience
+- **Bundle Optimization**: Code splitting and tree shaking for minimal bundle size
+
+## 👥 Development Team
+
+- **[Felix Fischer (Payermann)](https://github.com/payermann)** - Full-Stack Developer
+- **[Kai (2701kai)](https://github.com/2701kai)** - Full-Stack Developer
 
 ## 🗺️ Roadmap
 
-- **Column Drag-Sorting** – Komplette Spaltenreihenfolge via DnD anpassbar
-- **Kontext-Menü (right-click)** – Schnellaktionen ohne Menü-Icon
-- **Command-Palette V1** – Boards anlegen, Tasks erstellen, Navigation etc.
-- **Supabase Migration** – Realtime Updates & Auth ⇢ ersetzt JSON-Server später
-- **PWA & Offline** – Installierbar, Push-Ready, Offline Queueing
+### Near Term
+- **Column Drag Sorting** – Complete column reordering via drag-and-drop
+- **Enhanced Context Menus** – Right-click quick actions without menu icons
+- **Command Palette V2** – Advanced commands for board creation, task management, navigation
+
+### Future Enhancements
+- **Supabase Migration** – Real-time updates & enhanced authentication
+- **PWA Features** – Installable app with offline capabilities and push notifications
+- **Advanced File Management** – Version control, file sharing, collaborative editing
+- **Analytics Dashboard** – Project insights, team productivity metrics
+- **Integration APIs** – Connect with GitHub, Slack, and other productivity tools
+
+## 📄 License
+
+All rights reserved © 2025
+
+---
+
+**Built with ❤️ by the ELITA team using cutting-edge web technologies**

@@ -34,8 +34,9 @@ export interface Task {
 export interface Attachment {
   id: string; // uuid
   name: string;
-  type: string; // mime type
-  data?: string; // base64 string (optional)
+  type: string; // mime type (e.g., "text/markdown", "image/png")
+  url?: string; // optional URL for link attachments
+  data?: string; // temporary base64 data for preview (auto-cleaned)
 }
 
 export interface CreateBoardData {
