@@ -1,6 +1,7 @@
 import { useUserName } from "@/hooks/useUserName";
 import { boardsApi } from "@/api/boards.api";
 import { X } from "lucide-react";
+import { useUserContext } from "../contexts/user.context.tsx";
 
 interface MemberItemProps {
   userId: string;
@@ -17,6 +18,12 @@ export function MemberItem({
 }: MemberItemProps) {
   const { userName, loading } = useUserName(userId);
   const isOwner = userId === ownerId;
+  const { currentUser } = useUserContext();
+
+  const isCurrentUserOwner = currentUser?.id === ownerId;
+  const isCurrentUser = currentUser?.id === userId;
+  const canRemove =
+    (isCurrentUserOwner && !isCurrentUser) || (isCurrentUser && !isOwner);
 
   const handleRemove = async () => {
     if (!boardId || isOwner) return;
@@ -37,7 +44,7 @@ export function MemberItem({
         {loading ? "Loading..." : userName}
         {isOwner && <span className="ml-1 text-amber-400">(Owner)</span>}
       </span>
-      {!isOwner && boardId && (
+      {canRemove && boardId && (
         <button
           onClick={handleRemove}
           className="ml-2 text-zinc-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-200"
