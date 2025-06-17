@@ -16,6 +16,7 @@ import type { Board } from "@/types/api.types";
 import { useNavigate } from "react-router";
 import { MemberItem } from "@/components/atoms/member.comp";
 import { AddMember } from "../atoms/add-member.comp";
+import { useUserContext } from "../contexts/user.context.tsx";
 
 interface SidebarProps {
   children: ReactNode;
@@ -26,6 +27,8 @@ interface SidebarProps {
 export function Sidebar({ children, board, onDelete }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { currentUser } = useUserContext();
+  const isUserOwner = board?.ownerId === currentUser?.id;
 
   const {
     members,
@@ -141,13 +144,20 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                   )}
                 </div>
               </div>
-              <AddMember boardId={board?.id} onMemberAdded={refetchMembers} />
-              <button
-                onClick={handleDelete}
-                className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
-              >
-                <XCircle className="w-4 h-4" /> Delete board
-              </button>
+              {isUserOwner && (
+                <>
+                  <AddMember
+                    boardId={board?.id}
+                    onMemberAdded={refetchMembers}
+                  />
+                  <button
+                    onClick={handleDelete}
+                    className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
+                  >
+                    <XCircle className="w-4 h-4" /> Delete board
+                  </button>
+                </>
+              )}
             </div>
           )}
         </nav>
