@@ -3,6 +3,8 @@ import type { Task } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
+import { previewCache } from "@/lib/preview-cache";
 
 interface TaskDialogProps {
   task: Task;
@@ -16,10 +18,14 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   const [title, setTitle] = useState(task.title);
   const [desc, setDesc] = useState(task.description ?? "");
   const [saving, setSaving] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<"todo" | "in-progress" | "done">(
     (task.status as any) || "todo"
   );
+  const [attachments, setAttachments] = useState(task.attachments || []);
+  const [filePreview, setFilePreview] = useState<{ data: string; name: string; type: string; attachmentId: string } | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -27,33 +33,60 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
     }
   };
 
+  const handlePreview = async (attachment: Attachment) => {
+    try {
+      setSaving(true);
+      const data = await previewCache.preparePreview(task.id, attachment, attachments);
+      setFilePreview({
+        data,
+        name: attachment.name,
+        type: attachment.type,
+        attachmentId: attachment.id
+      });
+    } catch (error) {
+      console.error('Preview failed:', error);
+      alert(`Preview failed: ${error}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const closePreview = async () => {
+    if (filePreview) {
+      try {
+        await previewCache.cleanupPreview(task.id, filePreview.attachmentId, attachments);
+      } catch (error) {
+        console.error('Cleanup failed:', error);
+      }
+      setFilePreview(null);
+    }
+  };
+
+  const removeAttachment = (attachmentId: string) => {
+    setAttachments(attachments.filter(att => att.id !== attachmentId));
+  };
+
   const save = async () => {
     if (!title.trim()) return;
     try {
       setSaving(true);
-      // Convert selected files to base64 metadata objects
-      const attachments = await Promise.all(
+
+      // Process new files
+      const newAttachments = await Promise.all(
         files.map(async (file) => {
-          const reader = new FileReader();
-          const result: string = await new Promise((res) => {
-            reader.onload = () => res(reader.result as string);
-            reader.readAsDataURL(file);
-          });
-          return {
-            id: crypto.randomUUID(),
-            name: file.name,
-            type: file.type,
-            data: result,
-          };
+          return await previewCache.handleFileSelection(file);
         })
       );
+
+      const allAttachments = [...attachments, ...newAttachments];
 
       await tasksApi.updateTask(task.id, {
         title,
         description: desc,
         status,
-        attachments: attachments.length > 0 ? attachments : undefined,
+        attachments: allAttachments.length > 0 ? allAttachments : undefined,
       });
+      
       setFiles([]);
       onSaved?.();
       onOpenChange(false);
@@ -80,6 +113,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   };
 
   return (
+    <>
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
@@ -93,6 +127,9 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
               </button>
             </Dialog.Close>
           </div>
+          <Dialog.Description className="sr-only">
+            Edit task details including title, description, status, and attachments.
+          </Dialog.Description>
           <div className="space-y-4">
             <div>
               <label className="block text-sm text-zinc-400 mb-1">Title</label>
@@ -123,27 +160,37 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
                 onChange={handleFileChange}
                 className="w-full text-sm text-zinc-200 file:bg-teal-600 file:border-0 file:px-3 file:py-1 file:text-sm file:text-white hover:file:bg-teal-700"
               />
+              
               {/* Existing attachments */}
-              {task.attachments && task.attachments.length > 0 && (
+              {attachments.length > 0 && (
                 <ul className="mt-2 space-y-1 max-h-32 overflow-y-auto text-[11px] text-teal-200">
-                  {task.attachments.map((att) => (
+                  {attachments.map((att) => (
                     <li key={att.id} className="flex items-center gap-1">
                       📎
-                      <a
-                        href={att.data || "#"}
-                        download={att.name}
-                        className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis"
+                      <button
+                        onClick={() => handlePreview(att)}
+                        className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis text-left flex-1"
+                        disabled={saving}
                       >
                         {att.name}
-                      </a>
+                      </button>
+                      <button
+                        onClick={() => removeAttachment(att.id)}
+                        className="text-red-400 hover:text-red-300 ml-2"
+                        disabled={saving}
+                      >
+                        ×
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
+              
+              {/* New files preview */}
               {files.length > 0 && (
                 <ul className="mt-2 space-y-1 max-h-24 overflow-y-auto text-[11px] text-teal-200">
                   {files.map((f) => (
-                    <li key={f.name}>{f.name}</li>
+                    <li key={f.name}>{f.name} (new)</li>
                   ))}
                 </ul>
               )}
@@ -184,5 +231,16 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+    
+    {filePreview && (
+      <UniversalFilePreview
+        fileUrl={filePreview.data}
+        fileName={filePreview.name}
+        fileType={filePreview.type}
+        open={!!filePreview}
+        onOpenChange={closePreview}
+      />
+    )}
+    </>
   );
 }

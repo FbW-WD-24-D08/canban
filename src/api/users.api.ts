@@ -1,5 +1,5 @@
+import type { UserEmail, UserName } from "../types/api.types.ts";
 import { apiClient } from "./client";
-import type { UserName, UserEmail } from "../types/api.types.ts";
 
 export const usersApi = {
   getUserName: async (id: string): Promise<UserName | null> => {
@@ -27,7 +27,7 @@ export const usersApi = {
     }
   },
 
-  gesUserIdByEmail: async (email: string): Promise<UserEmail | null> => {
+  getUserIdByEmail: async (email: string): Promise<UserEmail | null> => {
     try {
       const useremails: UserEmail[] = await apiClient.get("/useremails");
       return useremails.find((user) => user.email === email) || null;

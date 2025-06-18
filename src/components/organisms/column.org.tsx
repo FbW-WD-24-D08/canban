@@ -1,30 +1,58 @@
+import { columnsApi } from "@/api/columns.api.ts";
 import { tasksApi } from "@/api/tasks.api";
 import { useTasks } from "@/hooks/useTasks";
 import type { Column, Task } from "@/types/api.types";
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { GripVertical, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { TaskCard } from "../molecules/task-card.comp";
 
 interface ColumnProps {
   column: Column;
   refreshToken?: number;
+  onColumnDeleted: () => void;
+  onColumnUpdated: () => void;
+  listeners?: any;
+  isDragging?: boolean;
 }
 
-export function Column({ column, refreshToken = 0 }: ColumnProps) {
+export function Column({
+  column,
+  refreshToken = 0,
+  onColumnDeleted,
+  onColumnUpdated,
+  listeners,
+  isDragging,
+}: ColumnProps) {
   // Only Done column supports archive toggle
-  const isDoneColumn = column.title.toLowerCase() === "done";
+  const isDoneColumn = column?.title?.toLowerCase() === "done";
 
   const [showArchive, setShowArchive] = useState(false);
-
-  const { tasks, loading, refetch } = useTasks(column.id, isDoneColumn); // include archived only for Done column
+  const { tasks, loading, refetch } = useTasks(column.id, isDoneColumn);
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(column.title);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
-  const { setNodeRef } = useDroppable({ id: column.id, data: { columnId: column.id } });
+  const { setNodeRef } = useDroppable({
+    id: column.id,
+    data: { columnId: column.id },
+  });
+
+  useEffect(() => {
+    if (isEditingTitle) {
+      titleInputRef.current?.focus();
+      titleInputRef.current?.select();
+    }
+  }, [isEditingTitle]);
 
   // refetch tasks when token changes (e.g., after drag)
   useEffect(() => {
@@ -34,13 +62,49 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
   const handleAddTask = async () => {
     if (!newTitle.trim()) return;
     try {
-      await tasksApi.createTask({ title: newTitle, description: newDesc, columnId: column.id });
+      await tasksApi.createTask({
+        title: newTitle,
+        description: newDesc,
+        columnId: column.id,
+      });
       setNewTitle("");
       setNewDesc("");
       setAdding(false);
       refetch();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleDeleteColumn = async () => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete the "${column.title}" column and all its tasks?`
+      )
+    ) {
+      try {
+        await columnsApi.deleteColumn(column.id);
+        onColumnDeleted();
+      } catch (err) {
+        console.error("Failed to delete column", err);
+        // You might want to show an error to the user here
+      }
+    }
+  };
+
+  const handleUpdateColumnTitle = async () => {
+    if (!currentTitle.trim() || currentTitle.trim() === column.title) {
+      setIsEditingTitle(false);
+      setCurrentTitle(column.title);
+      return;
+    }
+    try {
+      await columnsApi.updateColumn(column.id, { title: currentTitle.trim() });
+      onColumnUpdated();
+    } catch (err) {
+      console.error("Failed to update column title", err);
+    } finally {
+      setIsEditingTitle(false);
     }
   };
 
@@ -51,12 +115,16 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
   return (
     <div
       ref={setNodeRef}
-      className="w-72 flex-shrink-0 bg-zinc-900/70 backdrop-blur border border-zinc-800 rounded-xl p-4 space-y-4"
+      className={`w-72 flex-shrink-0 bg-zinc-900/70 backdrop-blur border border-zinc-800 rounded-xl p-4 space-y-4 flex flex-col transition-opacity ${
+        isDragging ? "opacity-50" : "opacity-100"
+      }`}
       onKeyDown={(e) => {
         if (e.key.toLowerCase() === "n" && !adding) {
           setAdding(true);
           setTimeout(() => {
-            const input = document.querySelector<HTMLInputElement>("input[placeholder='Task title']");
+            const input = document.querySelector<HTMLInputElement>(
+              "input[placeholder='Task title']"
+            );
             input?.focus();
           }, 0);
         }
@@ -64,11 +132,67 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
       tabIndex={0}
     >
       <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-teal-500" />
-          <h3 className="text-sm font-semibold text-white truncate">{column.title}</h3>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div
+            {...listeners}
+            className="cursor-grab text-zinc-500 hover:text-white transition-colors"
+            aria-label="Drag to reorder column"
+          >
+            <GripVertical className="w-4 h-4" />
+          </div>
+          {isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              value={currentTitle}
+              onChange={(e) => setCurrentTitle(e.target.value)}
+              onBlur={handleUpdateColumnTitle}
+              onKeyDown={(e) => e.key === "Enter" && handleUpdateColumnTitle()}
+              className="text-sm font-semibold bg-zinc-800 border border-teal-500 rounded-md px-2 py-1 text-white truncate focus:outline-none w-full"
+              placeholder="Column title"
+              aria-label="Column title"
+            />
+          ) : (
+            <h3 className="text-sm font-semibold text-white truncate">
+              {column.title}
+            </h3>
+          )}
         </div>
-        <span className="text-xs text-zinc-400">{activeTasks.length}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-zinc-400">{activeTasks.length}</span>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                className="p-1 rounded-md text-zinc-400 hover:bg-zinc-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                aria-label="More actions"
+                title="More actions"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                sideOffset={5}
+                className="bg-zinc-800 border border-zinc-700 rounded-md shadow-lg p-1 text-sm text-zinc-200 min-w-[150px] z-[1000]"
+              >
+                <DropdownMenu.Item
+                  onSelect={() => setIsEditingTitle(true)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-teal-600 hover:text-white cursor-pointer focus:outline-none focus:bg-teal-600"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  <span>Edit title</span>
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="h-[1px] bg-zinc-700 my-1" />
+                <DropdownMenu.Item
+                  onSelect={handleDeleteColumn}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-red-600 hover:text-white cursor-pointer focus:outline-none focus:bg-red-600"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete column</span>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        </div>
       </div>
 
       {isDoneColumn ? (
@@ -80,14 +204,23 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
           </Collapsible.Trigger>
 
           <div className="space-y-4">
-            <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              id={column.id}
+              items={activeTasks.map((t) => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
               {loading ? (
                 <div className="text-zinc-400 text-sm">Loading tasks...</div>
               ) : activeTasks.length === 0 ? (
                 <div className="text-zinc-500 text-sm">No tasks</div>
               ) : (
                 activeTasks.map((task: Task) => (
-                  <TaskCard key={task.id} task={task} isDoneColumn onUpdated={refetch} />
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    isDoneColumn
+                    onUpdated={refetch}
+                  />
                 ))
               )}
             </SortableContext>
@@ -96,7 +229,12 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
               {archivedTasks.length > 0 && (
                 <div className="pt-2 border-t border-zinc-700 space-y-2">
                   {archivedTasks.map((task: Task) => (
-                    <TaskCard key={task.id} task={task} isArchived onUpdated={refetch} />
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      isArchived
+                      onUpdated={refetch}
+                    />
                   ))}
                 </div>
               )}
@@ -147,7 +285,11 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
         </Collapsible.Root>
       ) : (
         <div className="space-y-4">
-          <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            id={column.id}
+            items={activeTasks.map((t) => t.id)}
+            strategy={verticalListSortingStrategy}
+          >
             {loading ? (
               <div className="text-zinc-400 text-sm">Loading tasks...</div>
             ) : activeTasks.length === 0 ? (
@@ -204,4 +346,4 @@ export function Column({ column, refreshToken = 0 }: ColumnProps) {
       )}
     </div>
   );
-} 
+}
