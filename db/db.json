@@ -627,46 +627,26 @@
   ],
   "usernames": [
     {
-      "id": "user_2xRwhdVhgUleoDVLS0CQB0338hk",
+      "id": "user_2yctV4p1Ez62WBVHbG6ScEj0v3O",
       "username": "Felix Fischer"
     },
     {
-      "id": "user_testuser123",
-      "username": "testuser"
-    },
-    {
-      "id": "user_2yPUYsC0dJNEAHpXA4GBqb1AjqK",
+      "id": "user_2ycqo9ILisOstvf9eVuHfjTGXBG",
       "username": "Felix Fischer"
     },
     {
       "id": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
       "username": "2701 kai"
-    },
-    {
-      "id": "user_2ybFNz7LYXNZHAvL544iLOcpDo3",
-      "username": "2701 kai"
-    },
-    {
-      "id": "user_2ycqo9ILisOstvf9eVuHfjTGXBG",
-      "username": "Felix Fischer"
-    },
-    {
-      "id": "user_2ycqo9ILisOstvf9eVuHfjTGXBG",
-      "username": "Felix Fischer"
     }
   ],
   "useremails": [
     {
-      "id": "user_2ycqo9ILisOstvf9eVuHfjTGXBG",
-      "email": "felix.fischer@dci-student.org"
+      "id": "user_2yctV4p1Ez62WBVHbG6ScEj0v3O",
+      "email": "payermann@gmail.com"
     },
     {
       "id": "user_2ycqo9ILisOstvf9eVuHfjTGXBG",
       "email": "felix.fischer@dci-student.org"
-    },
-    {
-      "id": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
-      "email": "2701kai@googlemail.com"
     },
     {
       "id": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
