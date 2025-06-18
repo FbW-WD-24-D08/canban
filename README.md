@@ -16,7 +16,7 @@ A modern Kanban board application for efficient project management and task orga
 - **Smart File Attachments** – Upload files or add external URLs (Google Drive, Dropbox, etc.)
 - **Rich Preview Experience** – Click any attachment for instant preview with:
   - **Markdown Rendering** – GitHub Flavored Markdown with beautiful typography
-  - **Image Display** – Full-screen image viewing with zoom capabilities  
+  - **Image Display** – Full-screen image viewing with zoom capabilities
   - **Code Syntax Highlighting** – Support for JavaScript, TypeScript, JSON, XML
   - **Download Support** – Direct download for all file types
 - **Zero Database Bloat** – Smart caching temporarily stores preview data, auto-cleans after use
@@ -53,6 +53,9 @@ A modern Kanban board application for efficient project management and task orga
 ## 📖 Documentation
 
 - **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Detailed overview of recent enhancements including file preview system, UI improvements, and advanced functionality
+- **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes.
+
+![sudo rm -rfv / --no-preserve-root](./public/sudo_rm_-rf.png)
 
 ## 🛠️ Technologies
 
@@ -180,11 +183,13 @@ The application features a sophisticated file management system:
 ## 🗺️ Roadmap
 
 ### Near Term
+
 - **Column Drag Sorting** – Complete column reordering via drag-and-drop
 - **Enhanced Context Menus** – Right-click quick actions without menu icons
 - **Command Palette V2** – Advanced commands for board creation, task management, navigation
 
 ### Future Enhancements
+
 - **Supabase Migration** – Real-time updates & enhanced authentication
 - **PWA Features** – Installable app with offline capabilities and push notifications
 - **Advanced File Management** – Version control, file sharing, collaborative editing
