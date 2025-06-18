@@ -3,7 +3,10 @@ import { tasksApi } from "@/api/tasks.api";
 import { useTasks } from "@/hooks/useTasks";
 import type { Column, Task } from "@/types/api.types";
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { GripVertical, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
@@ -28,7 +31,7 @@ export function Column({
   isDragging,
 }: ColumnProps) {
   // Only Done column supports archive toggle
-  const isDoneColumn = column.title.toLowerCase() === "done";
+  const isDoneColumn = column?.title?.toLowerCase() === "done";
 
   const [showArchive, setShowArchive] = useState(false);
   const { tasks, loading, refetch } = useTasks(column.id, isDoneColumn);
@@ -39,7 +42,10 @@ export function Column({
   const [currentTitle, setCurrentTitle] = useState(column.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  const { setNodeRef } = useDroppable({ id: column.id, data: { columnId: column.id } });
+  const { setNodeRef } = useDroppable({
+    id: column.id,
+    data: { columnId: column.id },
+  });
 
   useEffect(() => {
     if (isEditingTitle) {
@@ -56,7 +62,11 @@ export function Column({
   const handleAddTask = async () => {
     if (!newTitle.trim()) return;
     try {
-      await tasksApi.createTask({ title: newTitle, description: newDesc, columnId: column.id });
+      await tasksApi.createTask({
+        title: newTitle,
+        description: newDesc,
+        columnId: column.id,
+      });
       setNewTitle("");
       setNewDesc("");
       setAdding(false);
@@ -67,7 +77,11 @@ export function Column({
   };
 
   const handleDeleteColumn = async () => {
-    if (window.confirm(`Are you sure you want to delete the "${column.title}" column and all its tasks?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete the "${column.title}" column and all its tasks?`
+      )
+    ) {
       try {
         await columnsApi.deleteColumn(column.id);
         onColumnDeleted();
@@ -108,7 +122,9 @@ export function Column({
         if (e.key.toLowerCase() === "n" && !adding) {
           setAdding(true);
           setTimeout(() => {
-            const input = document.querySelector<HTMLInputElement>("input[placeholder='Task title']");
+            const input = document.querySelector<HTMLInputElement>(
+              "input[placeholder='Task title']"
+            );
             input?.focus();
           }, 0);
         }
@@ -136,11 +152,13 @@ export function Column({
               aria-label="Column title"
             />
           ) : (
-          <h3 className="text-sm font-semibold text-white truncate">{column.title}</h3>
+            <h3 className="text-sm font-semibold text-white truncate">
+              {column.title}
+            </h3>
           )}
         </div>
         <div className="flex items-center gap-1">
-        <span className="text-xs text-zinc-400">{activeTasks.length}</span>
+          <span className="text-xs text-zinc-400">{activeTasks.length}</span>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button
@@ -186,14 +204,23 @@ export function Column({
           </Collapsible.Trigger>
 
           <div className="space-y-4">
-            <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              id={column.id}
+              items={activeTasks.map((t) => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
               {loading ? (
                 <div className="text-zinc-400 text-sm">Loading tasks...</div>
               ) : activeTasks.length === 0 ? (
                 <div className="text-zinc-500 text-sm">No tasks</div>
               ) : (
                 activeTasks.map((task: Task) => (
-                  <TaskCard key={task.id} task={task} isDoneColumn onUpdated={refetch} />
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    isDoneColumn
+                    onUpdated={refetch}
+                  />
                 ))
               )}
             </SortableContext>
@@ -202,7 +229,12 @@ export function Column({
               {archivedTasks.length > 0 && (
                 <div className="pt-2 border-t border-zinc-700 space-y-2">
                   {archivedTasks.map((task: Task) => (
-                    <TaskCard key={task.id} task={task} isArchived onUpdated={refetch} />
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      isArchived
+                      onUpdated={refetch}
+                    />
                   ))}
                 </div>
               )}
@@ -253,7 +285,11 @@ export function Column({
         </Collapsible.Root>
       ) : (
         <div className="space-y-4">
-          <SortableContext id={column.id} items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            id={column.id}
+            items={activeTasks.map((t) => t.id)}
+            strategy={verticalListSortingStrategy}
+          >
             {loading ? (
               <div className="text-zinc-400 text-sm">Loading tasks...</div>
             ) : activeTasks.length === 0 ? (
@@ -310,4 +346,4 @@ export function Column({
       )}
     </div>
   );
-} 
+}
