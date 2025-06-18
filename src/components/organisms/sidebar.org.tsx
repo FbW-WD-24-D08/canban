@@ -1,12 +1,12 @@
 import { boardsApi } from "@/api/boards.api";
 import { Button } from "@/components/atoms/button.comp";
 import {
-    ChevronRight,
-    HelpCircle,
-    Home,
-    Settings,
-    X,
-    XCircle,
+  ChevronRight,
+  HelpCircle,
+  Home,
+  Settings,
+  X,
+  XCircle,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
@@ -144,17 +144,19 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                   )}
                 </div>
               </div>
-              <AddMember
-                boardId={board?.id}
-                onMemberAdded={refetchMembers}
-              />
               {isUserOwner && (
-                <button
-                  onClick={handleDelete}
-                  className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
-                >
-                  <XCircle className="w-4 h-4" /> Delete board
-                </button>
+                <>
+                  <AddMember
+                    boardId={board?.id}
+                    onMemberAdded={refetchMembers}
+                  />
+                  <button
+                    onClick={handleDelete}
+                    className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
+                  >
+                    <XCircle className="w-4 h-4" /> Delete board
+                  </button>
+                </>
               )}
             </div>
           )}
