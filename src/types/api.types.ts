@@ -18,6 +18,8 @@ export interface Column {
   title: string;
   boardId: string;
   position: number;
+  color?: string;
+  icon?: string;
 }
 
 export interface Task {
@@ -29,6 +31,15 @@ export interface Task {
   status?: "todo" | "in-progress" | "done";
   archived?: boolean;
   attachments?: Attachment[];
+  priority?: Priority;
+  assignees?: string[];
+  tags?: string[];
+  dueDate?: string;
+  estimatedHours?: number;
+  actualHours?: number;
+  checklistItems?: ChecklistItem[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Attachment {
@@ -48,6 +59,8 @@ export interface CreateColumnData {
   title: string;
   boardId: string;
   position?: number;
+  color?: string;
+  icon?: string;
 }
 
 export interface CreateTaskData {
@@ -57,6 +70,12 @@ export interface CreateTaskData {
   position?: number;
   status?: "todo" | "in-progress" | "done";
   attachments?: Attachment[];
+  priority?: Priority;
+  assignees?: string[];
+  tags?: string[];
+  dueDate?: string;
+  estimatedHours?: number;
+  checklistItems?: ChecklistItem[];
 }
 
 export interface UpdateBoardData {
@@ -67,6 +86,8 @@ export interface UpdateBoardData {
 export interface UpdateColumnData {
   title?: string;
   position?: number;
+  color?: string;
+  icon?: string;
 }
 
 export interface UpdateTaskData {
@@ -77,6 +98,13 @@ export interface UpdateTaskData {
   status?: "todo" | "in-progress" | "done";
   archived?: boolean;
   attachments?: Attachment[];
+  priority?: Priority;
+  assignees?: string[];
+  tags?: string[];
+  dueDate?: string;
+  estimatedHours?: number;
+  actualHours?: number;
+  checklistItems?: ChecklistItem[];
 }
 
 export interface UserName {
@@ -87,4 +115,31 @@ export interface UserName {
 export interface UserEmail {
   id: string;
   email: string;
+}
+
+export type Priority = "low" | "medium" | "high" | "urgent";
+
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  boardId: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  position: number;
+}
+
+export interface CreateTagData {
+  name: string;
+  color: string;
+  boardId: string;
+}
+
+export interface UpdateTagData {
+  name?: string;
+  color?: string;
 }

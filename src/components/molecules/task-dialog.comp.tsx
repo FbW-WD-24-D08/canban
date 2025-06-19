@@ -1,9 +1,11 @@
 import { tasksApi } from "@/api/tasks.api";
 import { previewCache } from "@/lib/preview-cache";
-import type { Task } from "@/types/api.types";
+import type { Priority, Task } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { DatePicker } from "../atoms/due-date-indicator.comp";
+import { PrioritySelector } from "../atoms/priority-badge.comp";
 import { useToast } from "../contexts/toast.context.tsx";
 import { DeleteConfirmationModal } from "./confirmation-modal.comp.tsx";
 import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
@@ -14,22 +16,30 @@ interface TaskDialogProps {
   onOpenChange: (o: boolean) => void;
   onSaved?: () => void;
   onDeleted?: () => void;
+  isMeisterTask?: boolean;
 }
 
-export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: TaskDialogProps) {
+export function TaskDialog({ 
+  task, 
+  open, 
+  onOpenChange, 
+  onSaved, 
+  onDeleted,
+  isMeisterTask = false 
+}: TaskDialogProps) {
   const [title, setTitle] = useState(task.title);
   const [desc, setDesc] = useState(task.description ?? "");
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"todo" | "in-progress" | "done">(
     (task.status as any) || "todo"
   );
+  const [priority, setPriority] = useState<Priority>(task.priority || "medium");
+  const [dueDate, setDueDate] = useState<string | undefined>(task.dueDate);
   const [attachments, setAttachments] = useState(task.attachments || []);
   const [filePreview, setFilePreview] = useState<{ data: string; name: string; type: string; attachmentId: string } | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const toast = useToast();
-
-
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -37,7 +47,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
     }
   };
 
-  const handlePreview = async (attachment: Attachment) => {
+  const handlePreview = async (attachment: any) => {
     try {
       setSaving(true);
       const data = await previewCache.preparePreview(task.id, attachment, attachments);
@@ -84,12 +94,20 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
 
       const allAttachments = [...attachments, ...newAttachments];
 
-      await tasksApi.updateTask(task.id, {
+      const updateData: any = {
         title,
         description: desc,
         status,
         attachments: allAttachments.length > 0 ? allAttachments : undefined,
-      });
+      };
+
+      // Add MeisterTask specific fields
+      if (isMeisterTask) {
+        updateData.priority = priority;
+        updateData.dueDate = dueDate;
+      }
+
+      await tasksApi.updateTask(task.id, updateData);
       
       setFiles([]);
       onSaved?.();
@@ -116,14 +134,23 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
     }
   };
 
+  // Clean dark theme styling to match the main board
+  const dialogBg = "bg-zinc-900";
+  const titleColor = "text-white";
+  const labelColor = "text-zinc-400";
+  const inputBg = "bg-zinc-800 border-zinc-700";
+  const inputText = "text-white";
+
   return (
     <>
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-zinc-900 p-6 shadow-lg">
+        <Dialog.Content className={`fixed left-1/2 top-1/2 w-[90vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg ${dialogBg} p-6 shadow-lg border border-zinc-800`}>
           <div className="flex items-center justify-between mb-4">
-            <Dialog.Title className="text-lg font-semibold text-white">Edit Task</Dialog.Title>
+            <Dialog.Title className={`text-lg font-semibold ${titleColor}`}>
+              Edit Task
+            </Dialog.Title>
             <Dialog.Close asChild>
               <button aria-label="Close" className="text-zinc-400 hover:text-zinc-200">
                 <X className="w-5 h-5" />
@@ -132,29 +159,53 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
             </Dialog.Close>
           </div>
           <Dialog.Description className="sr-only">
-            Edit task details including title, description, status, and attachments.
+            Edit task details including title, description, status, priority, and attachments.
           </Dialog.Description>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">Title</label>
+              <label className={`block text-sm ${labelColor} mb-1`}>Title</label>
               <input
-                className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                className={`w-full rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Task title"
               />
             </div>
+            
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">Description</label>
+              <label className={`block text-sm ${labelColor} mb-1`}>Description</label>
               <textarea
-                className="w-full h-24 rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                className={`w-full h-24 rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 placeholder="Description (optional)"
               />
             </div>
+
+            {/* MeisterTask specific fields */}
+            {isMeisterTask && (
+              <div className="space-y-4">
+                {/* Priority selector */}
+                <div>
+                  <PrioritySelector 
+                    value={priority} 
+                    onChange={setPriority}
+                    className="mb-2"
+                  />
+                </div>
+                
+                {/* Due date picker */}
+                <div>
+                  <DatePicker
+                    value={dueDate}
+                    onChange={setDueDate}
+                  />
+                </div>
+              </div>
+            )}
+            
             <div>
-              <label htmlFor="file-input" className="block text-sm text-zinc-400 mb-1">Attachments</label>
+              <label htmlFor="file-input" className={`block text-sm ${labelColor} mb-1`}>Attachments</label>
               <input
                 id="file-input"
                 title="Add attachments"
@@ -162,7 +213,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
                 type="file"
                 multiple
                 onChange={handleFileChange}
-                className="w-full text-sm text-zinc-200 file:bg-teal-600 file:border-0 file:px-3 file:py-1 file:text-sm file:text-white hover:file:bg-teal-700"
+                className={`w-full text-sm ${inputText} file:bg-teal-600 file:border-0 file:px-3 file:py-1 file:text-sm file:text-white hover:file:bg-teal-700`}
               />
               
               {/* Existing attachments */}
@@ -199,34 +250,41 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
                 </ul>
               )}
             </div>
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">Status</label>
-              <select
-                title="Task status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
-              >
-                <option value="todo">Todo</option>
-                <option value="in-progress">In Progress</option>
-                <option value="done">Done</option>
-              </select>
-            </div>
-            <div className="flex justify-end gap-2">
+            
+            {/* Status selector - only for non-MeisterTask boards */}
+            {!isMeisterTask && (
+              <div>
+                <label className={`block text-sm ${labelColor} mb-1`}>Status</label>
+                <select
+                  title="Task status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as any)}
+                  className={`w-full rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
+                >
+                  <option value="todo">Todo</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2 pt-2">
               <Dialog.Close asChild>
-                <button className="px-4 py-2 rounded-md bg-zinc-700 text-sm text-white hover:bg-zinc-600">Cancel</button>
+                <button className="px-4 py-2 rounded-md text-sm transition-colors bg-zinc-700 text-white hover:bg-zinc-600">
+                  Cancel
+                </button>
               </Dialog.Close>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving}
-                className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
               >
                 Delete
               </button>
               <button
                 onClick={save}
                 disabled={saving}
-                className="px-4 py-2 rounded-md bg-teal-600 text-sm text-white hover:bg-teal-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-md bg-teal-600 text-sm text-white hover:bg-teal-700 disabled:opacity-50 transition-colors"
               >
                 {saving ? "Saving..." : "Save"}
               </button>

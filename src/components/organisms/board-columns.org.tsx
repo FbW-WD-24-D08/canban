@@ -1,6 +1,7 @@
 import { columnsApi } from "@/api/columns.api";
 import { tasksApi } from "@/api/tasks.api";
 import { useColumns } from "@/hooks/useColumns";
+import { getMeisterTaskColumnColor, getMeisterTaskColumnIcon } from "@/lib/meistertask-setup";
 import type { Column as ColumnType, Task } from "@/types/api.types";
 import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import {
@@ -45,9 +46,10 @@ function SortableColumn({ id, column, children }: { id: UniqueIdentifier; column
 
 interface BoardColumnsProps {
   boardId: string;
+  isMeisterTask?: boolean;
 }
 
-export function BoardColumns({ boardId }: BoardColumnsProps) {
+export function BoardColumns({ boardId, isMeisterTask = false }: BoardColumnsProps) {
   const { columns, loading, refetch } = useColumns(boardId);
   const [sortedColumns, setSortedColumns] = useState<ColumnType[]>([]);
   const [adding, setAdding] = useState(false);
@@ -80,7 +82,15 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
     if (!title.trim()) return;
     try {
       const position = sortedColumns.length;
-      await columnsApi.createColumn({ title, boardId, position });
+      const columnData: any = { title, boardId, position };
+      
+      // Add MeisterTask styling if it's a MeisterTask board
+      if (isMeisterTask) {
+        columnData.color = getMeisterTaskColumnColor(title);
+        columnData.icon = getMeisterTaskColumnIcon(title);
+      }
+      
+      await columnsApi.createColumn(columnData);
       setTitle("");
       setAdding(false);
       refetch();
@@ -186,7 +196,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+      <div className={`flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent ${isMeisterTask ? 'min-h-[600px]' : ''}`}>
         {loading ? (
           <div className="text-zinc-400 text-sm">Loading columns...</div>
         ) : sortedColumns.length === 0 ? (
@@ -200,14 +210,15 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
                   refreshToken={refreshToken}
                   onColumnDeleted={refetch}
                   onColumnUpdated={refetch}
+                  isMeisterTask={isMeisterTask}
                 />
               </SortableColumn>
             ))}
           </SortableContext>
         )}
 
-        {/* Add column UI */}
-        {adding ? (
+        {/* Add column UI - Enhanced for MeisterTask */}
+        {!isMeisterTask && (adding ? (
           <div className="w-72 flex-shrink-0 bg-zinc-900 border border-zinc-800 rounded-lg p-4">
             <input
               className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
@@ -240,7 +251,7 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
           >
             <Plus className="w-4 h-4 mr-1" /> Add column
           </button>
-        )}
+        ))}
       </div>
 
       <DragOverlay dropAnimation={null}>
@@ -251,9 +262,10 @@ export function BoardColumns({ boardId }: BoardColumnsProps) {
             onColumnDeleted={() => {}}
             onColumnUpdated={() => {}}
             isDragging
+            isMeisterTask={isMeisterTask}
           />
         ) : activeTask ? (
-          <div className="bg-zinc-800/80 border border-teal-500 rounded-lg p-3 text-sm text-white w-64 pointer-events-none">
+          <div className={`bg-zinc-800/80 border border-teal-500 rounded-lg p-3 text-sm text-white w-64 pointer-events-none ${isMeisterTask ? 'shadow-lg' : ''}`}>
             <div className="font-medium mb-1">{activeTask.title}</div>
             {activeTask.description && (
               <p className="text-xs text-zinc-400 line-clamp-2">{activeTask.description}</p>
