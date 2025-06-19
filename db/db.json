@@ -215,6 +215,14 @@
       "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
       "createdAt": "2025-06-18T09:48:30.997Z",
       "updatedAt": "2025-06-18T09:48:30.997Z"
+    },
+    {
+      "id": "14e1",
+      "title": "Task Management",
+      "description": "MT clone",
+      "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
+      "createdAt": "2025-06-19T19:36:09.260Z",
+      "updatedAt": "2025-06-19T19:36:09.260Z"
     }
   ],
   "boardMembers": [
@@ -362,6 +370,11 @@
       "id": "8ca1",
       "boardId": "44ed",
       "userId": "user_2ycqo9ILisOstvf9eVuHfjTGXBG"
+    },
+    {
+      "id": "3c28",
+      "boardId": "14e1",
+      "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
     }
   ],
   "columns": [
@@ -610,7 +623,7 @@
       "title": "1",
       "description": "1",
       "columnId": "cb1f",
-      "status": "todo",
+      "status": "in-progress",
       "attachments": [
         {
           "id": "c61055c4-95a6-4822-8156-648a0260c882",
