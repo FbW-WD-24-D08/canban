@@ -201,28 +201,12 @@
       "updatedAt": "2025-06-17T13:12:25.423Z"
     },
     {
-      "id": "03fa",
-      "title": "hallo felix",
-      "description": "",
-      "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
-      "createdAt": "2025-06-18T07:27:25.818Z",
-      "updatedAt": "2025-06-18T07:27:25.818Z"
-    },
-    {
-      "id": "44ed",
-      "title": ".ksdbgxo hueq<",
-      "description": "",
-      "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
-      "createdAt": "2025-06-18T09:48:30.997Z",
-      "updatedAt": "2025-06-18T09:48:30.997Z"
-    },
-    {
       "id": "14e1",
       "title": "Task Management",
       "description": "MT clone",
       "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
       "createdAt": "2025-06-19T19:36:09.260Z",
-      "updatedAt": "2025-06-19T19:36:09.260Z"
+      "updatedAt": "2025-06-19T20:44:20.000Z"
     }
   ],
   "boardMembers": [
@@ -352,29 +336,24 @@
       "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
     },
     {
-      "id": "9efc",
-      "boardId": "03fa",
-      "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
-    },
-    {
       "id": "81eb",
       "boardId": "1f9f",
-      "userId": "user_2ycqo9ILisOstvf9eVuHfjTGXBG"
-    },
-    {
-      "id": "6d2b",
-      "boardId": "44ed",
-      "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
-    },
-    {
-      "id": "8ca1",
-      "boardId": "44ed",
       "userId": "user_2ycqo9ILisOstvf9eVuHfjTGXBG"
     },
     {
       "id": "3c28",
       "boardId": "14e1",
       "userId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx"
+    },
+    {
+      "id": "da6e",
+      "boardId": "14e1",
+      "userId": "user_2ycqo9ILisOstvf9eVuHfjTGXBG"
+    },
+    {
+      "id": "4338",
+      "boardId": "14e1",
+      "userId": "user_2yctV4p1Ez62WBVHbG6ScEj0v3O"
     }
   ],
   "columns": [
@@ -460,30 +439,6 @@
       "id": "5d3b",
       "title": "123",
       "boardId": "bcdf",
-      "position": 1
-    },
-    {
-      "id": "ff03",
-      "title": "1",
-      "boardId": "03fa",
-      "position": 0
-    },
-    {
-      "id": "0218",
-      "title": "2",
-      "boardId": "03fa",
-      "position": 1
-    },
-    {
-      "id": "53bd",
-      "title": "1",
-      "boardId": "44ed",
-      "position": 0
-    },
-    {
-      "id": "d5e9",
-      "title": "2",
-      "boardId": "44ed",
       "position": 1
     },
     {
