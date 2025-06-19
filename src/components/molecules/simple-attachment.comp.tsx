@@ -1,5 +1,5 @@
+import { FileText, Link, X } from "lucide-react";
 import { useState } from "react";
-import { X, Link, Upload, FileText } from "lucide-react";
 
 interface Attachment {
   id: string;

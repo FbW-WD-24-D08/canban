@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { AlertTriangle, Info, Trash2 } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface ConfirmationModalProps {
   open: boolean;
