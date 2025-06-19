@@ -53,7 +53,8 @@ A modern Kanban board application for efficient project management and task orga
 ## 📖 Documentation
 
 - **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Detailed overview of recent enhancements including file preview system, UI improvements, and advanced functionality
-- **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes.
+- **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes
+- **[Modal System Upgrade](./docs/modal-system-upgrade.md)** – Complete guide to the modern modal and toast notification system, including migration from legacy browser dialogs
 
 ![sudo rm -rfv / --no-preserve-root](./public/sudo_rm_-rf.png)
 

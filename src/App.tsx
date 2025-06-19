@@ -5,6 +5,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router";
 
 import "./App.css";
+import { ToastProvider } from "./components/contexts/toast.context.tsx";
 import { UserProvider } from "./components/contexts/user.context.tsx";
 import DashboardLayout from "./components/layouts/dashboard.layout.tsx";
 
@@ -40,7 +41,7 @@ function App() {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <>
+      <ToastProvider>
         <Suspense
           fallback={
             <div className="flex flex-1 items-center justify-center p-8 text-zinc-400">
@@ -98,7 +99,7 @@ function App() {
             ?
           </button>
         )}
-      </>
+      </ToastProvider>
     </TooltipProvider>
   );
 }
