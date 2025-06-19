@@ -52,6 +52,7 @@ A modern Kanban board application for efficient project management and task orga
 
 ## 📖 Documentation
 
+- **[Design System](./docs/design-system.md)** – Comprehensive design documentation covering our dual-theme architecture, MeisterTask clone features, color palettes, component system, and accessibility guidelines
 - **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Detailed overview of recent enhancements including file preview system, UI improvements, and advanced functionality
 - **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes
 - **[Modal System Upgrade](./docs/modal-system-upgrade.md)** – Complete guide to the modern modal and toast notification system, including migration from legacy browser dialogs

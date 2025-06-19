@@ -1,5 +1,6 @@
 import { boardsApi } from "@/api/boards.api";
-import { useState, useEffect } from "react";
+import { isMeisterTaskBoard, setupMeisterTaskColumns } from "@/lib/meistertask-setup";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useBoard } from "../../hooks/useBoard.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
@@ -19,6 +20,7 @@ export default function BoardPage() {
   const [editingDesc, setEditingDesc] = useState(false);
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
+  const [meisterTaskSetupComplete, setMeisterTaskSetupComplete] = useState(false);
 
   useEffect(() => {
     if (board) {
@@ -26,6 +28,22 @@ export default function BoardPage() {
       setDesc(board.description || "");
     }
   }, [board]);
+
+  // Auto-setup MeisterTask columns for MeisterTask boards
+  useEffect(() => {
+    const setupMeisterTaskBoard = async () => {
+      if (board && isMeisterTaskBoard(board.id, board.description) && !meisterTaskSetupComplete) {
+        try {
+          await setupMeisterTaskColumns(board.id);
+          setMeisterTaskSetupComplete(true);
+        } catch (error) {
+          console.error('Failed to setup MeisterTask columns:', error);
+        }
+      }
+    };
+
+    setupMeisterTaskBoard();
+  }, [board, meisterTaskSetupComplete]);
 
   const saveBoard = async () => {
     if (!board) return;
@@ -35,6 +53,9 @@ export default function BoardPage() {
       console.error(err);
     }
   };
+
+  // Check if this is a MeisterTask board for conditional styling
+  const isMTBoard = board && isMeisterTaskBoard(board.id, board.description);
 
   if (loading) {
     return (
@@ -100,10 +121,18 @@ export default function BoardPage() {
         bots={false}
       />
       <DefaultLayout>
-        <div className="min-h-screen bg-zinc-950">
+        <div className={`min-h-screen ${isMTBoard ? 'bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950' : 'bg-zinc-950'}`}>
           <div className="flex">
             <div className="flex-1 min-w-0 px-6 py-8">
               <div className="mb-8">
+                {/* MeisterTask board indicator */}
+                {isMTBoard && (
+                  <div className="mb-4 flex items-center gap-2 text-sm text-teal-400">
+                    <span className="w-2 h-2 bg-teal-400 rounded-full animate-pulse"></span>
+                    MeisterTask Clone
+                  </div>
+                )}
+                
                 {editingTitle ? (
                   <input
                     className="text-3xl md:text-4xl font-bold bg-transparent outline-none border-b border-teal-500 text-white mb-2 w-full"
@@ -153,7 +182,7 @@ export default function BoardPage() {
                   </p>
                 )}
               </div>
-              <BoardColumns boardId={board.id} />
+              <BoardColumns boardId={board.id} isMeisterTask={isMTBoard} />
             </div>
           </div>
         </div>
