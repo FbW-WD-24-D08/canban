@@ -1,10 +1,12 @@
 import { tasksApi } from "@/api/tasks.api";
+import { previewCache } from "@/lib/preview-cache";
 import type { Task } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { useToast } from "../contexts/toast.context.tsx";
+import { DeleteConfirmationModal } from "./confirmation-modal.comp.tsx";
 import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
-import { previewCache } from "@/lib/preview-cache";
 
 interface TaskDialogProps {
   task: Task;
@@ -24,6 +26,8 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   const [attachments, setAttachments] = useState(task.attachments || []);
   const [filePreview, setFilePreview] = useState<{ data: string; name: string; type: string; attachmentId: string } | null>(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const toast = useToast();
 
 
 
@@ -45,7 +49,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
       });
     } catch (error) {
       console.error('Preview failed:', error);
-      alert(`Preview failed: ${error}`);
+      toast.error("Preview failed", `Could not preview file: ${error}`);
     } finally {
       setSaving(false);
     }
@@ -98,15 +102,15 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   };
 
   const handleDelete = async () => {
-    const ok = window.confirm("Delete this task permanently? This cannot be undone.");
-    if (!ok) return;
     try {
       setSaving(true);
       await tasksApi.deleteTask(task.id);
+      toast.success("Task deleted", "The task has been permanently deleted.");
       onDeleted?.();
       onOpenChange(false);
     } catch (err) {
       console.error(err);
+      toast.error("Delete failed", "Could not delete the task. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -213,7 +217,7 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
                 <button className="px-4 py-2 rounded-md bg-zinc-700 text-sm text-white hover:bg-zinc-600">Cancel</button>
               </Dialog.Close>
               <button
-                onClick={handleDelete}
+                onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving}
                 className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50"
               >
@@ -241,6 +245,15 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
         onOpenChange={closePreview}
       />
     )}
+    
+    <DeleteConfirmationModal
+      open={showDeleteConfirm}
+      onOpenChange={setShowDeleteConfirm}
+      onConfirm={handleDelete}
+      itemName={task.title}
+      itemType="task"
+      loading={saving}
+    />
     </>
   );
 }

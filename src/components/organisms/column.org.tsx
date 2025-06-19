@@ -4,13 +4,15 @@ import { useTasks } from "@/hooks/useTasks";
 import type { Column, Task } from "@/types/api.types";
 import { useDroppable } from "@dnd-kit/core";
 import {
-  SortableContext,
-  verticalListSortingStrategy,
+    SortableContext,
+    verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { GripVertical, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useToast } from "../contexts/toast.context";
+import { DeleteConfirmationModal } from "../molecules/confirmation-modal.comp";
 import { TaskCard } from "../molecules/task-card.comp";
 
 interface ColumnProps {
@@ -40,7 +42,10 @@ export function Column({
   const [newDesc, setNewDesc] = useState("");
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(column.title);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   const { setNodeRef } = useDroppable({
     id: column.id,
@@ -77,18 +82,16 @@ export function Column({
   };
 
   const handleDeleteColumn = async () => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the "${column.title}" column and all its tasks?`
-      )
-    ) {
-      try {
-        await columnsApi.deleteColumn(column.id);
-        onColumnDeleted();
-      } catch (err) {
-        console.error("Failed to delete column", err);
-        // You might want to show an error to the user here
-      }
+    try {
+      setDeleting(true);
+      await columnsApi.deleteColumn(column.id);
+      toast.success("Column deleted", `The "${column.title}" column and all its tasks have been deleted.`);
+      onColumnDeleted();
+    } catch (err) {
+      console.error("Failed to delete column", err);
+      toast.error("Delete failed", "Could not delete the column. Please try again.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -183,7 +186,7 @@ export function Column({
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className="h-[1px] bg-zinc-700 my-1" />
                 <DropdownMenu.Item
-                  onSelect={handleDeleteColumn}
+                  onSelect={() => setShowDeleteConfirm(true)}
                   className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-red-600 hover:text-white cursor-pointer focus:outline-none focus:bg-red-600"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -344,6 +347,15 @@ export function Column({
           )}
         </div>
       )}
+      
+      <DeleteConfirmationModal
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleDeleteColumn}
+        itemName={column.title}
+        itemType="column"
+        loading={deleting}
+      />
     </div>
   );
 }
