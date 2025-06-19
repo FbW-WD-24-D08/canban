@@ -5,13 +5,13 @@ import { getMeisterTaskColumnColor, getMeisterTaskColumnIcon } from "@/lib/meist
 import type { Column as ColumnType, Task } from "@/types/api.types";
 import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import {
-    closestCorners,
-    DndContext,
-    DragOverlay,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
+  closestCorners,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import { arrayMove, horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -36,7 +36,7 @@ function SortableColumn({ id, column, children }: { id: UniqueIdentifier; column
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
-      {React.cloneElement(children, {
+      {React.cloneElement(children as React.ReactElement<any>, {
         listeners,
         isDragging,
       })}

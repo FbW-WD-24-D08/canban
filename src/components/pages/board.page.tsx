@@ -55,7 +55,7 @@ export default function BoardPage() {
   };
 
   // Check if this is a MeisterTask board for conditional styling
-  const isMTBoard = board && isMeisterTaskBoard(board.id, board.description);
+  const isMTBoard = board ? isMeisterTaskBoard(board.id, board.description) : false;
 
   if (loading) {
     return (
