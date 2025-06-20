@@ -10,6 +10,7 @@ import { AvatarGroup } from "../atoms/avatar.comp";
 import { ChecklistProgress } from "../atoms/checklist-progress.comp";
 import { DueDateIndicator } from "../atoms/due-date-indicator.comp";
 import { PriorityBadge } from "../atoms/priority-badge.comp";
+import { TagGroup } from "../atoms/tag-chip.comp";
 import { TaskDialog } from "./task-dialog.comp";
 
 interface TaskCardProps {
@@ -107,6 +108,32 @@ export function TaskCard({
   const checklistItems = task.checklistItems || [];
   const checklistTotal = checklistItems.length;
   const checklistCompleted = checklistItems.filter(item => item.completed).length;
+
+  // Convert task tags to Tag objects for display with smart color mapping
+  const getTagColor = (tagName: string): string => {
+    const colorMap: Record<string, string> = {
+      'Frontend': 'blue',
+      'Backend': 'green', 
+      'Design': 'purple',
+      'UI/UX': 'pink',
+      'Security': 'red',
+      'API': 'orange',
+      'Testing': 'yellow',
+      'Mobile': 'teal',
+      'UX': 'pink',
+      'Performance': 'green',
+      'Database': 'gray',
+      'Onboarding': 'blue'
+    };
+    return colorMap[tagName] || 'gray';
+  };
+
+  const taskTags = (task.tags || []).map(tagName => ({
+    id: tagName,
+    name: tagName,
+    color: getTagColor(tagName),
+    boardId: '14e1'
+  }));
 
   return (
     <>
@@ -243,6 +270,18 @@ export function TaskCard({
           <p className={`text-sm ${descColor} line-clamp-2 mb-3 leading-relaxed`}>
             {task.description}
           </p>
+        )}
+
+        {/* Tags display for MeisterTask boards */}
+        {isMeisterTask && taskTags.length > 0 && (
+          <div className="mb-3">
+            <TagGroup 
+              tags={taskTags}
+              size="sm"
+              maxVisible={3}
+              className="flex-wrap"
+            />
+          </div>
         )}
 
         {/* MeisterTask Enhanced Layout vs Regular Layout */}
