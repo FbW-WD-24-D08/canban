@@ -1,6 +1,6 @@
 import { tasksApi } from "@/api/tasks.api";
 import { previewCache } from "@/lib/preview-cache";
-import type { Priority, Task } from "@/types/api.types";
+import type { Priority, Tag, Task } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import React, { useState } from "react";
@@ -8,6 +8,7 @@ import { DatePicker } from "../atoms/due-date-indicator.comp";
 import { PrioritySelector } from "../atoms/priority-badge.comp";
 import { useToast } from "../contexts/toast.context.tsx";
 import { DeleteConfirmationModal } from "./confirmation-modal.comp.tsx";
+import { TagSelector } from "./tag-selector.comp";
 import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
 
 interface TaskDialogProps {
@@ -40,6 +41,65 @@ export function TaskDialog({
   const [files, setFiles] = useState<File[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const toast = useToast();
+
+  // Tag management for MeisterTask boards
+  const getTagColor = (tagName: string): string => {
+    const colorMap: Record<string, string> = {
+      'Frontend': 'blue',
+      'Backend': 'green', 
+      'Design': 'purple',
+      'UI/UX': 'pink',
+      'Security': 'red',
+      'API': 'orange',
+      'Testing': 'yellow',
+      'Mobile': 'teal',
+      'UX': 'pink',
+      'Performance': 'green',
+      'Database': 'gray',
+      'Onboarding': 'blue'
+    };
+    return colorMap[tagName] || 'gray';
+  };
+
+  // Convert string tags to Tag objects
+  const stringToTag = (tagName: string): Tag => ({
+    id: tagName,
+    name: tagName,
+    color: getTagColor(tagName),
+    boardId: '14e1'
+  });
+
+  // Available tags (in a real app, this would come from an API)
+  const availableTags: Tag[] = [
+    'Frontend', 'Backend', 'Design', 'UI/UX', 'Security', 'API', 
+    'Testing', 'Mobile', 'UX', 'Performance', 'Database', 'Onboarding',
+    'Bug', 'Feature', 'Enhancement', 'Documentation', 'Refactor'
+  ].map(stringToTag);
+
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(
+    (task.tags || []).map(stringToTag)
+  );
+
+  const handleTagSelect = (tag: Tag) => {
+    if (!selectedTags.find(t => t.id === tag.id)) {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  const handleTagDeselect = (tagId: string) => {
+    setSelectedTags(selectedTags.filter(t => t.id !== tagId));
+  };
+
+  const handleCreateTag = async (name: string, color: string): Promise<Tag> => {
+    // In a real app, this would call an API to create the tag
+    const newTag: Tag = {
+      id: name,
+      name,
+      color,
+      boardId: '14e1'
+    };
+    return newTag;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -105,6 +165,7 @@ export function TaskDialog({
       if (isMeisterTask) {
         updateData.priority = priority;
         updateData.dueDate = dueDate;
+        updateData.tags = selectedTags.map(tag => tag.name);
       }
 
       await tasksApi.updateTask(task.id, updateData);
@@ -199,6 +260,20 @@ export function TaskDialog({
                   <DatePicker
                     value={dueDate}
                     onChange={setDueDate}
+                  />
+                </div>
+
+                {/* Tag selector */}
+                <div>
+                  <label className={`block text-sm ${labelColor} mb-2`}>Tags</label>
+                  <TagSelector
+                    selectedTags={selectedTags}
+                    availableTags={availableTags}
+                    onTagSelect={handleTagSelect}
+                    onTagDeselect={handleTagDeselect}
+                    onCreateTag={handleCreateTag}
+                    maxTags={5}
+                    placeholder="Search or create tags..."
                   />
                 </div>
               </div>
