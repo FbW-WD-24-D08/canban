@@ -48,7 +48,10 @@ export function CreateBoardDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-zinc-900 p-6 shadow-lg">
+        <Dialog.Content 
+          className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-zinc-900 p-6 shadow-lg"
+          aria-describedby="create-board-description"
+        >
           <div className="flex items-center justify-between mb-4">
             <Dialog.Title className="text-lg font-semibold text-white">Create Board</Dialog.Title>
             <Dialog.Close asChild>
@@ -58,6 +61,9 @@ export function CreateBoardDialog({
               </button>
             </Dialog.Close>
           </div>
+          <Dialog.Description id="create-board-description" className="sr-only">
+            Create a new board with a title and optional description.
+          </Dialog.Description>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm text-zinc-400 mb-1" htmlFor="title">

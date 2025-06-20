@@ -10,8 +10,14 @@ export function HelpOverlay({ onClose }: HelpOverlayProps) {
       if (!open) onClose();
     }}>
       <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" />
-      <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg bg-zinc-900 p-6 shadow-lg z-50 text-sm text-zinc-200 space-y-4">
+      <Dialog.Content 
+        className="fixed left-1/2 top-1/2 w-[90vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg bg-zinc-900 p-6 shadow-lg z-50 text-sm text-zinc-200 space-y-4"
+        aria-describedby="help-overlay-description"
+      >
         <Dialog.Title className="text-xl font-semibold text-white mb-2">Keyboard Shortcuts</Dialog.Title>
+        <Dialog.Description id="help-overlay-description" className="sr-only">
+          List of available keyboard shortcuts for the kanban board
+        </Dialog.Description>
         <ul className="space-y-2 list-disc list-inside">
           <li>
             <kbd className="px-2 py-1 rounded bg-zinc-800 text-zinc-100 text-xs mr-2">?</kbd>

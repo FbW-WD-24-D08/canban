@@ -90,6 +90,8 @@ export async function setupMeisterTaskColumns(
  * Get MeisterTask color for a column by title
  */
 export function getMeisterTaskColumnColor(columnTitle: string): string {
+  if (!columnTitle) return "#9E9E9E";
+
   const column = MEISTERTASK_COLUMNS.find(
     (col) => col.title.toLowerCase() === columnTitle.toLowerCase()
   );
@@ -100,6 +102,8 @@ export function getMeisterTaskColumnColor(columnTitle: string): string {
  * Get MeisterTask icon for a column by title
  */
 export function getMeisterTaskColumnIcon(columnTitle: string): string {
+  if (!columnTitle) return "📋";
+
   const column = MEISTERTASK_COLUMNS.find(
     (col) => col.title.toLowerCase() === columnTitle.toLowerCase()
   );
