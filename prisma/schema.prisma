@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Board {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+
+  columns     Column[]
+  members     BoardMember[]
+
+  @@map("boards")
+}
+
+
+model BoardMember {
+  id      String @id @default(cuid())
+  boardId String
+  userId  String
+
+
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, userId])
+  @@map("boardMembers")
+}
+
+
+model Column {
+  id       String @id @default(cuid())
+  title    String
+  boardId  String
+  position Int
+  color    String?
+  icon     String?
+
+
+  board    Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  tasks    Task[]
+
+  @@map("columns")
+}
+
+
+model Task {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  columnId       String
+  position       Int?
+  status         String?
+  priority       String?
+  archived       Boolean   @default(false)
+  dueDate        DateTime?
+  assignees      String[]  
+  estimatedHours Int?
+
+
+  column         Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  attachments    Attachment[]
+  checklistItems ChecklistItem[]
+
+  @@map("tasks")
+}
+
+
+model Attachment {
+  id     String @id @default(cuid())
+  taskId String
+  name   String
+  type   String
+  data   String? // Base64 данные или URL
+
+
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+
+model ChecklistItem {
+  id        String  @id @default(cuid())
+  taskId    String
+  text      String
+  completed Boolean @default(false)
+
+
+  task      Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("checklistItems")
+}
+
+
+model UserName {
+  id       String @id
+  username String
+
+  @@map("usernames")
+}
+
+
+model UserEmail {
+  id    String @id
+  email String
+
+  @@map("useremails")
+}
