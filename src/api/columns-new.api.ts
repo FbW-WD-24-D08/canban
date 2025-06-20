@@ -11,10 +11,6 @@ export const columnsApi = {
     return apiClient.get<Column[]>(`/columns${params}`);
   },
 
-  getBoardColumns: async (boardId: string): Promise<Column[]> => {
-    return apiClient.get<Column[]>(`/columns?boardId=${boardId}`);
-  },
-
   getColumnById: async (id: string): Promise<Column> => {
     return apiClient.get<Column>(`/columns/${id}`);
   },
@@ -26,14 +22,9 @@ export const columnsApi = {
   updateColumn: async (id: string, data: UpdateColumnData): Promise<Column> => {
     return apiClient.put<Column>(`/columns/${id}`, data);
   },
+
   deleteColumn: async (id: string): Promise<void> => {
     await apiClient.delete(`/columns/${id}`);
-  },
-
-  updateColumnPositions: async (
-    updates: { id: string; position: number }[]
-  ): Promise<void> => {
-    await apiClient.put("/columns/positions", { updates });
   },
 };
 

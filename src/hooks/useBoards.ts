@@ -9,6 +9,7 @@ export function useBoards(userId: string | null) {
 
   const fetchBoards = async () => {
     if (!userId) {
+      setBoards([]);
       setLoading(false);
       return;
     }
@@ -17,10 +18,11 @@ export function useBoards(userId: string | null) {
       setLoading(true);
       setError(null);
       const userBoards = await boardsApi.getUserBoards(userId);
-      setBoards(userBoards);
+      setBoards(userBoards || []);
     } catch (err) {
       console.error("Error fetching boards:", err);
       setError("Failed to load boards");
+      setBoards([]);
     } finally {
       setLoading(false);
     }

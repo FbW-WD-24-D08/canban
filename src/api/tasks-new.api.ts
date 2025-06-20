@@ -9,17 +9,6 @@ export const tasksApi = {
     const queryString = params.toString() ? `?${params.toString()}` : "";
     return apiClient.get<Task[]>(`/tasks${queryString}`);
   },
-  getColumnTasks: async (
-    columnId: string,
-    includeArchived?: boolean
-  ): Promise<Task[]> => {
-    const params = new URLSearchParams();
-    params.append("columnId", columnId);
-    if (includeArchived !== undefined) {
-      params.append("includeArchived", includeArchived.toString());
-    }
-    return apiClient.get<Task[]>(`/tasks?${params.toString()}`);
-  },
 
   getTaskById: async (id: string): Promise<Task> => {
     return apiClient.get<Task>(`/tasks/${id}`);

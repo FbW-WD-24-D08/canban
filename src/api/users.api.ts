@@ -1,44 +1,80 @@
-import type { UserEmail, UserName } from "../types/api.types.ts";
 import { apiClient } from "./client";
+import type { User, CreateUserData, UpdateUserData } from "../types/api.types";
 
 export const usersApi = {
-  getUserName: async (id: string): Promise<UserName | null> => {
+  getUsers: async (): Promise<User[]> => {
+    return apiClient.get<User[]>("/users");
+  },
+
+  getUserById: async (id: string): Promise<User> => {
+    return apiClient.get<User>(`/users/${id}`);
+  },
+
+  createUser: async (data: CreateUserData): Promise<User> => {
+    return apiClient.post<User>("/users", data);
+  },
+
+  updateUser: async (id: string, data: UpdateUserData): Promise<User> => {
+    return apiClient.put<User>(`/users/${id}`, data);
+  },
+
+  deleteUser: async (id: string): Promise<void> => {
+    await apiClient.delete(`/users/${id}`);
+  },
+
+  getUserName: async (
+    id: string
+  ): Promise<{ id: string; username: string } | null> => {
     try {
-      const usernames: UserName[] = await apiClient.get("/usernames");
-      return usernames.find((user) => user.id === id) || null;
-    } catch (error) {
-      console.error("Error fetching username:", error);
+      return apiClient.get<{ id: string; username: string }>(
+        `/users/${id}/name`
+      );
+    } catch {
       return null;
     }
   },
 
-  createUserName: async (id: string, username: string): Promise<UserName> => {
-    const newUser: UserName = { id, username };
-    return await apiClient.post("/usernames", newUser);
-  },
-
-  getUserEmailById: async (id: string): Promise<UserEmail | null> => {
+  getUserEmailById: async (
+    id: string
+  ): Promise<{ id: string; email: string } | null> => {
     try {
-      const useremails: UserEmail[] = await apiClient.get("/useremails");
-      return useremails.find((email) => email.id === id) || null;
-    } catch (error) {
-      console.error("Error fetching user email:", error);
+      return apiClient.get<{ id: string; email: string }>(`/users/${id}/email`);
+    } catch {
       return null;
     }
   },
 
-  getUserIdByEmail: async (email: string): Promise<UserEmail | null> => {
-    try {
-      const useremails: UserEmail[] = await apiClient.get("/useremails");
-      return useremails.find((user) => user.email === email) || null;
-    } catch (error) {
-      console.error("Error fetching user by email:", error);
-      return null;
-    }
+  createUserName: async (
+    id: string,
+    username: string
+  ): Promise<{ id: string; username: string }> => {
+    return apiClient.post<{ id: string; username: string }>("/users/name", {
+      id,
+      username,
+    });
   },
 
-  createUserEmail: async (id: string, email: string): Promise<UserEmail> => {
-    const newEmail: UserEmail = { id, email };
-    return await apiClient.post("/useremails", newEmail);
+  createUserEmail: async (
+    id: string,
+    email: string
+  ): Promise<{ id: string; email: string }> => {
+    return apiClient.post<{ id: string; email: string }>("/users/email", {
+      id,
+      email,
+    });
+  },
+
+  getUserIdByEmail: async (
+    email: string
+  ): Promise<{ id: string; email: string } | null> => {
+    try {
+      return apiClient.get<{ id: string; email: string }>(
+        `/users/email/${encodeURIComponent(email)}`
+      );
+    } catch {
+      return null;
+    }
   },
 };
+
+export default usersApi;

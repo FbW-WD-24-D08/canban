@@ -117,6 +117,33 @@ export interface UserEmail {
   email: string;
 }
 
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+}
+
+export interface CreateUserData {
+  id: string;
+  username: string;
+  email?: string;
+}
+
+export interface UpdateUserData {
+  username?: string;
+  email?: string;
+}
+
+export interface PaginatedBoards {
+  boards: Board[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export type Priority = "low" | "medium" | "high" | "urgent";
 
 export interface Tag {

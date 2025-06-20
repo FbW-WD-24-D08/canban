@@ -1,73 +1,63 @@
-import { siteConfig } from "../config/site";
-
-const API_BASE_URL = siteConfig.API_BASE_URL || "http://localhost:3001";
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://your-production-api.com/api"
+    : "http://localhost:3001/api";
 
 class ApiClient {
-  private baseUrl: string;
+  private baseURL: string;
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  constructor(baseURL: string = API_BASE_URL) {
+    this.baseURL = baseURL;
   }
 
-  async get(endpoint: string) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`);
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const config: RequestInit = {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    const response = await fetch(url, config);
+
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    if (response.status === 204) {
+      return {} as T;
+    }
+
     return response.json();
   }
 
-  async post(endpoint: string, data: any) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+  async get<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "GET" });
+  }
+
+  async post<T>(endpoint: string, data: any): Promise<T> {
+    return this.request<T>(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(data),
     });
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
   }
 
-  async put(endpoint: string, data: any) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+  async put<T>(endpoint: string, data: any): Promise<T> {
+    return this.request<T>(endpoint, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(data),
     });
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
   }
 
-  async patch(endpoint: string, data: any) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
-  }
-
-  async delete(endpoint: string) {
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
+  async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, { method: "DELETE" });
   }
 }
 
-export const apiClient = new ApiClient(API_BASE_URL);
+export const apiClient = new ApiClient();
+export default apiClient;

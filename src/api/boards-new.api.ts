@@ -4,29 +4,22 @@ import type {
   BoardMember,
   CreateBoardData,
   UpdateBoardData,
-  PaginatedBoards,
 } from "../types/api.types";
 
 export const boardsApi = {
   getUserBoards: async (clerkUserId: string): Promise<Board[]> => {
-    const response = await apiClient.get<PaginatedBoards>(
-      `/boards?userId=${clerkUserId}&limit=100`
-    );
-    return response.boards || [];
+    return apiClient.get<Board[]>(`/boards?userId=${clerkUserId}`);
   },
 
   getBoardById: async (boardId: string): Promise<Board> => {
     return apiClient.get<Board>(`/boards/${boardId}`);
   },
+
   createBoard: async (
     data: CreateBoardData,
     ownerId: string
   ): Promise<Board> => {
-    return apiClient.post<Board>("/boards", {
-      name: data.title, // Map title to name for server
-      description: data.description,
-      userId: ownerId,
-    });
+    return apiClient.post<Board>("/boards", { ...data, ownerId });
   },
 
   updateBoard: async (
