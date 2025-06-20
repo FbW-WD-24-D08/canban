@@ -11,6 +11,7 @@ import { ChecklistProgress } from "../atoms/checklist-progress.comp";
 import { DueDateIndicator } from "../atoms/due-date-indicator.comp";
 import { PriorityBadge } from "../atoms/priority-badge.comp";
 import { TagGroup } from "../atoms/tag-chip.comp";
+import { TimeDisplay } from "../atoms/time-tracker.comp";
 import { TaskDialog } from "./task-dialog.comp";
 
 interface TaskCardProps {
@@ -323,11 +324,12 @@ export function TaskCard({
               {/* Right side meta */}
               <div className="flex items-center gap-2">
                 {/* Time tracking */}
-                {task.estimatedHours && (
-                  <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
-                    <span>⏱️</span>
-                    <span>{task.estimatedHours}h</span>
-                  </div>
+                {(task.estimatedHours || task.actualHours) && (
+                  <TimeDisplay 
+                    estimatedHours={task.estimatedHours}
+                    actualHours={task.actualHours || 0}
+                    isTracking={task.isTrackingTime}
+                  />
                 )}
               </div>
             </div>

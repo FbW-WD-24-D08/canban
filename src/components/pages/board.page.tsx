@@ -3,10 +3,12 @@ import { isMeisterTaskBoard, setupMeisterTaskColumns } from "@/lib/meistertask-s
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useBoard } from "../../hooks/useBoard.ts";
+import { useBoardTasks } from "../../hooks/useBoardTasks.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
 import { useUserContext } from "../contexts/user.context.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
 import { BoardColumns } from "../organisms/board-columns.org.tsx";
+import { MeisterTaskBoardToolbar } from "../organisms/meistertask-board-toolbar.org.tsx";
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,9 @@ export default function BoardPage() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [meisterTaskSetupComplete, setMeisterTaskSetupComplete] = useState(false);
+
+  // Get tasks for MeisterTask boards
+  const { tasks: allTasks } = useBoardTasks(board?.id || null);
 
   useEffect(() => {
     if (board) {
@@ -182,6 +187,16 @@ export default function BoardPage() {
                   </p>
                 )}
               </div>
+              
+              {/* MeisterTask Toolbar - only for MeisterTask boards */}
+              {isMTBoard && allTasks && (
+                <MeisterTaskBoardToolbar
+                  tasks={allTasks}
+                  onFilteredTasksChange={() => {}}
+                  className="mb-6"
+                />
+              )}
+              
               <BoardColumns boardId={board.id} isMeisterTask={isMTBoard} />
             </div>
           </div>

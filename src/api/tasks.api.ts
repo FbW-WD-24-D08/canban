@@ -22,6 +22,35 @@ export const tasksApi = {
     }
   },
 
+  /**
+   * Fetch all tasks for a given board by getting tasks from all columns
+   */
+  getBoardTasks: async (
+    boardId: string,
+    includeArchived = false
+  ): Promise<Task[]> => {
+    try {
+      // First get all columns for this board
+      const columns = await apiClient.get(`/columns?boardId=${boardId}`);
+
+      // Then get all tasks for all columns
+      const allTasks: Task[] = [];
+      for (const column of columns) {
+        const columnTasks = await apiClient.get(
+          `/tasks?columnId=${column.id}&_sort=position`
+        );
+        allTasks.push(...columnTasks);
+      }
+
+      return includeArchived
+        ? allTasks
+        : allTasks.filter((t: Task) => !t.archived);
+    } catch (error) {
+      console.error("Error fetching board tasks:", error);
+      throw error;
+    }
+  },
+
   createTask: async (data: CreateTaskData): Promise<Task> => {
     try {
       return await apiClient.post("/tasks", data);

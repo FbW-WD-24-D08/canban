@@ -22,6 +22,16 @@ export interface Column {
   icon?: string;
 }
 
+export interface TimeEntry {
+  id: string;
+  startTime: Date | string;
+  endTime?: Date | string;
+  duration: number; // in hours
+  description?: string;
+  date: string; // YYYY-MM-DD format
+  userId?: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -37,6 +47,9 @@ export interface Task {
   dueDate?: string;
   estimatedHours?: number;
   actualHours?: number;
+  timeEntries?: TimeEntry[];
+  isTrackingTime?: boolean;
+  trackingStartTime?: string;
   checklistItems?: ChecklistItem[];
   createdAt?: string;
   updatedAt?: string;
@@ -104,6 +117,9 @@ export interface UpdateTaskData {
   dueDate?: string;
   estimatedHours?: number;
   actualHours?: number;
+  timeEntries?: TimeEntry[];
+  isTrackingTime?: boolean;
+  trackingStartTime?: string;
   checklistItems?: ChecklistItem[];
 }
 

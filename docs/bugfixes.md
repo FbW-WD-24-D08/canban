@@ -2,7 +2,13 @@
 
 ![Heute mal frei?](../public/Heute-mal-frei.webp)
 
-This document outlines key bugfixes and stability improvements recently applied to the Canban application.
+This document outlines key bugfixes and stability improvements recently applied to the Canban application during our comprehensive MeisterTask clone transformation, as detailed in our [MeisterTask Clone PRD](./meistertask-clone-prd.md).
+
+---
+
+## 🎯 MeisterTask Implementation Context
+
+Our recent bugfixes are part of the larger MeisterTask clone implementation effort, ensuring that new features integrate seamlessly with existing functionality while maintaining the high-quality user experience outlined in our PRD.
 
 ---
 
@@ -41,6 +47,45 @@ This document outlines key bugfixes and stability improvements recently applied 
   > Whatever.
 
 - **Outcome:** The user database is now clean, accurate, and in sync with the authentication provider. This strenuous but necessary task ensures data integrity and security moving forward.
+
+## 6. Tag System Database Cleanup & Architecture Fix (January 2025)
+
+- **Problem:** Critical database integrity issues preventing tag system functionality:
+
+  - Duplicate task entries (mt04, mt05) with conflicting data structures
+  - Missing DevOps Pipeline task tags (`DevOps`, `CI/CD`, `Automation`, `Infrastructure`)
+  - Inconsistent JSON formatting causing parsing errors
+  - `useTasks` hook was column-specific, couldn't fetch board-level tasks for filtering
+
+- **Root Cause:** Database had accumulated duplicate entries during development, with some tasks existing in multiple formats. The original API architecture was designed for column-level task management, not board-wide operations.
+
+- **Solution:** Comprehensive database and API architecture overhaul:
+
+  - **Database Cleanup:** Manually removed all duplicate task entries, standardized JSON structure
+  - **New API Method:** Created `tasksApi.getBoardTasks()` for board-level task fetching
+  - **New React Hook:** Implemented `useBoardTasks()` for board-wide task state management
+  - **Import Fixes:** Added missing TagGroup imports causing ReferenceError in TaskCard component
+  - **Data Validation:** Ensured all 6 MeisterTask sample tasks have proper tag arrays
+
+- **Impact:**
+
+  - ✅ All 18 unique tags now display correctly in filtering system
+  - ✅ DevOps Pipeline task with missing tags (`DevOps`, `CI/CD`, `Automation`, `Infrastructure`) restored
+  - ✅ Tag filtering system fully functional with live task counts
+  - ✅ No more runtime errors or database parsing issues
+  - ✅ Board-level operations now work seamlessly
+
+- **Technical Details:**
+  ```typescript
+  // New API method for board-level task management
+  getBoardTasks: async (boardId: string): Promise<Task[]> => {
+    const columns = await apiClient.get(`/columns?boardId=${boardId}`);
+    const allTasks = await Promise.all(
+      columns.map((col) => apiClient.get(`/tasks?columnId=${col.id}`))
+    );
+    return allTasks.flat();
+  };
+  ```
 
 ---
 

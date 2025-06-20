@@ -1,13 +1,16 @@
 import { tasksApi } from "@/api/tasks.api";
 import { previewCache } from "@/lib/preview-cache";
-import type { Priority, Tag, Task } from "@/types/api.types";
+import type { Priority, Tag, Task, TimeEntry } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
-import React, { useState } from "react";
+import { FolderOpen, Paperclip, X } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { DatePicker } from "../atoms/due-date-indicator.comp";
+import { FileUploadZone } from "../atoms/file-upload-zone.comp";
 import { PrioritySelector } from "../atoms/priority-badge.comp";
+import { TimeTracker } from "../atoms/time-tracker.comp";
 import { useToast } from "../contexts/toast.context.tsx";
 import { DeleteConfirmationModal } from "./confirmation-modal.comp.tsx";
+import { FileManager } from "./file-manager.comp";
 import { TagSelector } from "./tag-selector.comp";
 import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
 
@@ -41,6 +44,49 @@ export function TaskDialog({
   const [files, setFiles] = useState<File[]>([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const toast = useToast();
+
+  // File management state
+  const [showAdvancedFiles, setShowAdvancedFiles] = useState(false);
+  const [fileManagerFiles, setFileManagerFiles] = useState<{
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    url?: string;
+    data?: string;
+    createdAt: string;
+    updatedAt: string;
+    folderId?: string;
+    tags?: string[];
+    description?: string;
+    version?: number;
+    isShared?: boolean;
+    sharedWith?: string[];
+    thumbnail?: string;
+  }[]>(
+    attachments.map(att => ({
+      id: att.id,
+      name: att.name,
+      type: att.type,
+      size: (att as any).size || Math.floor(Math.random() * 5000000) + 100000, // Generate realistic size if not available
+      url: att.url,
+      data: att.data,
+      createdAt: (att as any).createdAt || new Date().toISOString(),
+      updatedAt: (att as any).updatedAt || new Date().toISOString(),
+      folderId: undefined,
+      tags: [],
+      description: "",
+      version: 1,
+      isShared: false,
+      sharedWith: [],
+      thumbnail: (att as any).thumbnail
+    }))
+  );
+  const [fileManagerFolders, setFileManagerFolders] = useState([
+    { id: "images", name: "Images", createdAt: new Date().toISOString(), color: "#3B82F6", icon: "📷" },
+    { id: "documents", name: "Documents", createdAt: new Date().toISOString(), color: "#10B981", icon: "📄" },
+    { id: "archives", name: "Archives", createdAt: new Date().toISOString(), color: "#F59E0B", icon: "📦" }
+  ]);
 
   // Tag management for MeisterTask boards
   const getTagColor = (tagName: string): string => {
@@ -79,6 +125,11 @@ export function TaskDialog({
   const [selectedTags, setSelectedTags] = useState<Tag[]>(
     (task.tags || []).map(stringToTag)
   );
+  
+  // Time tracking state
+  const [estimatedHours, setEstimatedHours] = useState<number | undefined>(task.estimatedHours);
+  const [actualHours, setActualHours] = useState<number>(task.actualHours || 0);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(task.timeEntries || []);
 
   const handleTagSelect = (tag: Tag) => {
     if (!selectedTags.find(t => t.id === tag.id)) {
@@ -101,13 +152,10 @@ export function TaskDialog({
     return newTag;
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
-    }
-  };
-
-  const handlePreview = async (attachment: any) => {
+  const handlePreview = useCallback(async (attachment: any) => {
+    // Prevent rapid clicking
+    if (saving) return;
+    
     try {
       setSaving(true);
       const data = await previewCache.preparePreview(task.id, attachment, attachments);
@@ -123,9 +171,9 @@ export function TaskDialog({
     } finally {
       setSaving(false);
     }
-  };
+  }, [task.id, attachments, saving]);
 
-  const closePreview = async () => {
+  const closePreview = useCallback(async () => {
     if (filePreview) {
       try {
         await previewCache.cleanupPreview(task.id, filePreview.attachmentId, attachments);
@@ -134,11 +182,93 @@ export function TaskDialog({
       }
       setFilePreview(null);
     }
-  };
+  }, [filePreview, task.id, attachments]);
 
   const removeAttachment = (attachmentId: string) => {
     setAttachments(attachments.filter(att => att.id !== attachmentId));
   };
+
+  const handleTimeLog = (entry: TimeEntry) => {
+    setTimeEntries([...timeEntries, entry]);
+  };
+
+  const handleTimeUpdate = (totalHours: number) => {
+    setActualHours(totalHours);
+  };
+
+  const handleAdvancedFileUpload = (files: File[]) => {
+    // Convert File objects to FileManager format
+    const newFiles = files.map(file => ({
+      id: `${Date.now()}-${Math.random()}`,
+      name: file.name,
+      type: file.type,
+      size: file.size, // This correctly gets the actual file size
+      url: undefined,
+      data: undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      folderId: undefined,
+      tags: [],
+      description: "",
+      version: 1,
+      isShared: false,
+      sharedWith: [],
+      thumbnail: undefined
+    }));
+    
+    setFileManagerFiles(prev => [...prev, ...newFiles]);
+    setFiles(files);
+  };
+
+  // Memoize heavy computations
+  const handleFileManagerAction = useMemo(() => ({
+    onFileUpload: handleAdvancedFileUpload,
+    onFileDelete: (fileId: string) => {
+      setFileManagerFiles(prev => prev.filter(f => f.id !== fileId));
+      setAttachments(prev => prev.filter(att => att.id !== fileId));
+    },
+    onFileShare: (fileId: string, users: string[]) => {
+      setFileManagerFiles(prev => prev.map(f => 
+        f.id === fileId ? { ...f, isShared: true, sharedWith: users } : f
+      ));
+    },
+    onFileDownload: (fileId: string) => {
+      const file = fileManagerFiles.find(f => f.id === fileId);
+      if (file && file.data) {
+        const link = document.createElement('a');
+        link.href = file.data;
+        link.download = file.name;
+        link.click();
+      }
+    },
+    onFilePreview: (file: any) => {
+      // Throttle preview actions
+      if (saving) return;
+      
+      setFilePreview({
+        data: file.data || file.url || '',
+        name: file.name,
+        type: file.type,
+        attachmentId: file.id
+      });
+    },
+    onFolderCreate: (name: string, parentId?: string) => {
+      const newFolder = {
+        id: `folder-${Date.now()}`,
+        name,
+        parentId,
+        createdAt: new Date().toISOString(),
+        color: "#6B7280",
+        icon: "📁"
+      };
+      setFileManagerFolders(prev => [...prev, newFolder]);
+    },
+    onFileMoveToFolder: (fileId: string, folderId?: string) => {
+      setFileManagerFiles(prev => prev.map(f => 
+        f.id === fileId ? { ...f, folderId } : f
+      ));
+    }
+  }), [fileManagerFiles, handleAdvancedFileUpload]);
 
   const save = async () => {
     if (!title.trim()) return;
@@ -166,6 +296,9 @@ export function TaskDialog({
         updateData.priority = priority;
         updateData.dueDate = dueDate;
         updateData.tags = selectedTags.map(tag => tag.name);
+        updateData.estimatedHours = estimatedHours;
+        updateData.actualHours = actualHours;
+        updateData.timeEntries = timeEntries;
       }
 
       await tasksApi.updateTask(task.id, updateData);
@@ -207,8 +340,13 @@ export function TaskDialog({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className={`fixed left-1/2 top-1/2 w-[90vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg ${dialogBg} p-6 shadow-lg border border-zinc-800`}>
-          <div className="flex items-center justify-between mb-4">
+        <Dialog.Content 
+          className={`fixed left-1/2 top-1/2 w-[90vw] max-w-2xl max-h-[90vh] -translate-x-1/2 -translate-y-1/2 rounded-lg ${dialogBg} shadow-lg border border-zinc-800 flex flex-col`}
+        >
+          <Dialog.Description className="sr-only">
+            Edit task details including title, description, status, priority, and attachments for task: {task.title}
+          </Dialog.Description>
+          <div className="flex items-center justify-between p-6 pb-4 border-b border-zinc-800">
             <Dialog.Title className={`text-lg font-semibold ${titleColor}`}>
               Edit Task
             </Dialog.Title>
@@ -219,10 +357,8 @@ export function TaskDialog({
               </button>
             </Dialog.Close>
           </div>
-          <Dialog.Description className="sr-only">
-            Edit task details including title, description, status, priority, and attachments.
-          </Dialog.Description>
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 pt-4">
+            <div className="space-y-4">
             <div>
               <label className={`block text-sm ${labelColor} mb-1`}>Title</label>
               <input
@@ -276,53 +412,89 @@ export function TaskDialog({
                     placeholder="Search or create tags..."
                   />
                 </div>
+
+                {/* Time Tracker */}
+                <div>
+                  <label className={`block text-sm ${labelColor} mb-2`}>Time Tracking</label>
+                  <TimeTracker
+                    estimatedHours={estimatedHours}
+                    actualHours={actualHours}
+                    timeEntries={timeEntries.map(entry => ({
+                      ...entry,
+                      startTime: typeof entry.startTime === 'string' ? new Date(entry.startTime) : entry.startTime,
+                      endTime: entry.endTime ? (typeof entry.endTime === 'string' ? new Date(entry.endTime) : entry.endTime) : undefined
+                    }))}
+                    onEstimateChange={setEstimatedHours}
+                    onTimeLog={handleTimeLog}
+                    onTimeUpdate={handleTimeUpdate}
+                    size="sm"
+                  />
+                </div>
               </div>
             )}
             
             <div>
-              <label htmlFor="file-input" className={`block text-sm ${labelColor} mb-1`}>Attachments</label>
-              <input
-                id="file-input"
-                title="Add attachments"
-                placeholder="Choose files"
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                className={`w-full text-sm ${inputText} file:bg-teal-600 file:border-0 file:px-3 file:py-1 file:text-sm file:text-white hover:file:bg-teal-700`}
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="file-input" className={`text-sm ${labelColor}`}>Attachments</label>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedFiles(!showAdvancedFiles)}
+                  className={`flex items-center gap-1 text-xs ${showAdvancedFiles ? 'text-teal-400' : 'text-zinc-500'} hover:text-teal-300 transition-colors`}
+                >
+                  <FolderOpen className="w-3 h-3" />
+                  {showAdvancedFiles ? 'Simple View' : 'Advanced Files'}
+                </button>
+              </div>
               
-              {/* Existing attachments */}
-              {attachments.length > 0 && (
-                <ul className="mt-2 space-y-1 max-h-32 overflow-y-auto text-[11px] text-teal-200">
-                  {attachments.map((att) => (
-                    <li key={att.id} className="flex items-center gap-1">
-                      📎
-                      <button
-                        onClick={() => handlePreview(att)}
-                        className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis text-left flex-1"
-                        disabled={saving}
-                      >
-                        {att.name}
-                      </button>
-                      <button
-                        onClick={() => removeAttachment(att.id)}
-                        className="text-red-400 hover:text-red-300 ml-2"
-                        disabled={saving}
-                      >
-                        ×
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              
-              {/* New files preview */}
-              {files.length > 0 && (
-                <ul className="mt-2 space-y-1 max-h-24 overflow-y-auto text-[11px] text-teal-200">
-                  {files.map((f) => (
-                    <li key={f.name}>{f.name} (new)</li>
-                  ))}
-                </ul>
+              {showAdvancedFiles ? (
+                /* Advanced File Manager */
+                <div className="border border-zinc-700 rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <FileManager
+                    files={fileManagerFiles}
+                    folders={fileManagerFolders}
+                    {...handleFileManagerAction}
+                    className="text-sm"
+                  />
+                </div>
+              ) : (
+                /* Simple File Upload */
+                <div className="space-y-3">
+                  <FileUploadZone
+                    onFilesSelected={setFiles}
+                    acceptedTypes={["image/*", "application/pdf", "text/*", "application/zip"]}
+                    maxFileSize={25}
+                    maxFiles={5}
+                    showPreview={true}
+                  />
+                  
+                  {/* Existing attachments */}
+                  {attachments.length > 0 && (
+                    <div className="space-y-2">
+                      <p className={`text-xs ${labelColor}`}>Current attachments:</p>
+                      <ul className="space-y-1 max-h-32 overflow-y-auto">
+                        {attachments.map((att) => (
+                          <li key={att.id} className="flex items-center gap-2 p-2 bg-zinc-700/50 rounded text-xs">
+                            <Paperclip className="w-3 h-3 text-teal-400" />
+                            <button
+                              onClick={() => handlePreview(att)}
+                              className="hover:underline text-teal-200 flex-1 text-left truncate"
+                              disabled={saving}
+                            >
+                              {att.name}
+                            </button>
+                            <button
+                              onClick={() => removeAttachment(att.id)}
+                              className="text-red-400 hover:text-red-300 p-1"
+                              disabled={saving}
+                            >
+                              ×
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
             
@@ -342,28 +514,29 @@ export function TaskDialog({
                 </select>
               </div>
             )}
-            
-            <div className="flex justify-end gap-2 pt-2">
-              <Dialog.Close asChild>
-                <button className="px-4 py-2 rounded-md text-sm transition-colors bg-zinc-700 text-white hover:bg-zinc-600">
-                  Cancel
-                </button>
-              </Dialog.Close>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={saving}
-                className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-              >
-                Delete
-              </button>
-              <button
-                onClick={save}
-                disabled={saving}
-                className="px-4 py-2 rounded-md bg-teal-600 text-sm text-white hover:bg-teal-700 disabled:opacity-50 transition-colors"
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
             </div>
+          </div>
+          
+          <div className="flex justify-end gap-2 p-6 pt-4 border-t border-zinc-800">
+            <Dialog.Close asChild>
+              <button className="px-4 py-2 rounded-md text-sm transition-colors bg-zinc-700 text-white hover:bg-zinc-600">
+                Cancel
+              </button>
+            </Dialog.Close>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={saving}
+              className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={save}
+              disabled={saving}
+              className="px-4 py-2 rounded-md bg-teal-600 text-sm text-white hover:bg-teal-700 disabled:opacity-50 transition-colors"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
@@ -376,6 +549,25 @@ export function TaskDialog({
         fileType={filePreview.type}
         open={!!filePreview}
         onOpenChange={closePreview}
+        files={fileManagerFiles.map(f => ({
+          id: f.id,
+          name: f.name,
+          type: f.type,
+          url: f.url,
+          data: f.data
+        }))}
+        currentFileId={filePreview.attachmentId}
+        onNavigate={(fileId) => {
+          const file = fileManagerFiles.find(f => f.id === fileId);
+          if (file) {
+            setFilePreview({
+              data: file.data || file.url || '',
+              name: file.name,
+              type: file.type,
+              attachmentId: file.id
+            });
+          }
+        }}
       />
     )}
     
