@@ -1,5 +1,10 @@
 # Canban - Modern Kanban Board Application
 
+![Vercel Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38bdf8?logo=tailwindcss)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 A modern Kanban board application for efficient project management and task organization. Built with React 19, TypeScript, and cutting-edge web technologies.
 
 ## 🚀 Features
