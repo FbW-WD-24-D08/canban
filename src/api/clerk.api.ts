@@ -39,11 +39,7 @@ export const clerkApi = {
    */
   searchUsersByEmail: async (email: string): Promise<ClerkUser[]> => {
     try {
-      console.log('Clerk API: Searching users with email containing:', email);
-      
       const response = await clerkFetch(`/users?email_address=${encodeURIComponent(email)}&limit=10`);
-
-      console.log('Clerk API: Found users:', response.length);
 
       return response.map((user: any) => ({
         id: user.id,
@@ -67,7 +63,6 @@ export const clerkApi = {
    */
   searchUsersAutoComplete: async (query: string): Promise<ClerkUser[]> => {
     try {
-      console.log('Clerk API: AutoComplete search for:', query);
       
       // Get users with query parameter
       const response = await clerkFetch(`/users?query=${encodeURIComponent(query)}&limit=50`);
@@ -87,7 +82,6 @@ export const clerkApi = {
         })
         .slice(0, 10);
 
-      console.log('Clerk API: AutoComplete found:', filteredUsers.length, 'users');
 
       return filteredUsers.map((user: any) => ({
         id: user.id,
@@ -111,17 +105,14 @@ export const clerkApi = {
    */
   getUserByEmail: async (email: string): Promise<ClerkUser | null> => {
     try {
-      console.log('Clerk API: Looking up user by exact email:', email);
       
       const response = await clerkFetch(`/users?email_address=${encodeURIComponent(email)}&limit=1`);
 
       if (response.length === 0) {
-        console.log('Clerk API: No user found with email:', email);
         return null;
       }
 
       const user = response[0];
-      console.log('Clerk API: Found user:', user.id, user.email_addresses[0]?.email_address);
 
       return {
         id: user.id,
@@ -145,7 +136,6 @@ export const clerkApi = {
    */
   getUserById: async (userId: string): Promise<ClerkUser | null> => {
     try {
-      console.log('Clerk API: Getting user by ID:', userId);
       
       const user = await clerkFetch(`/users/${userId}`);
       
@@ -171,11 +161,7 @@ export const clerkApi = {
    */
   getAllUsers: async (limit: number = 50): Promise<ClerkUser[]> => {
     try {
-      console.log('Clerk API: Getting all users, limit:', limit);
-      
       const response = await clerkFetch(`/users?limit=${limit}&order_by=-created_at`);
-
-      console.log('Clerk API: Retrieved', response.length, 'users');
 
       return response.map((user: any) => ({
         id: user.id,

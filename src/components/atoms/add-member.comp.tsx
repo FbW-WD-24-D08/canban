@@ -16,7 +16,6 @@ export function AddMember({
   const [message, setMessage] = useState('');
 
   const handleSubmit = async () => {
-    console.log('AddMember: handleSubmit called with email:', email, 'boardId:', boardId);
     
     if (!email.trim()) {
       setMessage('Please enter an email address');
@@ -43,22 +42,15 @@ export function AddMember({
       setStatus('idle');
       setMessage('');
       
-      console.log('AddMember: Looking up user by email...');
       const user = await usersApi.getUserIdByEmail(email.trim());
       
       if (!user) {
-        console.log('AddMember: User not found for email:', email);
         setMessage('User not found with this email address');
         setStatus('not-found');
         return;
       }
       
-      console.log('AddMember: Found user:', user);
-      console.log('AddMember: Adding member to board...');
-      
       await boardsApi.addMember(boardId, user.id);
-      
-      console.log('AddMember: Member added successfully');
       setEmail('');
       setMessage('Member added successfully!');
       setStatus('success');
