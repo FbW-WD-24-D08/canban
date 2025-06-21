@@ -187,14 +187,14 @@ npm run check
 ### Environment Variables Required for Deployment
 ```env
 # Clerk Authentication (Production)
-VITE_CLERK_PUBLISHABLE_KEY=pk_live_your_production_key
-CLERK_SECRET_KEY=sk_live_your_production_secret
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_YWNjZXB0ZWQtbGVtdXItMjEuY2xlcmsuYWNjb3VudHMuZGV2JA
+VITE_CLERK_ORGANIZATION_ID=org_2yfncISYAk2BEKIUmPCKleyD2HP
 
-# Webhook Configuration (Production)
+# Backend Configuration (Production)
+VITE_API_BASE_URL=https://api.jsonbin.io/v3/b/YOUR_BIN_ID
+
+# Webhook Configuration (Production - if needed)
 CLERK_WEBHOOK_SIGNING_SECRET=whsec_your_production_webhook_secret
-
-# API Configuration (Production)
-VITE_API_BASE_URL=https://your-api-domain.com
 ```
 
 ---
@@ -253,3 +253,34 @@ All critical build issues have been resolved while preserving the production-rea
 - ✅ **Professional code quality**
 
 The fixes were surgical and targeted, ensuring no disruption to the existing webhook architecture or user synchronization system that was previously implemented and documented.
+
+---
+
+## 🌐 Backend Deployment Strategy
+
+### JSONBin.io Integration ⭐ **CHOSEN SOLUTION**
+
+The application now supports multiple backend deployment strategies with JSONBin.io as the preferred solution for demo/portfolio deployment:
+
+#### ✅ **JSONBin.io Benefits**:
+- **Zero Infrastructure**: No server setup required
+- **5-Minute Setup**: Upload db.json → Get API endpoint  
+- **Free Tier**: 10,000 requests/month (perfect for demos)
+- **Demo Fallback**: Smart fallback to demo data when API unavailable
+- **Professional URLs**: Clean endpoints for portfolio presentation
+
+#### 🔧 **Implementation**:
+```env
+# JSONBin.io Production Environment
+VITE_API_BASE_URL=https://api.jsonbin.io/v3/b/YOUR_BIN_ID
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_YWNjZXB0ZWQtbGVtdXItMjEuY2xlcmsuYWNjb3VudHMuZGV2JA
+VITE_CLERK_ORGANIZATION_ID=org_2yfncISYAk2BEKIUmPCKleyD2HP
+```
+
+#### 🎯 **Demo Features**:
+- **Hybrid Approach**: Live API + Smart fallback
+- **Always Works**: Beautiful design showcase regardless of backend status
+- **Professional UX**: Never shows loading errors to users
+- **Portfolio Ready**: Perfect for job interviews and demos
+
+For complete backend deployment documentation, see: **[Backend Deployment Options](./BACKEND_DEPLOYMENT_OPTIONS.md)**
