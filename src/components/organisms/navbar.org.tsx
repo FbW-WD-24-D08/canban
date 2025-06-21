@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Button } from "../atoms/button.comp";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "../molecules/dropdown-menu.comp";
 
 export function Navbar() {
@@ -70,92 +70,98 @@ export function Navbar() {
       className={`${navClasses} transition-all duration-500 ease-in-out ${transitionClasses}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14 sm:h-16 gap-4">
           <Link
             to="/"
-            className="text-white text-xl font-bold hover:text-teal-400 transition-colors flex items-center"
+            className="text-white font-bold hover:text-teal-400 transition-colors flex items-center text-xl sm:text-2xl min-w-0 flex-shrink-0"
           >
-            Canban
+            <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent font-extrabold tracking-tight">
+              Canban
+            </span>
           </Link>
-          <div className="hidden md:flex items-center space-x-4">
-            <Link
-              to="/about"
-              className="text-zinc-300 hover:text-white transition-colors text-sm font-medium flex items-center h-10"
-            >
-              About
-            </Link>
-            <SignedIn>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden md:flex items-center space-x-4">
               <Link
-                to="/dashboard"
+                to="/about"
                 className="text-zinc-300 hover:text-white transition-colors text-sm font-medium flex items-center h-10"
               >
-                Dashboard
+                About
               </Link>
-            </SignedIn>
-            <SignedOut>
-              <Button
-                asChild
-                variant="default"
-                size="sm"
-                className="bg-teal-600 hover:bg-teal-700 flex items-center"
-              >
-                <Link to="/signin" className="flex items-center">
-                  Login
-                </Link>
-              </Button>
-            </SignedOut>
-          </div>
-          <SignedIn>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                },
-              }}
-            />
-          </SignedIn>
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-zinc-300 hover:text-white hover:bg-zinc-800 flex items-center justify-center"
+              <SignedIn>
+                <Link
+                  to="/dashboard"
+                  className="text-zinc-300 hover:text-white transition-colors text-sm font-medium flex items-center h-10"
                 >
-                  <Menu size={20} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 bg-zinc-900 border-zinc-800">
-                <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white">
-                  <Link
-                    to="/about"
-                    className="text-zinc-300 hover:text-white w-full flex items-center py-2"
-                  >
-                    About
+                  Dashboard
+                </Link>
+              </SignedIn>
+              <SignedOut>
+                <Button
+                  asChild
+                  variant="default"
+                  size="sm"
+                  className="bg-teal-600 hover:bg-teal-700 flex items-center"
+                >
+                  <Link to="/signin" className="flex items-center">
+                    Login
                   </Link>
-                </DropdownMenuItem>
-                <SignedIn>
+                </Button>
+              </SignedOut>
+            </div>
+            
+            <SignedIn>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-7 h-7 sm:w-8 sm:h-8",
+                  },
+                }}
+              />
+            </SignedIn>
+            
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-zinc-300 hover:text-white hover:bg-zinc-800 flex items-center justify-center p-2"
+                  >
+                    <Menu size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 bg-zinc-900 border-zinc-800">
                   <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white">
                     <Link
-                      to="/dashboard"
+                      to="/about"
                       className="text-zinc-300 hover:text-white w-full flex items-center py-2"
                     >
-                      Dashboard
+                      About
                     </Link>
                   </DropdownMenuItem>
-                </SignedIn>
-                <SignedOut>
-                  <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white">
-                    <Link
-                      to="/signin"
-                      className="text-zinc-300 hover:text-white w-full flex items-center py-2"
-                    >
-                      Login
-                    </Link>
-                  </DropdownMenuItem>
-                </SignedOut>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <SignedIn>
+                    <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white">
+                      <Link
+                        to="/dashboard"
+                        className="text-zinc-300 hover:text-white w-full flex items-center py-2"
+                      >
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  </SignedIn>
+                  <SignedOut>
+                    <DropdownMenuItem className="focus:bg-zinc-800 focus:text-white">
+                      <Link
+                        to="/signin"
+                        className="text-zinc-300 hover:text-white w-full flex items-center py-2"
+                      >
+                        Login
+                      </Link>
+                    </DropdownMenuItem>
+                  </SignedOut>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>

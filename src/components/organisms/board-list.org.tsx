@@ -1,6 +1,6 @@
-import { BoardCard } from "./board-card.org";
-import { Pagination } from "../molecules/pagination.comp";
 import type { Board } from "../../types/api.types";
+import { Pagination } from "../molecules/pagination.comp";
+import { BoardCard } from "./board-card.org";
 
 interface BoardListProps {
   boards: Board[];
@@ -19,8 +19,8 @@ export function BoardList({
 }: BoardListProps) {
   if (boards.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-zinc-400 text-lg mb-2">No boards found</div>
+      <div className="text-center py-8 sm:py-12">
+        <div className="text-zinc-400 text-base sm:text-lg mb-2">No boards found</div>
         <div className="text-zinc-500 text-sm">
           Create your first board to get started
         </div>
@@ -30,7 +30,7 @@ export function BoardList({
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {boards.map((board) => (
           <BoardCard
             key={board.id}

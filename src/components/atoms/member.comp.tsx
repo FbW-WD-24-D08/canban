@@ -19,7 +19,12 @@ export function MemberItem({
   ownerId,
   onRemove,
 }: MemberItemProps) {
-  const { userName, loading } = useUserName(userId);
+  // Temporary fix for board 14e1 - map problematic user ID to correct Clerk user
+  const mappedUserId = boardId === "14e1" && userId === "user_2xRwhdVhgUleoDVLS0CQB0338hk" 
+    ? "user_2ymLvrtd2F3VNMbh4NpE1P258mD" 
+    : userId;
+  
+  const { userName, loading } = useUserName(mappedUserId);
   const isOwner = userId === ownerId;
   const { currentUser } = useUserContext();
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
@@ -30,6 +35,7 @@ export function MemberItem({
   const isCurrentUser = currentUser?.id === userId;
   const canRemove =
     (isCurrentUserOwner && !isCurrentUser) || (isCurrentUser && !isOwner);
+
 
   const handleRemove = async () => {
     if (!boardId || isOwner) return;

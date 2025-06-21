@@ -18,7 +18,7 @@ export function BoardToolbar({
   onCreateBoard,
 }: BoardToolbarProps) {
   return (
-    <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-lg p-4 mb-6">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 bg-zinc-900 border border-zinc-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
       <BoardSortControls
         sortBy={sortBy}
         sortOrder={sortOrder}

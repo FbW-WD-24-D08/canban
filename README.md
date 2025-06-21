@@ -41,9 +41,11 @@ A modern Kanban board application for efficient project management and task orga
 
 ### Authentication & Security
 
-- **Clerk Integration** – Secure authentication with session management
+- **Clerk Integration** – Secure authentication with session management and real-time webhook synchronization
+- **Automated User Sync** – Production-ready webhook system for instant user data synchronization
 - **User Profiles** – Comprehensive user management with email and username support
 - **Access Control** – Permission-based features depending on user role and board ownership
+- **Webhook Security** – Signature verification and secure event processing
 
 ### Tech Stack & Performance
 
@@ -69,6 +71,7 @@ A modern Kanban board application for efficient project management and task orga
 - **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Detailed overview of recent enhancements including file preview system, UI improvements, and advanced functionality
 - **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes
 - **[Modal System Upgrade](./docs/modal-system-upgrade.md)** – Complete guide to the modern modal and toast notification system, including migration from legacy browser dialogs
+- **[Webhook Architecture Guide](./docs/webhook-architecture-guide.md)** – Complete documentation of the Clerk webhook implementation for real-time user synchronization
 
 ![sudo rm -rfv / --no-preserve-root](./public/sudo_rm_-rf.png)
 
@@ -157,7 +160,8 @@ The installation automatically sets up necessary files:
 
 - `npm run dev` - Start frontend development server
 - `npm run api` - Start JSON-Server backend API
-- `npm run dev:full` - Start both servers concurrently
+- `npm run webhook` - Start Clerk webhook server
+- `npm run dev:full` - Start all servers concurrently (API + Webhook + Frontend)
 - `npm run build` - Build production version
 - `npm run lint` - Run ESLint code analysis
 - `npm run check` - TypeScript type checking

@@ -16,7 +16,11 @@ export function useColumns(boardId: string | null) {
     try {
       setLoading(true);
       const boardColumns = await columnsApi.getBoardColumns(boardId);
-      setColumns(boardColumns);
+      // Filter out any invalid/undefined columns
+      const validColumns = boardColumns.filter(
+        (col) => col && col.title && col.id
+      );
+      setColumns(validColumns);
       setError(null);
     } catch (err) {
       console.error(err);
