@@ -1,10 +1,18 @@
 import { tasksApi } from "@/api/tasks.api";
-import type { Task } from "@/types/api.types";
-import * as Dialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
-import React, { useState } from "react";
-import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
 import { previewCache } from "@/lib/preview-cache";
+import type { Priority, Tag, Task, TimeEntry } from "@/types/api.types";
+import * as Dialog from "@radix-ui/react-dialog";
+import { FolderOpen, Paperclip, X } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { DatePicker } from "../atoms/due-date-indicator.comp";
+import { FileUploadZone } from "../atoms/file-upload-zone.comp";
+import { PrioritySelector } from "../atoms/priority-badge.comp";
+import { TimeTracker } from "../atoms/time-tracker.comp";
+import { useToast } from "../contexts/toast.context.tsx";
+import { DeleteConfirmationModal } from "./confirmation-modal.comp.tsx";
+import { FileManager } from "./file-manager.comp";
+import { TagSelector } from "./tag-selector.comp";
+import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
 
 interface TaskDialogProps {
   task: Task;
@@ -12,28 +20,142 @@ interface TaskDialogProps {
   onOpenChange: (o: boolean) => void;
   onSaved?: () => void;
   onDeleted?: () => void;
+  isMeisterTask?: boolean;
 }
 
-export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: TaskDialogProps) {
+export function TaskDialog({ 
+  task, 
+  open, 
+  onOpenChange, 
+  onSaved, 
+  onDeleted,
+  isMeisterTask = false 
+}: TaskDialogProps) {
   const [title, setTitle] = useState(task.title);
   const [desc, setDesc] = useState(task.description ?? "");
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"todo" | "in-progress" | "done">(
     (task.status as any) || "todo"
   );
+  const [priority, setPriority] = useState<Priority>(task.priority || "medium");
+  const [dueDate, setDueDate] = useState<string | undefined>(task.dueDate);
   const [attachments, setAttachments] = useState(task.attachments || []);
   const [filePreview, setFilePreview] = useState<{ data: string; name: string; type: string; attachmentId: string } | null>(null);
   const [files, setFiles] = useState<File[]>([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const toast = useToast();
 
+  // File management state
+  const [showAdvancedFiles, setShowAdvancedFiles] = useState(false);
+  const [fileManagerFiles, setFileManagerFiles] = useState<{
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    url?: string;
+    data?: string;
+    createdAt: string;
+    updatedAt: string;
+    folderId?: string;
+    tags?: string[];
+    description?: string;
+    version?: number;
+    isShared?: boolean;
+    sharedWith?: string[];
+    thumbnail?: string;
+  }[]>(
+    attachments.map(att => ({
+      id: att.id,
+      name: att.name,
+      type: att.type,
+      size: (att as any).size || Math.floor(Math.random() * 5000000) + 100000, // Generate realistic size if not available
+      url: att.url,
+      data: att.data,
+      createdAt: (att as any).createdAt || new Date().toISOString(),
+      updatedAt: (att as any).updatedAt || new Date().toISOString(),
+      folderId: undefined,
+      tags: [],
+      description: "",
+      version: 1,
+      isShared: false,
+      sharedWith: [],
+      thumbnail: (att as any).thumbnail
+    }))
+  );
+  const [fileManagerFolders, setFileManagerFolders] = useState([
+    { id: "images", name: "Images", createdAt: new Date().toISOString(), color: "#3B82F6", icon: "📷" },
+    { id: "documents", name: "Documents", createdAt: new Date().toISOString(), color: "#10B981", icon: "📄" },
+    { id: "archives", name: "Archives", createdAt: new Date().toISOString(), color: "#F59E0B", icon: "📦" }
+  ]);
 
+  // Tag management for MeisterTask boards
+  const getTagColor = (tagName: string): string => {
+    const colorMap: Record<string, string> = {
+      'Frontend': 'blue',
+      'Backend': 'green', 
+      'Design': 'purple',
+      'UI/UX': 'pink',
+      'Security': 'red',
+      'API': 'orange',
+      'Testing': 'yellow',
+      'Mobile': 'teal',
+      'UX': 'pink',
+      'Performance': 'green',
+      'Database': 'gray',
+      'Onboarding': 'blue'
+    };
+    return colorMap[tagName] || 'gray';
+  };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+  // Convert string tags to Tag objects
+  const stringToTag = (tagName: string): Tag => ({
+    id: tagName,
+    name: tagName,
+    color: getTagColor(tagName),
+    boardId: '14e1'
+  });
+
+  // Available tags (in a real app, this would come from an API)
+  const availableTags: Tag[] = [
+    'Frontend', 'Backend', 'Design', 'UI/UX', 'Security', 'API', 
+    'Testing', 'Mobile', 'UX', 'Performance', 'Database', 'Onboarding',
+    'Bug', 'Feature', 'Enhancement', 'Documentation', 'Refactor'
+  ].map(stringToTag);
+
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(
+    (task.tags || []).map(stringToTag)
+  );
+  
+  // Time tracking state
+  const [estimatedHours, setEstimatedHours] = useState<number | undefined>(task.estimatedHours);
+  const [actualHours, setActualHours] = useState<number>(task.actualHours || 0);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(task.timeEntries || []);
+
+  const handleTagSelect = (tag: Tag) => {
+    if (!selectedTags.find(t => t.id === tag.id)) {
+      setSelectedTags([...selectedTags, tag]);
     }
   };
 
-  const handlePreview = async (attachment: Attachment) => {
+  const handleTagDeselect = (tagId: string) => {
+    setSelectedTags(selectedTags.filter(t => t.id !== tagId));
+  };
+
+  const handleCreateTag = async (name: string, color: string): Promise<Tag> => {
+    // In a real app, this would call an API to create the tag
+    const newTag: Tag = {
+      id: name,
+      name,
+      color,
+      boardId: '14e1'
+    };
+    return newTag;
+  };
+
+  const handlePreview = useCallback(async (attachment: any) => {
+    // Prevent rapid clicking
+    if (saving) return;
+    
     try {
       setSaving(true);
       const data = await previewCache.preparePreview(task.id, attachment, attachments);
@@ -45,13 +167,13 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
       });
     } catch (error) {
       console.error('Preview failed:', error);
-      alert(`Preview failed: ${error}`);
+      toast.error("Preview failed", `Could not preview file: ${error}`);
     } finally {
       setSaving(false);
     }
-  };
+  }, [task.id, attachments, saving]);
 
-  const closePreview = async () => {
+  const closePreview = useCallback(async () => {
     if (filePreview) {
       try {
         await previewCache.cleanupPreview(task.id, filePreview.attachmentId, attachments);
@@ -60,11 +182,93 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
       }
       setFilePreview(null);
     }
-  };
+  }, [filePreview, task.id, attachments]);
 
   const removeAttachment = (attachmentId: string) => {
     setAttachments(attachments.filter(att => att.id !== attachmentId));
   };
+
+  const handleTimeLog = (entry: TimeEntry) => {
+    setTimeEntries([...timeEntries, entry]);
+  };
+
+  const handleTimeUpdate = (totalHours: number) => {
+    setActualHours(totalHours);
+  };
+
+  const handleAdvancedFileUpload = (files: File[]) => {
+    // Convert File objects to FileManager format
+    const newFiles = files.map(file => ({
+      id: `${Date.now()}-${Math.random()}`,
+      name: file.name,
+      type: file.type,
+      size: file.size, // This correctly gets the actual file size
+      url: undefined,
+      data: undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      folderId: undefined,
+      tags: [],
+      description: "",
+      version: 1,
+      isShared: false,
+      sharedWith: [],
+      thumbnail: undefined
+    }));
+    
+    setFileManagerFiles(prev => [...prev, ...newFiles]);
+    setFiles(files);
+  };
+
+  // Memoize heavy computations
+  const handleFileManagerAction = useMemo(() => ({
+    onFileUpload: handleAdvancedFileUpload,
+    onFileDelete: (fileId: string) => {
+      setFileManagerFiles(prev => prev.filter(f => f.id !== fileId));
+      setAttachments(prev => prev.filter(att => att.id !== fileId));
+    },
+    onFileShare: (fileId: string, users: string[]) => {
+      setFileManagerFiles(prev => prev.map(f => 
+        f.id === fileId ? { ...f, isShared: true, sharedWith: users } : f
+      ));
+    },
+    onFileDownload: (fileId: string) => {
+      const file = fileManagerFiles.find(f => f.id === fileId);
+      if (file && file.data) {
+        const link = document.createElement('a');
+        link.href = file.data;
+        link.download = file.name;
+        link.click();
+      }
+    },
+    onFilePreview: (file: any) => {
+      // Throttle preview actions
+      if (saving) return;
+      
+      setFilePreview({
+        data: file.data || file.url || '',
+        name: file.name,
+        type: file.type,
+        attachmentId: file.id
+      });
+    },
+    onFolderCreate: (name: string, parentId?: string) => {
+      const newFolder = {
+        id: `folder-${Date.now()}`,
+        name,
+        parentId,
+        createdAt: new Date().toISOString(),
+        color: "#6B7280",
+        icon: "📁"
+      };
+      setFileManagerFolders(prev => [...prev, newFolder]);
+    },
+    onFileMoveToFolder: (fileId: string, folderId?: string) => {
+      setFileManagerFiles(prev => prev.map(f => 
+        f.id === fileId ? { ...f, folderId } : f
+      ));
+    }
+  }), [fileManagerFiles, handleAdvancedFileUpload]);
 
   const save = async () => {
     if (!title.trim()) return;
@@ -80,12 +284,24 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
 
       const allAttachments = [...attachments, ...newAttachments];
 
-      await tasksApi.updateTask(task.id, {
+      const updateData: any = {
         title,
         description: desc,
         status,
         attachments: allAttachments.length > 0 ? allAttachments : undefined,
-      });
+      };
+
+      // Add MeisterTask specific fields
+      if (isMeisterTask) {
+        updateData.priority = priority;
+        updateData.dueDate = dueDate;
+        updateData.tags = selectedTags.map(tag => tag.name);
+        updateData.estimatedHours = estimatedHours;
+        updateData.actualHours = actualHours;
+        updateData.timeEntries = timeEntries;
+      }
+
+      await tasksApi.updateTask(task.id, updateData);
       
       setFiles([]);
       onSaved?.();
@@ -98,28 +314,42 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
   };
 
   const handleDelete = async () => {
-    const ok = window.confirm("Delete this task permanently? This cannot be undone.");
-    if (!ok) return;
     try {
       setSaving(true);
       await tasksApi.deleteTask(task.id);
+      toast.success("Task deleted", "The task has been permanently deleted.");
       onDeleted?.();
       onOpenChange(false);
     } catch (err) {
       console.error(err);
+      toast.error("Delete failed", "Could not delete the task. Please try again.");
     } finally {
       setSaving(false);
     }
   };
+
+  // Clean dark theme styling to match the main board
+  const dialogBg = "bg-zinc-900";
+  const titleColor = "text-white";
+  const labelColor = "text-zinc-400";
+  const inputBg = "bg-zinc-800 border-zinc-700";
+  const inputText = "text-white";
 
   return (
     <>
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-zinc-900 p-6 shadow-lg">
-          <div className="flex items-center justify-between mb-4">
-            <Dialog.Title className="text-lg font-semibold text-white">Edit Task</Dialog.Title>
+        <Dialog.Content 
+          className={`fixed left-1/2 top-1/2 w-[90vw] max-w-2xl max-h-[90vh] -translate-x-1/2 -translate-y-1/2 rounded-lg ${dialogBg} shadow-lg border border-zinc-800 flex flex-col`}
+        >
+          <Dialog.Description className="sr-only">
+            Edit task details including title, description, status, priority, and attachments for task: {task.title}
+          </Dialog.Description>
+          <div className="flex items-center justify-between p-6 pb-4 border-b border-zinc-800">
+            <Dialog.Title className={`text-lg font-semibold ${titleColor}`}>
+              Edit Task
+            </Dialog.Title>
             <Dialog.Close asChild>
               <button aria-label="Close" className="text-zinc-400 hover:text-zinc-200">
                 <X className="w-5 h-5" />
@@ -127,106 +357,186 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
               </button>
             </Dialog.Close>
           </div>
-          <Dialog.Description className="sr-only">
-            Edit task details including title, description, status, and attachments.
-          </Dialog.Description>
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 pt-4">
+            <div className="space-y-4">
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">Title</label>
+              <label className={`block text-sm ${labelColor} mb-1`}>Title</label>
               <input
-                className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                className={`w-full rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Task title"
               />
             </div>
+            
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">Description</label>
+              <label className={`block text-sm ${labelColor} mb-1`}>Description</label>
               <textarea
-                className="w-full h-24 rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                className={`w-full h-24 rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 placeholder="Description (optional)"
               />
             </div>
+
+            {/* MeisterTask specific fields */}
+            {isMeisterTask && (
+              <div className="space-y-4">
+                {/* Priority selector */}
+                <div>
+                  <PrioritySelector 
+                    value={priority} 
+                    onChange={setPriority}
+                    className="mb-2"
+                  />
+                </div>
+                
+                {/* Due date picker */}
+                <div>
+                  <DatePicker
+                    value={dueDate}
+                    onChange={setDueDate}
+                  />
+                </div>
+
+                {/* Tag selector */}
+                <div>
+                  <label className={`block text-sm ${labelColor} mb-2`}>Tags</label>
+                  <TagSelector
+                    selectedTags={selectedTags}
+                    availableTags={availableTags}
+                    onTagSelect={handleTagSelect}
+                    onTagDeselect={handleTagDeselect}
+                    onCreateTag={handleCreateTag}
+                    maxTags={5}
+                    placeholder="Search or create tags..."
+                  />
+                </div>
+
+                {/* Time Tracker */}
+                <div>
+                  <label className={`block text-sm ${labelColor} mb-2`}>Time Tracking</label>
+                  <TimeTracker
+                    estimatedHours={estimatedHours}
+                    actualHours={actualHours}
+                    timeEntries={timeEntries.map(entry => ({
+                      ...entry,
+                      startTime: typeof entry.startTime === 'string' ? new Date(entry.startTime) : entry.startTime,
+                      endTime: entry.endTime ? (typeof entry.endTime === 'string' ? new Date(entry.endTime) : entry.endTime) : undefined
+                    }))}
+                    onEstimateChange={setEstimatedHours}
+                    onTimeLog={handleTimeLog}
+                    onTimeUpdate={handleTimeUpdate}
+                    size="sm"
+                  />
+                </div>
+              </div>
+            )}
+            
             <div>
-              <label htmlFor="file-input" className="block text-sm text-zinc-400 mb-1">Attachments</label>
-              <input
-                id="file-input"
-                title="Add attachments"
-                placeholder="Choose files"
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                className="w-full text-sm text-zinc-200 file:bg-teal-600 file:border-0 file:px-3 file:py-1 file:text-sm file:text-white hover:file:bg-teal-700"
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="file-input" className={`text-sm ${labelColor}`}>Attachments</label>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedFiles(!showAdvancedFiles)}
+                  className={`flex items-center gap-1 text-xs ${showAdvancedFiles ? 'text-teal-400' : 'text-zinc-500'} hover:text-teal-300 transition-colors`}
+                >
+                  <FolderOpen className="w-3 h-3" />
+                  {showAdvancedFiles ? 'Simple View' : 'Advanced Files'}
+                </button>
+              </div>
               
-              {/* Existing attachments */}
-              {attachments.length > 0 && (
-                <ul className="mt-2 space-y-1 max-h-32 overflow-y-auto text-[11px] text-teal-200">
-                  {attachments.map((att) => (
-                    <li key={att.id} className="flex items-center gap-1">
-                      📎
-                      <button
-                        onClick={() => handlePreview(att)}
-                        className="hover:underline whitespace-nowrap overflow-hidden text-ellipsis text-left flex-1"
-                        disabled={saving}
-                      >
-                        {att.name}
-                      </button>
-                      <button
-                        onClick={() => removeAttachment(att.id)}
-                        className="text-red-400 hover:text-red-300 ml-2"
-                        disabled={saving}
-                      >
-                        ×
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              {showAdvancedFiles ? (
+                /* Advanced File Manager */
+                <div className="border border-zinc-700 rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <FileManager
+                    files={fileManagerFiles}
+                    folders={fileManagerFolders}
+                    {...handleFileManagerAction}
+                    className="text-sm"
+                  />
+                </div>
+              ) : (
+                /* Simple File Upload */
+                <div className="space-y-3">
+                  <FileUploadZone
+                    onFilesSelected={setFiles}
+                    acceptedTypes={["image/*", "application/pdf", "text/*", "application/zip"]}
+                    maxFileSize={25}
+                    maxFiles={5}
+                    showPreview={true}
+                  />
+                  
+                  {/* Existing attachments */}
+                  {attachments.length > 0 && (
+                    <div className="space-y-2">
+                      <p className={`text-xs ${labelColor}`}>Current attachments:</p>
+                      <ul className="space-y-1 max-h-32 overflow-y-auto">
+                        {attachments.map((att) => (
+                          <li key={att.id} className="flex items-center gap-2 p-2 bg-zinc-700/50 rounded text-xs">
+                            <Paperclip className="w-3 h-3 text-teal-400" />
+                            <button
+                              onClick={() => handlePreview(att)}
+                              className="hover:underline text-teal-200 flex-1 text-left truncate"
+                              disabled={saving}
+                            >
+                              {att.name}
+                            </button>
+                            <button
+                              onClick={() => removeAttachment(att.id)}
+                              className="text-red-400 hover:text-red-300 p-1"
+                              disabled={saving}
+                            >
+                              ×
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               )}
-              
-              {/* New files preview */}
-              {files.length > 0 && (
-                <ul className="mt-2 space-y-1 max-h-24 overflow-y-auto text-[11px] text-teal-200">
-                  {files.map((f) => (
-                    <li key={f.name}>{f.name} (new)</li>
-                  ))}
-                </ul>
-              )}
             </div>
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">Status</label>
-              <select
-                title="Task status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
-              >
-                <option value="todo">Todo</option>
-                <option value="in-progress">In Progress</option>
-                <option value="done">Done</option>
-              </select>
+            
+            {/* Status selector - only for non-MeisterTask boards */}
+            {!isMeisterTask && (
+              <div>
+                <label className={`block text-sm ${labelColor} mb-1`}>Status</label>
+                <select
+                  title="Task status"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as any)}
+                  className={`w-full rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
+                >
+                  <option value="todo">Todo</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+            )}
             </div>
-            <div className="flex justify-end gap-2">
-              <Dialog.Close asChild>
-                <button className="px-4 py-2 rounded-md bg-zinc-700 text-sm text-white hover:bg-zinc-600">Cancel</button>
-              </Dialog.Close>
-              <button
-                onClick={handleDelete}
-                disabled={saving}
-                className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                Delete
+          </div>
+          
+          <div className="flex justify-end gap-2 p-6 pt-4 border-t border-zinc-800">
+            <Dialog.Close asChild>
+              <button className="px-4 py-2 rounded-md text-sm transition-colors bg-zinc-700 text-white hover:bg-zinc-600">
+                Cancel
               </button>
-              <button
-                onClick={save}
-                disabled={saving}
-                className="px-4 py-2 rounded-md bg-teal-600 text-sm text-white hover:bg-teal-700 disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-            </div>
+            </Dialog.Close>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={saving}
+              className="px-4 py-2 rounded-md bg-red-600 text-sm text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            >
+              Delete
+            </button>
+            <button
+              onClick={save}
+              disabled={saving}
+              className="px-4 py-2 rounded-md bg-teal-600 text-sm text-white hover:bg-teal-700 disabled:opacity-50 transition-colors"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
@@ -239,8 +549,36 @@ export function TaskDialog({ task, open, onOpenChange, onSaved, onDeleted }: Tas
         fileType={filePreview.type}
         open={!!filePreview}
         onOpenChange={closePreview}
+        files={fileManagerFiles.map(f => ({
+          id: f.id,
+          name: f.name,
+          type: f.type,
+          url: f.url,
+          data: f.data
+        }))}
+        currentFileId={filePreview.attachmentId}
+        onNavigate={(fileId) => {
+          const file = fileManagerFiles.find(f => f.id === fileId);
+          if (file) {
+            setFilePreview({
+              data: file.data || file.url || '',
+              name: file.name,
+              type: file.type,
+              attachmentId: file.id
+            });
+          }
+        }}
       />
     )}
+    
+    <DeleteConfirmationModal
+      open={showDeleteConfirm}
+      onOpenChange={setShowDeleteConfirm}
+      onConfirm={handleDelete}
+      itemName={task.title}
+      itemType="task"
+      loading={saving}
+    />
     </>
   );
 }

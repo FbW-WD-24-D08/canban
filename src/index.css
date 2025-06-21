@@ -1,11 +1,7 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
-@import "tw-animate-css";
 @import "@radix-ui/themes/styles.css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
+@theme {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -157,6 +153,70 @@
   .animate-slideUp {
     animation: slideUp 250ms cubic-bezier(0.87, 0, 0.13, 1);
   }
+  /* File Manager System */
+  .file-item {
+    @apply bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700;
+    @apply text-zinc-900 dark:text-white;
+    @apply hover:border-teal-300 dark:hover:border-teal-600;
+    @apply transition-all duration-200;
+  }
+
+  .file-item-selected {
+    @apply border-teal-500 bg-teal-50 dark:bg-teal-900/20;
+  }
+
+  .folder-item {
+    @apply bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700;
+    @apply text-zinc-900 dark:text-white;
+    @apply hover:border-teal-300 dark:hover:border-teal-600;
+    @apply transition-all duration-200;
+  }
+
+  .file-text-primary {
+    @apply text-zinc-900 dark:text-white font-medium;
+  }
+
+  .file-text-secondary {
+    @apply text-zinc-600 dark:text-zinc-300 font-medium;
+  }
+
+  .file-text-muted {
+    @apply text-zinc-500 dark:text-zinc-400;
+  }
+
+  /* Modal System */
+  .modal-bg {
+    @apply bg-white dark:bg-zinc-900;
+  }
+
+  .modal-border {
+    @apply border border-zinc-200 dark:border-zinc-800;
+  }
+
+  .modal-title {
+    @apply text-zinc-900 dark:text-white;
+  }
+
+  .modal-text {
+    @apply text-zinc-600 dark:text-zinc-400;
+  }
+
+  /* Input System */
+  .input-base {
+    @apply bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600;
+    @apply text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400;
+    @apply focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:outline-none;
+  }
+
+  /* Button System */
+  .btn-primary {
+    @apply bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300;
+    @apply hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors;
+  }
 }
 
 @keyframes smooth-loop {
@@ -173,4 +233,66 @@
 .animate-smooth-loop {
   /* Change 15s to your video's duration! */
   animation: smooth-loop 15s ease-in-out infinite;
+}
+
+/* Atomic Design System - Tailwind v4.1 Compatible */
+@utility file-item {
+  @apply bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700;
+  @apply text-zinc-900 dark:text-white;
+  @apply hover:border-teal-300 dark:hover:border-teal-600;
+  @apply transition-all duration-200;
+}
+
+@utility file-item-selected {
+  @apply border-teal-500 bg-teal-50 dark:bg-teal-900/20;
+}
+
+@utility folder-item {
+  @apply bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700;
+  @apply text-zinc-900 dark:text-white;
+  @apply hover:border-teal-300 dark:hover:border-teal-600;
+  @apply transition-all duration-200;
+}
+
+@utility file-text-primary {
+  @apply text-zinc-900 dark:text-white font-medium;
+}
+
+@utility file-text-secondary {
+  @apply text-zinc-600 dark:text-zinc-300 font-medium;
+}
+
+@utility file-text-muted {
+  @apply text-zinc-500 dark:text-zinc-400;
+}
+
+@utility modal-bg {
+  @apply bg-white dark:bg-zinc-900;
+}
+
+@utility modal-border {
+  @apply border border-zinc-200 dark:border-zinc-800;
+}
+
+@utility modal-title {
+  @apply text-zinc-900 dark:text-white;
+}
+
+@utility modal-text {
+  @apply text-zinc-600 dark:text-zinc-400;
+}
+
+@utility input-base {
+  @apply bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600;
+  @apply text-zinc-900 dark:text-white placeholder-zinc-500 dark:placeholder-zinc-400;
+  @apply focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 focus:outline-none;
+}
+
+@utility btn-primary {
+  @apply bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 transition-colors;
+}
+
+@utility btn-secondary {
+  @apply bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300;
+  @apply hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors;
 }

@@ -1,5 +1,10 @@
 # Canban - Modern Kanban Board Application
 
+![Vercel Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38bdf8?logo=tailwindcss)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 A modern Kanban board application for efficient project management and task organization. Built with React 19, TypeScript, and cutting-edge web technologies.
 
 ## 🚀 Features
@@ -11,16 +16,21 @@ A modern Kanban board application for efficient project management and task orga
 - **Archive System** – Completed tickets can be archived with collapsible sections for clean organization
 - **Multi-User Collaboration** – Board sharing with member management and ownership controls
 
-### File Management & Preview System
+### Advanced File Management & Organization System
 
-- **Smart File Attachments** – Upload files or add external URLs (Google Drive, Dropbox, etc.)
+- **Smart Folder Organization** – Automatic file categorization into Images, Documents, and Archives folders
+- **Drag & Drop Interface** – Intuitive file upload with visual progress indicators and folder targeting
+- **Professional File Browser** – Grid and list view modes with thumbnail generation for visual identification
 - **Rich Preview Experience** – Click any attachment for instant preview with:
   - **Markdown Rendering** – GitHub Flavored Markdown with beautiful typography
-  - **Image Display** – Full-screen image viewing with zoom capabilities
+  - **Image Display** – Full-screen image viewing with zoom and navigation capabilities
+  - **PDF Preview** – Embedded PDF viewing with download fallback
   - **Code Syntax Highlighting** – Support for JavaScript, TypeScript, JSON, XML
-  - **Download Support** – Direct download for all file types
+  - **File Navigation** – Arrow key navigation between files with position counter
+- **Advanced Search & Filtering** – Find files by name, type, size, or shared status across all folders
+- **File Operations** – Download, share, delete, and move files between folders with context menus
 - **Zero Database Bloat** – Smart caching temporarily stores preview data, auto-cleans after use
-- **Performance Optimized** – On-demand loading with lazy evaluation
+- **Performance Optimized** – Lazy loading, thumbnail caching, and debounced search for smooth experience
 
 ### Productivity & UX
 
@@ -52,8 +62,13 @@ A modern Kanban board application for efficient project management and task orga
 
 ## 📖 Documentation
 
+- **[MeisterTask Clone PRD](./docs/meistertask-clone-prd.md)** – Comprehensive Product Requirements Document detailing the complete transformation plan, technical architecture, design system specifications, and implementation roadmap
+- **[File Management & Folder System](./docs/file-management-folder-system.md)** – Complete guide to the advanced file organization system with folder hierarchy, drag-and-drop functionality, and professional file browser interface
+- **[Tag System Implementation](./docs/tag-system-implementation.md)** – Complete documentation of the advanced tag management and filtering system implemented today, including Phase 2A & 2B achievements
+- **[Design System](./docs/design-system.md)** – Comprehensive design documentation covering our dual-theme architecture, MeisterTask clone features, color palettes, component system, and accessibility guidelines
 - **[Feature Walkthrough](./docs/feature-walkthrough.md)** – Detailed overview of recent enhancements including file preview system, UI improvements, and advanced functionality
-- **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes.
+- **[Recent Bugfixes](./docs/bugfixes.md)** – A summary of recent stability improvements and bugfixes
+- **[Modal System Upgrade](./docs/modal-system-upgrade.md)** – Complete guide to the modern modal and toast notification system, including migration from legacy browser dialogs
 
 ![sudo rm -rfv / --no-preserve-root](./public/sudo_rm_-rf.png)
 

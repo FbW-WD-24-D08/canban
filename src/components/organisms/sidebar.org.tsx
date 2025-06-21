@@ -1,12 +1,12 @@
 import { boardsApi } from "@/api/boards.api";
 import { Button } from "@/components/atoms/button.comp";
 import {
-  ChevronRight,
-  HelpCircle,
-  Home,
-  Settings,
-  X,
-  XCircle,
+    ChevronRight,
+    HelpCircle,
+    Home,
+    Settings,
+    X,
+    XCircle,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
@@ -16,7 +16,9 @@ import { useBoardMembers } from "@/hooks/useBoardMembers";
 import type { Board } from "@/types/api.types";
 import { useNavigate } from "react-router";
 import { AddMember } from "../atoms/add-member.comp";
+import { useToast } from "../contexts/toast.context";
 import { useUserContext } from "../contexts/user.context.tsx";
+import { DeleteConfirmationModal } from "../molecules/confirmation-modal.comp";
 
 interface SidebarProps {
   children: ReactNode;
@@ -26,9 +28,12 @@ interface SidebarProps {
 
 export function Sidebar({ children, board, onDelete }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useUserContext();
   const isUserOwner = board?.ownerId === currentUser?.id;
+  const toast = useToast();
 
   const {
     members,
@@ -37,13 +42,18 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
   } = useBoardMembers(board?.id || null);
 
   const handleDelete = async () => {
-    if (!board || !confirm("Delete this board?")) return;
+    if (!board) return;
     try {
+      setDeleting(true);
       await boardsApi.deleteBoard(board.id);
+      toast.success("Board deleted", "The board has been permanently deleted.");
       onDelete?.();
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
+      toast.error("Delete failed", "Could not delete the board. Please try again.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -151,7 +161,7 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
                     onMemberAdded={refetchMembers}
                   />
                   <button
-                    onClick={handleDelete}
+                    onClick={() => setShowDeleteConfirm(true)}
                     className="w-full flex items-center justify-center gap-1 text-red-400 hover:text-red-300 text-xs mt-3 py-2 hover:bg-zinc-700 rounded transition-colors"
                   >
                     <XCircle className="w-4 h-4" /> Delete board
@@ -163,6 +173,17 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
         </nav>
       </div>
       <main className="w-full">{children}</main>
+      
+      {board && (
+        <DeleteConfirmationModal
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          onConfirm={handleDelete}
+          itemName={board.title}
+          itemType="board"
+          loading={deleting}
+        />
+      )}
     </>
   );
 }

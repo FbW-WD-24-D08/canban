@@ -27,4 +27,14 @@ export default defineConfig({
       ignored: ["**/db/**"], // Ignore JSON-server DB to avoid full-page reloads on every write
     },
   },
+  // SPA configuration for client-side routing
+  appType: "spa",
+  build: {
+    rollupOptions: {
+      // Ensure proper SPA handling
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
 });
