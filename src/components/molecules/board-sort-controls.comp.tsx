@@ -26,21 +26,22 @@ export function BoardSortControls({
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-zinc-400">Sort by:</span>
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className="text-xs sm:text-sm text-zinc-400 whitespace-nowrap">Sort by:</span>
       <Button
         variant="outline"
         size="sm"
         onClick={handleSortByTitle}
-        className={`flex items-center gap-2 ${
+        className={`flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 ${
           sortBy === "title" ? "bg-zinc-700 text-white" : ""
         }`}
       >
-        <Type className="w-4 h-4" />
-        Title
+        <Type className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="hidden sm:inline">Title</span>
+        <span className="sm:hidden">T</span>
         {sortBy === "title" && (
           <ArrowUpDown
-            className={`w-3 h-3 ${sortOrder === "desc" ? "rotate-180" : ""}`}
+            className={`w-2 h-2 sm:w-3 sm:h-3 ${sortOrder === "desc" ? "rotate-180" : ""}`}
           />
         )}
       </Button>
@@ -48,15 +49,16 @@ export function BoardSortControls({
         variant="outline"
         size="sm"
         onClick={handleSortByDate}
-        className={`flex items-center gap-2 ${
+        className={`flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 ${
           sortBy === "date" ? "bg-zinc-700 text-white" : ""
         }`}
       >
-        <Calendar className="w-4 h-4" />
-        Date
+        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="hidden sm:inline">Date</span>
+        <span className="sm:hidden">D</span>
         {sortBy === "date" && (
           <ArrowUpDown
-            className={`w-3 h-3 ${sortOrder === "desc" ? "rotate-180" : ""}`}
+            className={`w-2 h-2 sm:w-3 sm:h-3 ${sortOrder === "desc" ? "rotate-180" : ""}`}
           />
         )}
       </Button>

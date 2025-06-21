@@ -46,7 +46,7 @@ export default function DashboardPage() {
     setDialogOpen(true);
   };
 
-  const userName = currentUser?.name || "User";
+  const userName = currentUser?.fullName || currentUser?.firstName || "User";
 
   return (
     <>
@@ -57,15 +57,15 @@ export default function DashboardPage() {
         keywords={siteConfig.meta.dashboard.keywords}
       />
       <DefaultLayout>
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2 leading-tight">
               Welcome back, {userName}!
             </h1>
-            <p className="text-zinc-400">
+            <p className="text-zinc-400 text-sm sm:text-base">
               Manage your boards and stay organized
             </p>
-          </div>{" "}
+          </div>
           <BoardToolbar
             sortBy={sortBy}
             sortOrder={sortOrder}

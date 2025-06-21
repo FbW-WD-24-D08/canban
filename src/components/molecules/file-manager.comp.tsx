@@ -3,7 +3,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Download, Eye, Filter, Folder, FolderOpen, Grid3X3, List, MoreHorizontal, Search, Share2, SortAsc, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { FileUploadZone } from "../atoms/file-upload-zone.comp";
+import FileUploadZone from "../atoms/file-upload-zone.comp";
 
 interface FileItem {
   id: string;
@@ -390,9 +390,18 @@ export function FileManager({
       
       {/* Upload Zone */}
       <FileUploadZone
-        onFilesSelected={onFileUpload}
+        onFilesUploaded={(uploadedFiles) => {
+          // Convert uploaded file metadata to File objects for the callback
+          const files = uploadedFiles.map(uf => {
+            // Create a File object from the uploaded file metadata
+            const file = new File([''], uf.name, { type: uf.type });
+            Object.defineProperty(file, 'size', { value: uf.size });
+            return file;
+          });
+          onFileUpload(files);
+        }}
         acceptedTypes={["image/*", "application/pdf", "text/*", "application/zip"]}
-        maxFileSize={50}
+        maxSize={50 * 1024 * 1024} // 50MB in bytes
         maxFiles={10}
       />
       

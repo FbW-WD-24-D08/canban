@@ -1,138 +1,111 @@
-import { FileText, Link, X } from "lucide-react";
-import { useState } from "react";
+import { Download, Eye, File, Trash2 } from 'lucide-react';
+import React from 'react';
 
 interface Attachment {
   id: string;
   name: string;
-  type: "url" | "file";
-  url?: string;
+  type: string;
+  size?: number;
+  filePath?: string; // New: file path instead of data
+  data?: string; // Legacy: for backwards compatibility
 }
 
 interface SimpleAttachmentProps {
-  attachments: Attachment[];
-  onAttachmentsChange: (attachments: Attachment[]) => void;
-  disabled?: boolean;
+  attachment: Attachment;
+  onDelete?: (id: string) => void;
+  onPreview?: (attachment: Attachment) => void;
 }
 
-export function SimpleAttachment({ 
-  attachments, 
-  onAttachmentsChange, 
-  disabled 
-}: SimpleAttachmentProps) {
-  const [urlInput, setUrlInput] = useState("");
-  const [showUrlInput, setShowUrlInput] = useState(false);
-
-  const addUrl = () => {
-    if (!urlInput.trim()) return;
-    
-    const newAttachment: Attachment = {
-      id: crypto.randomUUID(),
-      name: urlInput.trim(),
-      type: "url",
-      url: urlInput.trim()
-    };
-    
-    onAttachmentsChange([...attachments, newAttachment]);
-    setUrlInput("");
-    setShowUrlInput(false);
+const SimpleAttachment: React.FC<SimpleAttachmentProps> = ({
+  attachment,
+  onDelete,
+  onPreview
+}) => {
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return '';
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
   };
 
-  const addFileNames = (files: FileList) => {
-    const newAttachments: Attachment[] = Array.from(files).map(file => ({
-      id: crypto.randomUUID(),
-      name: file.name,
-      type: "file",
-    }));
-    
-    onAttachmentsChange([...attachments, ...newAttachments]);
+  const getFileUrl = () => {
+    // Use file path if available, otherwise fall back to data URL
+    if (attachment.filePath) {
+      return `/${attachment.filePath}`; // Serve from public directory
+    }
+    return attachment.data; // Legacy base64 data
   };
 
-  const removeAttachment = (id: string) => {
-    onAttachmentsChange(attachments.filter(att => att.id !== id));
+  const handleDownload = () => {
+    const url = getFileUrl();
+    if (url) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = attachment.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
-  const getIcon = (attachment: Attachment) => {
-    if (attachment.type === "url") return <Link className="w-3 h-3" />;
-    return <FileText className="w-3 h-3" />;
+  const handlePreview = () => {
+    if (onPreview) {
+      onPreview(attachment);
+    }
   };
+
+  const isImage = attachment.type.startsWith('image/');
+  const isPDF = attachment.type === 'application/pdf';
+  const canPreview = isImage || isPDF;
 
   return (
-    <div className="space-y-2">
-      <label className="block text-sm text-zinc-400">Attachments</label>
+    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex-shrink-0">
+        <File className="w-5 h-5 text-gray-500" />
+      </div>
       
-      {/* Existing attachments */}
-      {attachments.length > 0 && (
-        <div className="space-y-1 max-h-32 overflow-y-auto">
-          {attachments.map(attachment => (
-            <div key={attachment.id} className="flex items-center gap-2 text-xs text-zinc-300 bg-zinc-800 rounded px-2 py-1">
-              {getIcon(attachment)}
-              <span className="flex-1 truncate">
-                {attachment.type === "url" ? (
-                  <a 
-                    href={attachment.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-teal-400 underline"
-                  >
-                    {attachment.name}
-                  </a>
-                ) : (
-                  <span>{attachment.name}</span>
-                )}
-              </span>
-              {!disabled && (
-                <button
-                  onClick={() => removeAttachment(attachment.id)}
-                  className="text-zinc-500 hover:text-red-400"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+          {attachment.name}
+        </p>
+        {attachment.size && (
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {formatFileSize(attachment.size)}
+          </p>
+        )}
+      </div>
 
-      {/* Add attachments */}
-      {!disabled && (
-        <div className="flex gap-2">
-          <input
-            type="file"
-            multiple
-            onChange={(e) => e.target.files && addFileNames(e.target.files)}
-            className="text-xs text-zinc-400 file:bg-zinc-700 file:border-0 file:px-2 file:py-1 file:text-xs file:text-zinc-300 hover:file:bg-zinc-600"
-          />
-          
+      <div className="flex items-center gap-1">
+        {canPreview && (
           <button
-            onClick={() => setShowUrlInput(!showUrlInput)}
-            className="px-2 py-1 text-xs bg-zinc-700 text-zinc-300 rounded hover:bg-zinc-600 flex items-center gap-1"
+            onClick={handlePreview}
+            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+            title="Preview"
           >
-            <Link className="w-3 h-3" />
-            URL
+            <Eye className="w-4 h-4" />
           </button>
-        </div>
-      )}
+        )}
+        
+        <button
+          onClick={handleDownload}
+          className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
+          title="Download"
+        >
+          <Download className="w-4 h-4" />
+        </button>
 
-      {/* URL input */}
-      {showUrlInput && (
-        <div className="flex gap-2">
-          <input
-            type="url"
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="https://example.com/file.pdf"
-            className="flex-1 text-xs bg-zinc-800 border border-zinc-700 text-white p-2 rounded focus:border-teal-500 focus:outline-none"
-            onKeyDown={(e) => e.key === 'Enter' && addUrl()}
-          />
+        {onDelete && (
           <button
-            onClick={addUrl}
-            disabled={!urlInput.trim()}
-            className="px-2 py-1 text-xs bg-teal-600 text-white rounded hover:bg-teal-700 disabled:opacity-50"
+            onClick={() => onDelete(attachment.id)}
+            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+            title="Delete"
           >
-            Add
+            <Trash2 className="w-4 h-4" />
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default SimpleAttachment;

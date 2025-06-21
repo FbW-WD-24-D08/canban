@@ -71,7 +71,7 @@ class PreviewCache {
     // Remove data but keep metadata
     const cleanedAttachments = allAttachments.map(att => {
       if (att.id === attachmentId) {
-        const { data, ...cleanAttachment } = att;
+        const { data: _data, ...cleanAttachment } = att;
         return cleanAttachment;
       }
       return att;
@@ -127,7 +127,7 @@ class PreviewCache {
 
     const cleanedAttachments = allAttachments.map(att => {
       if (this.openPreviews.has(att.id)) {
-        const { data, ...cleanAttachment } = att;
+        const { data: _data, ...cleanAttachment } = att;
         return cleanAttachment;
       }
       return att;

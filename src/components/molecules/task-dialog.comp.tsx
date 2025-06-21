@@ -5,14 +5,14 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { FolderOpen, Paperclip, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { DatePicker } from "../atoms/due-date-indicator.comp";
-import { FileUploadZone } from "../atoms/file-upload-zone.comp";
+import FileUploadZone from "../atoms/file-upload-zone.comp";
 import { PrioritySelector } from "../atoms/priority-badge.comp";
 import { TimeTracker } from "../atoms/time-tracker.comp";
 import { useToast } from "../contexts/toast.context.tsx";
 import { DeleteConfirmationModal } from "./confirmation-modal.comp.tsx";
 import { FileManager } from "./file-manager.comp";
 import { TagSelector } from "./tag-selector.comp";
-import { UniversalFilePreview } from "./universal-file-preview.comp.tsx";
+import UniversalFilePreview from "./universal-file-preview.comp.tsx";
 
 interface TaskDialogProps {
   task: Task;
@@ -41,7 +41,7 @@ export function TaskDialog({
   const [dueDate, setDueDate] = useState<string | undefined>(task.dueDate);
   const [attachments, setAttachments] = useState(task.attachments || []);
   const [filePreview, setFilePreview] = useState<{ data: string; name: string; type: string; attachmentId: string } | null>(null);
-  const [files, setFiles] = useState<File[]>([]);
+  // Removed unused files state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const toast = useToast();
 
@@ -54,6 +54,7 @@ export function TaskDialog({
     size: number;
     url?: string;
     data?: string;
+    filePath?: string;
     createdAt: string;
     updatedAt: string;
     folderId?: string;
@@ -71,6 +72,7 @@ export function TaskDialog({
       size: (att as any).size || Math.floor(Math.random() * 5000000) + 100000, // Generate realistic size if not available
       url: att.url,
       data: att.data,
+      filePath: att.filePath,
       createdAt: (att as any).createdAt || new Date().toISOString(),
       updatedAt: (att as any).updatedAt || new Date().toISOString(),
       folderId: undefined,
@@ -152,26 +154,104 @@ export function TaskDialog({
     return newTag;
   };
 
+  const handleAdvancedFileUpload = (files: File[]) => {
+    // Convert File objects to FileManager format AND add to regular files
+    const newFiles = files.map(file => ({
+      id: `${Date.now()}-${Math.random()}`,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      url: undefined,
+      data: undefined, // Will be set when file is processed
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      folderId: undefined,
+      tags: [],
+      description: "",
+      version: 1,
+      isShared: false,
+      sharedWith: [],
+      thumbnail: undefined
+    }));
+    
+    setFileManagerFiles(prev => [...prev, ...newFiles]);
+    // Files state removed - using fileManagerFiles instead
+  };
+
+  // Handle simple file upload (new approach)
+  const handleSimpleFileUpload = (uploadedFiles: any[]) => {
+    // Convert uploaded file metadata to attachments
+    const newAttachments = uploadedFiles.map(uf => ({
+      id: uf.id,
+      name: uf.name,
+      type: uf.type,
+      size: uf.size,
+      filePath: uf.filePath,
+      data: undefined // No base64 data, use filePath instead
+    }));
+    
+    // Add to attachments immediately
+    setAttachments(prev => [...prev, ...newAttachments]);
+  };
+
+  // Fix preview handling for both old and new attachments
   const handlePreview = useCallback(async (attachment: any) => {
-    // Prevent rapid clicking
-    if (saving) return;
+    console.log('handlePreview called with:', attachment);
+    if (saving) {
+      console.log('Preview blocked: currently saving');
+      return;
+    }
     
     try {
       setSaving(true);
-      const data = await previewCache.preparePreview(task.id, attachment, attachments);
+      console.log('Starting preview for:', attachment.name);
+      
+      let previewData: string;
+      
+      // Handle new file path based attachments
+      if (attachment.filePath) {
+        previewData = `/${attachment.filePath}`;
+        
+        // Test if file is accessible before showing preview
+        try {
+          const response = await fetch(previewData, { method: 'HEAD' });
+          if (!response.ok) {
+            throw new Error(`File not accessible: ${response.status}`);
+          }
+        } catch (fetchError) {
+          console.warn('File not accessible via path, trying fallbacks...', fetchError);
+          // Fallback to base64 data if file path fails
+          if (attachment.data) {
+            previewData = attachment.data;
+          } else {
+            throw new Error('File not found on server and no backup data available');
+          }
+        }
+      }
+      // Handle old base64 data attachments
+      else if (attachment.data) {
+        previewData = attachment.data;
+      }
+      // Fallback to preview cache for complex cases
+      else {
+        previewData = await previewCache.preparePreview(task.id, attachment, attachments);
+      }
+      
+      console.log('Setting file preview with data:', previewData.substring(0, 50) + '...');
       setFilePreview({
-        data,
+        data: previewData,
         name: attachment.name,
         type: attachment.type,
         attachmentId: attachment.id
       });
+      console.log('File preview set successfully');
     } catch (error) {
       console.error('Preview failed:', error);
-      toast.error("Preview failed", `Could not preview file: ${error}`);
+      toast.error("Preview failed", `Could not preview file: ${attachment.name}. ${error}`);
     } finally {
       setSaving(false);
     }
-  }, [task.id, attachments, saving]);
+  }, [task.id, attachments, saving, toast]);
 
   const closePreview = useCallback(async () => {
     if (filePreview) {
@@ -196,30 +276,6 @@ export function TaskDialog({
     setActualHours(totalHours);
   };
 
-  const handleAdvancedFileUpload = (files: File[]) => {
-    // Convert File objects to FileManager format
-    const newFiles = files.map(file => ({
-      id: `${Date.now()}-${Math.random()}`,
-      name: file.name,
-      type: file.type,
-      size: file.size, // This correctly gets the actual file size
-      url: undefined,
-      data: undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      folderId: undefined,
-      tags: [],
-      description: "",
-      version: 1,
-      isShared: false,
-      sharedWith: [],
-      thumbnail: undefined
-    }));
-    
-    setFileManagerFiles(prev => [...prev, ...newFiles]);
-    setFiles(files);
-  };
-
   // Memoize heavy computations
   const handleFileManagerAction = useMemo(() => ({
     onFileUpload: handleAdvancedFileUpload,
@@ -234,19 +290,36 @@ export function TaskDialog({
     },
     onFileDownload: (fileId: string) => {
       const file = fileManagerFiles.find(f => f.id === fileId);
-      if (file && file.data) {
-        const link = document.createElement('a');
-        link.href = file.data;
-        link.download = file.name;
-        link.click();
+      if (file) {
+        if (file.filePath) {
+          // New file path approach
+          const link = document.createElement('a');
+          link.href = `/${file.filePath}`;
+          link.download = file.name;
+          link.click();
+        } else if (file.data) {
+          // Old base64 approach
+          const link = document.createElement('a');
+          link.href = file.data;
+          link.download = file.name;
+          link.click();
+        }
       }
     },
     onFilePreview: (file: any) => {
-      // Throttle preview actions
       if (saving) return;
       
+      let previewData = '';
+      if (file.filePath) {
+        previewData = `/${file.filePath}`;
+      } else if (file.data) {
+        previewData = file.data;
+      } else if (file.url) {
+        previewData = file.url;
+      }
+      
       setFilePreview({
-        data: file.data || file.url || '',
+        data: previewData,
         name: file.name,
         type: file.type,
         attachmentId: file.id
@@ -268,21 +341,15 @@ export function TaskDialog({
         f.id === fileId ? { ...f, folderId } : f
       ));
     }
-  }), [fileManagerFiles, handleAdvancedFileUpload]);
+  }), [fileManagerFiles, handleAdvancedFileUpload, saving]);
 
   const save = async () => {
     if (!title.trim()) return;
     try {
       setSaving(true);
 
-      // Process new files
-      const newAttachments = await Promise.all(
-        files.map(async (file) => {
-          return await previewCache.handleFileSelection(file);
-        })
-      );
-
-      const allAttachments = [...attachments, ...newAttachments];
+      // Use existing attachments (which now include new uploads)
+      const allAttachments = attachments;
 
       const updateData: any = {
         title,
@@ -303,7 +370,7 @@ export function TaskDialog({
 
       await tasksApi.updateTask(task.id, updateData);
       
-      setFiles([]);
+      // Files state removed - no cleanup needed
       onSaved?.();
       onOpenChange(false);
     } catch (err) {
@@ -460,11 +527,10 @@ export function TaskDialog({
                 /* Simple File Upload */
                 <div className="space-y-3">
                   <FileUploadZone
-                    onFilesSelected={setFiles}
+                    onFilesUploaded={handleSimpleFileUpload}
                     acceptedTypes={["image/*", "application/pdf", "text/*", "application/zip"]}
-                    maxFileSize={25}
+                    maxSize={25 * 1024 * 1024} // 25MB in bytes
                     maxFiles={5}
-                    showPreview={true}
                   />
                   
                   {/* Existing attachments */}
@@ -472,25 +538,61 @@ export function TaskDialog({
                     <div className="space-y-2">
                       <p className={`text-xs ${labelColor}`}>Current attachments:</p>
                       <ul className="space-y-1 max-h-32 overflow-y-auto">
-                        {attachments.map((att) => (
-                          <li key={att.id} className="flex items-center gap-2 p-2 bg-zinc-700/50 rounded text-xs">
-                            <Paperclip className="w-3 h-3 text-teal-400" />
-                            <button
-                              onClick={() => handlePreview(att)}
-                              className="hover:underline text-teal-200 flex-1 text-left truncate"
-                              disabled={saving}
+                        {attachments.map((att) => {
+                          const hasFilePath = !!att.filePath;
+                          const hasData = !!att.data;
+                          const isPreviewable = hasFilePath || hasData;
+                          
+                          return (
+                            <li 
+                              key={att.id} 
+                              className={`flex items-center gap-2 p-2 rounded text-xs transition-all duration-200 ${
+                                isPreviewable 
+                                  ? 'bg-zinc-700/50 hover:bg-zinc-600/50 cursor-pointer' 
+                                  : 'bg-zinc-800/50 cursor-not-allowed'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isPreviewable && !saving) {
+                                  console.log('Clicking attachment:', att.name);
+                                  handlePreview(att);
+                                }
+                              }}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                if (isPreviewable && !saving) {
+                                  console.log('Double-clicking attachment:', att.name);
+                                  handlePreview(att);
+                                }
+                              }}
+                              title={isPreviewable ? `Click to preview ${att.name}` : 'File not available for preview'}
                             >
-                              {att.name}
-                            </button>
-                            <button
-                              onClick={() => removeAttachment(att.id)}
-                              className="text-red-400 hover:text-red-300 p-1"
-                              disabled={saving}
-                            >
-                              ×
-                            </button>
-                          </li>
-                        ))}
+                              <Paperclip className={`w-3 h-3 ${
+                                isPreviewable ? 'text-teal-400' : 'text-zinc-500'
+                              }`} />
+                              <div className={`flex-1 text-left truncate ${
+                                isPreviewable 
+                                  ? 'text-teal-200' 
+                                  : 'text-zinc-400'
+                              }`}>
+                                {att.name}
+                                {!isPreviewable && ' (unavailable)'}
+                                {saving && ' (loading...)'}
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeAttachment(att.id);
+                                }}
+                                className="text-red-400 hover:text-red-300 p-1 hover:bg-red-900/20 rounded"
+                                disabled={saving}
+                                title="Remove attachment"
+                              >
+                                ×
+                              </button>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
@@ -544,28 +646,22 @@ export function TaskDialog({
     
     {filePreview && (
       <UniversalFilePreview
-        fileUrl={filePreview.data}
-        fileName={filePreview.name}
-        fileType={filePreview.type}
-        open={!!filePreview}
-        onOpenChange={closePreview}
-        files={fileManagerFiles.map(f => ({
-          id: f.id,
-          name: f.name,
-          type: f.type,
-          url: f.url,
-          data: f.data
-        }))}
-        currentFileId={filePreview.attachmentId}
-        onNavigate={(fileId) => {
-          const file = fileManagerFiles.find(f => f.id === fileId);
-          if (file) {
-            setFilePreview({
-              data: file.data || file.url || '',
-              name: file.name,
-              type: file.type,
-              attachmentId: file.id
-            });
+        attachment={{
+          id: filePreview.attachmentId,
+          name: filePreview.name,
+          type: filePreview.type,
+          filePath: filePreview.data.startsWith('data:') ? undefined : filePreview.data,
+          data: filePreview.data.startsWith('data:') ? filePreview.data : undefined
+        }}
+        onClose={closePreview}
+        onDownload={() => {
+          if (filePreview.data) {
+            const link = document.createElement('a');
+            link.href = filePreview.data;
+            link.download = filePreview.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
           }
         }}
       />

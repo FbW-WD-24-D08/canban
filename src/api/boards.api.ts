@@ -152,6 +152,15 @@ export const boardsApi = {
 
   addMember: async (boardId: string, userId: string): Promise<BoardMember> => {
     try {
+      // Check if user is already a member
+      const existingMemberships: BoardMember[] = await apiClient.get(
+        `/boardMembers?boardId=${boardId}&userId=${userId}`
+      );
+      
+      if (existingMemberships.length > 0) {
+        throw new Error("User is already a member of this board");
+      }
+
       return await apiClient.post("/boardMembers", {
         boardId,
         userId,
@@ -168,8 +177,9 @@ export const boardsApi = {
         `/boardMembers?boardId=${boardId}&userId=${userId}`
       );
 
-      if (memberships.length > 0) {
-        await apiClient.delete(`/boardMembers/${memberships[0].id}`);
+      // Remove ALL memberships for this user (handles duplicates)
+      for (const membership of memberships) {
+        await apiClient.delete(`/boardMembers/${membership.id}`);
       }
     } catch (error) {
       console.error("Error removing board member:", error);

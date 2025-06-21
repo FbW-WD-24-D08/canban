@@ -55,9 +55,9 @@ export function Column({
     data: { columnId: column.id },
   });
 
-  // Get MeisterTask styling
+  // Get MeisterTask styling - FORCE icons from function to ensure they work
   const columnColor = isMeisterTask ? (column.color || getMeisterTaskColumnColor(column.title)) : null;
-  const columnIcon = isMeisterTask ? (column.icon || getMeisterTaskColumnIcon(column.title)) : null;
+  const columnIcon = isMeisterTask ? getMeisterTaskColumnIcon(column.title) : null;
 
   useEffect(() => {
     if (isEditingTitle) {
@@ -171,9 +171,9 @@ export function Column({
           </div>
           
           {/* MeisterTask column icon */}
-          {isMeisterTask && columnIcon && (
+          {isMeisterTask && (
             <span className="text-lg" style={{ color: columnColor || '#9E9E9E' }}>
-              {columnIcon}
+              {columnIcon || '📄'}
             </span>
           )}
           

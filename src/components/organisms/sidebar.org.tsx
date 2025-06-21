@@ -13,12 +13,14 @@ import { Link } from "react-router";
 
 import { MemberItem } from "@/components/atoms/member.comp";
 import { useBoardMembers } from "@/hooks/useBoardMembers";
+import { useClerkSync } from "@/hooks/useClerkSync";
 import type { Board } from "@/types/api.types";
 import { useNavigate } from "react-router";
-import { AddMember } from "../atoms/add-member.comp";
+import { AddMemberSimple } from "../atoms/add-member-simple.comp";
 import { useToast } from "../contexts/toast.context";
 import { useUserContext } from "../contexts/user.context.tsx";
 import { DeleteConfirmationModal } from "../molecules/confirmation-modal.comp";
+import { useEffect } from "react";
 
 interface SidebarProps {
   children: ReactNode;
@@ -35,11 +37,43 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
   const isUserOwner = board?.ownerId === currentUser?.id;
   const toast = useToast();
 
+  // Clerk organization sync
+  const { 
+    syncAllOrganizationMembers, 
+    isLoaded, 
+    clerkOrganization, 
+    orgLoaded,
+    userLoaded 
+  } = useClerkSync();
+
   const {
     members,
     loading: membersLoading,
     refetch: refetchMembers,
   } = useBoardMembers(board?.id || null);
+
+  // Auto-sync all Clerk organization members when component loads
+  useEffect(() => {
+    console.log('Sidebar debug:', {
+      isLoaded,
+      orgLoaded,
+      userLoaded,
+      hasOrganization: !!clerkOrganization,
+      organizationId: clerkOrganization?.id,
+      boardId: board?.id
+    });
+    
+    if (isLoaded && orgLoaded && clerkOrganization && board?.id === "14e1") {
+      console.log('Sidebar: Auto-syncing Clerk organization members for board 14e1...');
+      syncAllOrganizationMembers();
+    } else if (board?.id === "14e1") {
+      console.log('Sidebar: Cannot sync - missing requirements:', {
+        isLoaded,
+        orgLoaded, 
+        hasOrganization: !!clerkOrganization
+      });
+    }
+  }, [isLoaded, orgLoaded, clerkOrganization?.id, board?.id, syncAllOrganizationMembers]);
 
   const handleDelete = async () => {
     if (!board) return;
@@ -63,7 +97,7 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
         variant="ghost"
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-[60] bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-600 transition-all duration-300"
+        className="fixed bottom-6 right-6 sm:top-16 sm:bottom-auto sm:right-auto sm:left-4 z-[60] bg-zinc-800/90 hover:bg-zinc-700 text-white border border-zinc-600 transition-all duration-300 backdrop-blur-sm shadow-lg"
       >
         <ChevronRight
           className={`h-5 w-5 transition-transform duration-300 ${
@@ -156,7 +190,7 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
               </div>
               {isUserOwner && (
                 <>
-                  <AddMember
+                  <AddMemberSimple
                     boardId={board?.id}
                     onMemberAdded={refetchMembers}
                   />

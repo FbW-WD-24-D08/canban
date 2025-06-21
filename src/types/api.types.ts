@@ -61,6 +61,9 @@ export interface Attachment {
   type: string; // mime type (e.g., "text/markdown", "image/png")
   url?: string; // optional URL for link attachments
   data?: string; // temporary base64 data for preview (auto-cleaned)
+  filePath?: string; // file path for uploaded files
+  size?: number; // file size in bytes
+  thumbnail?: string; // thumbnail for images
 }
 
 export interface CreateBoardData {

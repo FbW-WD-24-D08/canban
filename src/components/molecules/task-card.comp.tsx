@@ -3,9 +3,9 @@ import type { Task } from "@/types/api.types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MoreVertical, Paperclip } from "lucide-react";
+import { MoreVertical, Paperclip, Eye } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AvatarGroup } from "../atoms/avatar.comp";
 import { ChecklistProgress } from "../atoms/checklist-progress.comp";
 import { DueDateIndicator } from "../atoms/due-date-indicator.comp";
@@ -13,6 +13,7 @@ import { PriorityBadge } from "../atoms/priority-badge.comp";
 import { TagGroup } from "../atoms/tag-chip.comp";
 import { TimeDisplay } from "../atoms/time-tracker.comp";
 import { TaskDialog } from "./task-dialog.comp";
+import UniversalFilePreview from "./universal-file-preview.comp";
 
 interface TaskCardProps {
   task: Task;
@@ -30,6 +31,7 @@ export function TaskCard({
   isMeisterTask = false 
 }: TaskCardProps) {
   const [open, setOpen] = useState(false);
+  const [previewAttachment, setPreviewAttachment] = useState<any>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_archiving, setArchiving] = useState(false);
@@ -77,6 +79,19 @@ export function TaskCard({
     e.stopPropagation();
     restoreTaskAction();
   };
+
+  // Quick preview for first attachment
+  const handleAttachmentPreview = useCallback((e: React.SyntheticEvent) => {
+    e.stopPropagation();
+    if (task.attachments && task.attachments.length > 0) {
+      const firstAttachment = task.attachments[0];
+      setPreviewAttachment(firstAttachment);
+    }
+  }, [task.attachments]);
+
+  const closeAttachmentPreview = useCallback(() => {
+    setPreviewAttachment(null);
+  }, []);
 
   const statusMap: Record<string, string> = {
     todo: "bg-zinc-700/20 text-zinc-300",
@@ -306,12 +321,16 @@ export function TaskCard({
             {/* Meta Information Row */}
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-3">
-                {/* Attachments */}
+                {/* Attachments - Clickable for preview */}
                 {task.attachments && task.attachments.length > 0 && (
-                  <div className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors">
-                    <Paperclip className="w-3 h-3" />
+                  <button
+                    onClick={handleAttachmentPreview}
+                    className="flex items-center gap-1 text-zinc-500 dark:text-zinc-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer rounded px-1 py-0.5 hover:bg-zinc-100 dark:hover:bg-zinc-700/50"
+                    title={`Preview ${task.attachments[0]?.name || 'attachment'}`}
+                  >
+                    <Eye className="w-3 h-3" />
                     <span className="font-medium">{task.attachments.length}</span>
-                  </div>
+                  </button>
                 )}
                 
                 <ChecklistProgress 
@@ -380,6 +399,31 @@ export function TaskCard({
         onDeleted={onUpdated}
         isMeisterTask={isMeisterTask}
       />
+      
+      {/* Quick Attachment Preview */}
+      {previewAttachment && (
+        <UniversalFilePreview
+          attachment={{
+            id: previewAttachment.id,
+            name: previewAttachment.name,
+            type: previewAttachment.type,
+            filePath: previewAttachment.filePath,
+            data: previewAttachment.data
+          }}
+          onClose={closeAttachmentPreview}
+          onDownload={() => {
+            const url = previewAttachment.filePath 
+              ? `/${previewAttachment.filePath}` 
+              : previewAttachment.data;
+            if (url) {
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = previewAttachment.name;
+              link.click();
+            }
+          }}
+        />
+      )}
     </>
   );
 } 

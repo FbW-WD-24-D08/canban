@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { usersApi } from "../api/users.api";
+import { UserSyncService } from "../services/user-sync.service";
 
 export function useUserName(userId: string) {
   const [userName, setUserName] = useState<string | null>(null);
@@ -14,8 +14,37 @@ export function useUserName(userId: string) {
       }
 
       try {
-        const user = await usersApi.getUserName(userId);
-        setUserName(user?.username || userId);
+        console.log('🔍 useUserName - userId:', userId);
+        // First try to get from the synced users
+        const user = await UserSyncService.getSyncedUser(userId);
+        console.log('📋 useUserName - found user:', user);
+        if (user) {
+          // Priority: 1. username → 2. fullName → 3. firstName + lastName → 4. emailAddress → 5. id → 6. clerkId
+          const displayName = user.username || 
+                             user.fullName || 
+                             (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : null) ||
+                             user.emailAddress || 
+                             user.id ||
+                             user.clerkId;
+          console.log('✅ useUserName - display name:', displayName);
+          setUserName(displayName);
+        } else {
+          // Fallback: try to get all users and find by ID
+          const allUsers = await UserSyncService.getAllActiveUsers();
+          const foundUser = allUsers.find(u => u.id === userId || u.clerkId === userId);
+          
+          if (foundUser) {
+            const displayName = foundUser.username || 
+                               foundUser.fullName || 
+                               (foundUser.firstName && foundUser.lastName ? `${foundUser.firstName} ${foundUser.lastName}` : null) ||
+                               foundUser.emailAddress || 
+                               foundUser.id ||
+                               foundUser.clerkId;
+            setUserName(displayName);
+          } else {
+            setUserName(userId);
+          }
+        }
       } catch (error) {
         console.error("Error fetching username:", error);
         setUserName(userId);
