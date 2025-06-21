@@ -192,18 +192,37 @@ npm run check
 vercel deploy --prod
 ```
 
-#### Environment Variables for Production
+#### Production Environment Variables
 ```env
 # Clerk Authentication (Production)
-VITE_CLERK_PUBLISHABLE_KEY=pk_live_your_production_key
-CLERK_SECRET_KEY=sk_live_your_production_secret
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_YWNjZXB0ZWQtbGVtdXItMjEuY2xlcmsuYWNjb3VudHMuZGV2JA
+VITE_CLERK_ORGANIZATION_ID=org_2yfncISYAk2BEKIUmPCKleyD2HP
+
+# Backend Configuration (JSONBin.io)
+VITE_API_BASE_URL=https://api.jsonbin.io/v3/b/YOUR_BIN_ID
 
 # Webhook Configuration (Production)  
 CLERK_WEBHOOK_SIGNING_SECRET=whsec_your_production_webhook_secret
-
-# API Configuration (Production)
-VITE_API_BASE_URL=https://your-api-domain.com
 ```
+
+### Backend Deployment Strategy ⭐
+
+#### JSONBin.io Backend (Recommended)
+- **Perfect for demos/portfolio**: 5-minute setup, 10,000 requests/month free
+- **Zero maintenance**: Upload db.json → Get API endpoint
+- **Professional presentation**: Clean URLs, reliable uptime
+- **Smart fallback**: Demo data when API unavailable
+
+#### Setup Process:
+1. **Create JSONBin account**: Visit https://jsonbin.io
+2. **Upload database**: Copy db/db.json content to new bin
+3. **Configure environment**: Set `VITE_API_BASE_URL` to bin URL
+4. **Deploy**: Vercel deployment with new backend
+
+#### Alternative Options:
+- **Railway**: Full backend control ($5/month after trial)
+- **Vercel Functions**: Serverless API routes
+- **MSW**: Client-side mocking for pure demos
 
 #### Build Performance Metrics
 | Asset Type | Size | Gzipped | Performance |
@@ -212,7 +231,9 @@ VITE_API_BASE_URL=https://your-api-domain.com
 | Main CSS | 771KB | 95KB | ✅ Good |
 | **Total Initial** | **~600KB** | **~238KB** | ✅ **Within limits** |
 
-For complete deployment documentation, see: **[Build Fixes & Deployment Guide](./docs/BUILD_FIXES_AND_DEPLOYMENT.md)**
+For complete deployment documentation, see: 
+- **[Build Fixes & Deployment Guide](./docs/BUILD_FIXES_AND_DEPLOYMENT.md)**
+- **[Backend Deployment Options](./docs/BACKEND_DEPLOYMENT_OPTIONS.md)** ⭐
 
 ## 🎯 Key Features Deep Dive
 
