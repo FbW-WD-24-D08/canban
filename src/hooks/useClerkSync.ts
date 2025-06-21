@@ -95,19 +95,19 @@ export function useClerkSync() {
       
       // Get all organization members from Clerk API
       const memberships = await clerkOrganization.getMemberships();
-      console.log('ClerkSync: Found', memberships.length, 'memberships');
+      console.log('ClerkSync: Found', memberships.data.length, 'memberships');
       
-      for (const membership of memberships) {
+      for (const membership of memberships.data) {
         const user = membership.publicUserData;
         if (user) {
-          console.log('ClerkSync: Processing member:', user.userId, user.username || user.emailAddress);
+          console.log('ClerkSync: Processing member:', user.userId, user.identifier);
           
           const userData = {
             id: user.userId,
-            emailAddress: user.emailAddress || '',
+            emailAddress: user.identifier || '',
             firstName: user.firstName || '',
             lastName: user.lastName || '',
-            username: user.username || '',
+            username: user.identifier?.split('@')[0] || '',
             imageUrl: user.imageUrl || '',
           };
           

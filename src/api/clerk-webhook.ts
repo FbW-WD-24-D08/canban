@@ -6,7 +6,7 @@
  */
 
 import { Webhook } from 'svix';
-import type { WebhookEvent } from '@clerk/clerk-react';
+import type { WebhookEvent } from '@clerk/backend';
 
 // Database integration utilities
 const DB_BASE_URL = 'http://localhost:3001';

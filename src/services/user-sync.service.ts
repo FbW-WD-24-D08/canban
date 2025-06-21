@@ -55,19 +55,13 @@ export interface SyncedOrganization {
 
 export class UserSyncService {
   /**
-   * Sync current Clerk user to JSON Server
+   * Sync current Clerk user to JSON Server - DEPRECATED
+   * Use webhook system instead for automatic user synchronization
    */
-  static async syncCurrentUser(): Promise<SyncedUser | null> {
-    try {
-      const { user } = useUser();
-      if (!user) return null;
-
-      return await this.syncUser(user);
-    } catch (error) {
-      console.error('Error syncing current user:', error);
-      return null;
-    }
-  }
+  // static async syncCurrentUser(): Promise<SyncedUser | null> {
+  //   // This method is deprecated - webhook system handles user sync automatically
+  //   throw new Error('syncCurrentUser is deprecated - user sync is handled automatically via webhooks');
+  // }
 
   /**
    * Sync Clerk organization to JSON Server
