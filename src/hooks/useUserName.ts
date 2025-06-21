@@ -14,10 +14,8 @@ export function useUserName(userId: string) {
       }
 
       try {
-        console.log('🔍 useUserName - userId:', userId);
         // First try to get from the synced users
         const user = await UserSyncService.getSyncedUser(userId);
-        console.log('📋 useUserName - found user:', user);
         if (user) {
           // Priority: 1. username → 2. fullName → 3. firstName + lastName → 4. emailAddress → 5. id → 6. clerkId
           const displayName = user.username || 
@@ -26,7 +24,6 @@ export function useUserName(userId: string) {
                              user.emailAddress || 
                              user.id ||
                              user.clerkId;
-          console.log('✅ useUserName - display name:', displayName);
           setUserName(displayName);
         } else {
           // Fallback: try to get all users and find by ID

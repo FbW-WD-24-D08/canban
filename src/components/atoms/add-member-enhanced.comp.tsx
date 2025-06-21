@@ -87,7 +87,6 @@ export function AddMemberEnhanced({ boardId, onMemberAdded }: AddMemberEnhancedP
         // Use UserSyncService for searching
         const filtered = await UserSyncService.searchUsers(debouncedQuery);
 
-        console.log('Enhanced Search: Found', filtered.length, 'users for query:', debouncedQuery);
         setSuggestions(filtered.slice(0, 8));
         setShowSuggestions(filtered.length > 0);
         setSelectedIndex(-1);
@@ -178,11 +177,7 @@ export function AddMemberEnhanced({ boardId, onMemberAdded }: AddMemberEnhancedP
       setStatus('idle');
       setMessage('');
       
-      console.log('Adding user to board:', user);
-      
       await boardsApi.addMember(boardId, user.id);
-      
-      console.log('User added successfully');
       setQuery('');
       setSuggestions([]);
       setShowSuggestions(false);

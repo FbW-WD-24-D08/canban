@@ -42,8 +42,7 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
     syncAllOrganizationMembers, 
     isLoaded, 
     clerkOrganization, 
-    orgLoaded,
-    userLoaded 
+    orgLoaded
   } = useClerkSync();
 
   const {
@@ -54,24 +53,8 @@ export function Sidebar({ children, board, onDelete }: SidebarProps) {
 
   // Auto-sync all Clerk organization members when component loads
   useEffect(() => {
-    console.log('Sidebar debug:', {
-      isLoaded,
-      orgLoaded,
-      userLoaded,
-      hasOrganization: !!clerkOrganization,
-      organizationId: clerkOrganization?.id,
-      boardId: board?.id
-    });
-    
     if (isLoaded && orgLoaded && clerkOrganization && board?.id === "14e1") {
-      console.log('Sidebar: Auto-syncing Clerk organization members for board 14e1...');
       syncAllOrganizationMembers();
-    } else if (board?.id === "14e1") {
-      console.log('Sidebar: Cannot sync - missing requirements:', {
-        isLoaded,
-        orgLoaded, 
-        hasOrganization: !!clerkOrganization
-      });
     }
   }, [isLoaded, orgLoaded, clerkOrganization?.id, board?.id, syncAllOrganizationMembers]);
 

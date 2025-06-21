@@ -196,15 +196,12 @@ export function TaskDialog({
 
   // Fix preview handling for both old and new attachments
   const handlePreview = useCallback(async (attachment: any) => {
-    console.log('handlePreview called with:', attachment);
     if (saving) {
-      console.log('Preview blocked: currently saving');
       return;
     }
     
     try {
       setSaving(true);
-      console.log('Starting preview for:', attachment.name);
       
       let previewData: string;
       
@@ -237,14 +234,12 @@ export function TaskDialog({
         previewData = await previewCache.preparePreview(task.id, attachment, attachments);
       }
       
-      console.log('Setting file preview with data:', previewData.substring(0, 50) + '...');
       setFilePreview({
         data: previewData,
         name: attachment.name,
         type: attachment.type,
         attachmentId: attachment.id
       });
-      console.log('File preview set successfully');
     } catch (error) {
       console.error('Preview failed:', error);
       toast.error("Preview failed", `Could not preview file: ${attachment.name}. ${error}`);
@@ -554,14 +549,12 @@ export function TaskDialog({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isPreviewable && !saving) {
-                                  console.log('Clicking attachment:', att.name);
                                   handlePreview(att);
                                 }
                               }}
                               onDoubleClick={(e) => {
                                 e.stopPropagation();
                                 if (isPreviewable && !saving) {
-                                  console.log('Double-clicking attachment:', att.name);
                                   handlePreview(att);
                                 }
                               }}

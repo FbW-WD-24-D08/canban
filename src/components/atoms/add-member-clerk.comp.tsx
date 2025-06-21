@@ -150,11 +150,7 @@ export function AddMemberClerk({ boardId, onMemberAdded }: AddMemberClerkProps) 
       setStatus('idle');
       setMessage('');
       
-      console.log('Adding Clerk user to board:', user);
-      
       await boardsApi.addMember(boardId, user.id);
-      
-      console.log('User added successfully');
       setQuery('');
       setSuggestions([]);
       setShowSuggestions(false);

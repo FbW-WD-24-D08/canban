@@ -100,7 +100,6 @@ export class UserSyncService {
           ...orgData,
         };
 
-        console.log('UserSync: Updating existing organization:', orgId);
         return await apiClient.put(`/organizations/${existingOrg.id}`, updatedOrg);
       } else {
         // Create new organization
@@ -109,7 +108,6 @@ export class UserSyncService {
           createdAt: now,
         } as SyncedOrganization;
 
-        console.log('UserSync: Creating new organization:', orgId);
         return await apiClient.post('/organizations', newOrg);
       }
     } catch (error) {
@@ -160,7 +158,6 @@ export class UserSyncService {
           },
         };
 
-        console.log('UserSync: Updating existing user:', userId);
         return await apiClient.put(`/users/${existingUser.id}`, updatedUser);
       } else {
         // Create new user
@@ -174,7 +171,6 @@ export class UserSyncService {
           },
         } as SyncedUser;
 
-        console.log('UserSync: Creating new user:', userId);
         return await apiClient.post('/users', newUser);
       }
     } catch (error) {

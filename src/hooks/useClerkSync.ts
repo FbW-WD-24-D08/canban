@@ -81,27 +81,17 @@ export function useClerkSync() {
   // Sync ALL organization members from Clerk to local database
   const syncAllOrganizationMembers = async (): Promise<void> => {
     try {
-      console.log('ClerkSync: Starting organization members sync...');
-      
       // Only proceed if Clerk organization is properly loaded
       if (!clerkOrganization || !orgLoaded) {
-        console.error('ClerkSync: Clerk organization not loaded, cannot sync members');
         return;
       }
 
-      console.log('ClerkSync: Using real Clerk organization API...');
-      console.log('ClerkSync: Organization ID:', clerkOrganization.id);
-      console.log('ClerkSync: Organization name:', clerkOrganization.name);
-      
       // Get all organization members from Clerk API
       const memberships = await clerkOrganization.getMemberships();
-      console.log('ClerkSync: Found', memberships.data.length, 'memberships');
       
       for (const membership of memberships.data) {
         const user = membership.publicUserData;
         if (user) {
-          console.log('ClerkSync: Processing member:', user.userId, user.identifier);
-          
           const userData = {
             id: user.userId,
             emailAddress: user.identifier || '',
@@ -112,11 +102,8 @@ export function useClerkSync() {
           };
           
           await UserSyncService.syncUser(userData, clerkOrganization);
-          console.log('ClerkSync: Successfully synced member:', userData.username || userData.emailAddress);
         }
       }
-      
-      console.log('ClerkSync: Real organization members sync complete');
     } catch (error) {
       console.error('ClerkSync: Error syncing organization members:', error);
       throw error; // Re-throw to show the actual error

@@ -21,7 +21,6 @@ const UniversalFilePreview: React.FC<UniversalFilePreviewProps> = ({
   onClose,
   onDownload
 }) => {
-  console.log('UniversalFilePreview rendered with attachment:', attachment);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
