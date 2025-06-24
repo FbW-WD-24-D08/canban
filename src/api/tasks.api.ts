@@ -83,10 +83,10 @@ export const tasksApi = {
   ): Promise<void> => {
     try {
       const promises = updates.map(({ id, position, columnId }) => {
-        const updateData: any = { position };
-        if (columnId !== undefined) {
-          updateData.columnId = columnId;
-        }
+        const updateData: UpdateTaskData = {
+          position,
+          ...(columnId !== undefined ? { columnId } : {}),
+        };
         return apiClient.patch(`/tasks/${id}`, updateData);
       });
       await Promise.all(promises);

@@ -1,6 +1,6 @@
 import { tasksApi } from "@/api/tasks.api";
 import { previewCache } from "@/lib/preview-cache";
-import type { Priority, Tag, Task, TimeEntry } from "@/types/api.types";
+import type { Attachment, Priority, Tag, Task, TimeEntry } from "@/types/api.types";
 import * as Dialog from "@radix-ui/react-dialog";
 import { FolderOpen, Paperclip, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -35,7 +35,7 @@ export function TaskDialog({
   const [desc, setDesc] = useState(task.description ?? "");
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<"todo" | "in-progress" | "done">(
-    (task.status as any) || "todo"
+    task.status ?? "todo"
   );
   const [priority, setPriority] = useState<Priority>(task.priority || "medium");
   const [dueDate, setDueDate] = useState<string | undefined>(task.dueDate);
@@ -69,19 +69,19 @@ export function TaskDialog({
       id: att.id,
       name: att.name,
       type: att.type,
-      size: (att as any).size || Math.floor(Math.random() * 5000000) + 100000, // Generate realistic size if not available
+      size: (att as Attachment & { size?: number }).size ?? Math.floor(Math.random() * 5000000) + 100000,
       url: att.url,
       data: att.data,
       filePath: att.filePath,
-      createdAt: (att as any).createdAt || new Date().toISOString(),
-      updatedAt: (att as any).updatedAt || new Date().toISOString(),
+      createdAt: (att as Attachment & { createdAt?: string }).createdAt ?? new Date().toISOString(),
+      updatedAt: (att as Attachment & { updatedAt?: string }).updatedAt ?? new Date().toISOString(),
       folderId: undefined,
       tags: [],
       description: "",
       version: 1,
       isShared: false,
       sharedWith: [],
-      thumbnail: (att as any).thumbnail
+      thumbnail: (att as Attachment & { thumbnail?: string }).thumbnail
     }))
   );
   const [fileManagerFolders, setFileManagerFolders] = useState([
@@ -179,7 +179,14 @@ export function TaskDialog({
   };
 
   // Handle simple file upload (new approach)
-  const handleSimpleFileUpload = (uploadedFiles: any[]) => {
+  interface UploadedFileMeta {
+    id: string;
+    name: string;
+    type: string;
+    size: number;
+    filePath?: string;
+  }
+  const handleSimpleFileUpload = (uploadedFiles: UploadedFileMeta[]) => {
     // Convert uploaded file metadata to attachments
     const newAttachments = uploadedFiles.map(uf => ({
       id: uf.id,
@@ -195,7 +202,7 @@ export function TaskDialog({
   };
 
   // Fix preview handling for both old and new attachments
-  const handlePreview = useCallback(async (attachment: any) => {
+  const handlePreview = useCallback(async (attachment: Attachment) => {
     if (saving) {
       return;
     }
@@ -600,7 +607,7 @@ export function TaskDialog({
                 <select
                   title="Task status"
                   value={status}
-                  onChange={(e) => setStatus(e.target.value as any)}
+                  onChange={(e) => setStatus(e.target.value as "todo" | "in-progress" | "done")}
                   className={`w-full rounded-md ${inputBg} border ${inputText} p-2 text-sm focus:border-teal-500 focus:outline-none`}
                 >
                   <option value="todo">Todo</option>

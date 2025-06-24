@@ -206,7 +206,7 @@
       "description": "MT clone",
       "ownerId": "user_2yYUsJ4ROurxNpKNLhUhjSemgkx",
       "createdAt": "2025-06-19T19:36:09.260Z",
-      "updatedAt": "2025-06-21T16:38:50.688Z"
+      "updatedAt": "2025-06-21T22:02:54.061Z"
     }
   ],
   "boardMembers": [
@@ -490,6 +490,26 @@
       "position": 4,
       "color": "#4CAF50",
       "icon": "✅"
+    },
+    {
+      "icon": "ClockIcon",
+      "id": "3803"
+    },
+    {
+      "icon": "SunIcon",
+      "id": "b7c3"
+    },
+    {
+      "icon": "SunIcon",
+      "id": "db7f"
+    },
+    {
+      "icon": "LapTimerIcon",
+      "id": "9a66"
+    },
+    {
+      "icon": "LayoutIcon",
+      "id": "4502"
     }
   ],
   "tasks": [
@@ -1158,9 +1178,9 @@
       "fullName": "2701 kai",
       "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yeVlVc0pjMFIzaExTWWNmSmxtV3VPT0NpRUcifQ",
       "username": "2701kai",
-      "lastSyncAt": "2025-06-21T18:16:32.990Z",
+      "lastSyncAt": "2025-06-24T04:41:40.424Z",
       "createdAt": "2025-06-21T10:00:00Z",
-      "updatedAt": "2025-06-21T18:16:32.990Z",
+      "updatedAt": "2025-06-24T04:41:40.424Z",
       "preferences": {
         "theme": "dark",
         "notifications": true,

@@ -1,7 +1,7 @@
 import { boardsApi } from "@/api/boards.api";
 import { isMeisterTaskBoard, setupMeisterTaskColumns } from "@/lib/meistertask-setup";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { useBoard } from "../../hooks/useBoard.ts";
 import { useBoardTasks } from "../../hooks/useBoardTasks.ts";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
@@ -197,7 +197,12 @@ export default function BoardPage() {
                 />
               )}
               
-              <BoardColumns boardId={board.id} isMeisterTask={isMTBoard} />
+              <BoardColumns 
+                board={board}
+                boardId={board!.id}
+                isMeisterTask={isMTBoard}
+                onSetupComplete={meisterTaskSetupComplete}
+              />
             </div>
           </div>
         </div>

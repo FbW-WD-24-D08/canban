@@ -1,15 +1,19 @@
-import {
-  createContext,
-  useContext,
-  type ReactNode,
-} from "react";
 import { useClerkSync } from "@/hooks/useClerkSync";
 import type { SyncedUser } from "@/services/user-sync.service";
+import type {
+    OrganizationResource,
+    UserResource,
+} from "@clerk/types";
+import {
+    createContext,
+    useContext,
+    type ReactNode,
+} from "react";
 
 interface UserContextType {
   currentUser: SyncedUser | null;
-  clerkUser: any;
-  syncedOrganization: any;
+  clerkUser: UserResource | null;
+  syncedOrganization: OrganizationResource | null;
   isOrganizationAdmin: boolean;
   isOrganizationMember: boolean;
   syncing: boolean;

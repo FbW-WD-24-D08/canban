@@ -9,18 +9,18 @@ import {
     XCircle,
 } from "lucide-react";
 import { type ReactNode, useState } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 import { MemberItem } from "@/components/atoms/member.comp";
 import { useBoardMembers } from "@/hooks/useBoardMembers";
 import { useClerkSync } from "@/hooks/useClerkSync";
 import type { Board } from "@/types/api.types";
-import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AddMemberSimple } from "../atoms/add-member-simple.comp";
 import { useToast } from "../contexts/toast.context";
 import { useUserContext } from "../contexts/user.context.tsx";
 import { DeleteConfirmationModal } from "../molecules/confirmation-modal.comp";
-import { useEffect } from "react";
 
 interface SidebarProps {
   children: ReactNode;

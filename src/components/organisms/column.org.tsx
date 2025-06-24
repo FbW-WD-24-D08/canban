@@ -1,23 +1,20 @@
-import { columnsApi } from "@/api/columns.api.ts";
-import { tasksApi } from "@/api/tasks.api";
+import { columnsApi } from "@/api/columns.api";
 import { useTasks } from "@/hooks/useTasks";
+import { getIconComponent } from "@/lib/icon-map";
 import { getMeisterTaskColumnColor, getMeisterTaskColumnIcon } from "@/lib/meistertask-setup";
-import type { Column, Task } from "@/types/api.types";
-import { useDroppable } from "@dnd-kit/core";
-import {
-    SortableContext,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import type { Column as ColumnType, Task } from "@/types/api.types";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { GripVertical, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { GripVertical, MoreVertical, Pencil, Plus, Smile, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useToast } from "../contexts/toast.context";
 import { DeleteConfirmationModal } from "../molecules/confirmation-modal.comp";
+import { IconPicker } from "../molecules/icon-picker.comp";
 import { TaskCard } from "../molecules/task-card.comp";
 
 interface ColumnProps {
-  column: Column;
+  column: ColumnType;
   refreshToken?: number;
   onColumnDeleted: () => void;
   onColumnUpdated: () => void;
@@ -35,59 +32,72 @@ export function Column({
   isDragging,
   isMeisterTask = false,
 }: ColumnProps) {
-  // Only Done column supports archive toggle
-  const isDoneColumn = column?.title?.toLowerCase() === "done";
-
-  const [showArchive, setShowArchive] = useState(false);
-  const { tasks, loading, refetch } = useTasks(column.id, isDoneColumn);
-  const [adding, setAdding] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDesc, setNewDesc] = useState("");
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const { tasks, loading, refetch } = useTasks(column.id, refreshToken);
   const [currentTitle, setCurrentTitle] = useState(column.title);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const addTaskInputRef = useRef<HTMLInputElement>(null);
+  const [showArchive, setShowArchive] = useState(false);
+  const [, startTransition] = useTransition();
+
   const toast = useToast();
 
-  const { setNodeRef } = useDroppable({
+  const isDoneColumn = useMemo(() => column.title.trim().toLowerCase() === "done", [column.title]);
+
+  const { setNodeRef } = useSortable({
     id: column.id,
-    data: { columnId: column.id },
+    data: {
+      type: "Column",
+      column,
+    },
   });
 
-  // Get MeisterTask styling - FORCE icons from function to ensure they work
-  const columnColor = isMeisterTask ? (column.color || getMeisterTaskColumnColor(column.title)) : null;
-  const columnIcon = isMeisterTask ? getMeisterTaskColumnIcon(column.title) : null;
+  useEffect(() => {
+    setCurrentTitle(column.title);
+  }, [column.title]);
 
   useEffect(() => {
-    if (isEditingTitle) {
-      titleInputRef.current?.focus();
-      titleInputRef.current?.select();
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.select();
     }
   }, [isEditingTitle]);
 
-  // refetch tasks when token changes (e.g., after drag)
   useEffect(() => {
-    refetch();
-  }, [refreshToken]);
+    if (adding && addTaskInputRef.current) {
+      addTaskInputRef.current.focus();
+    }
+  }, [adding]);
+
+  // --- Icon Rendering Logic ---
+  // A much clearer, multi-step approach to prevent rendering crashes.
+  const RadixIconComponent = getIconComponent(column.icon);
+  let finalIconContent: React.ReactNode;
+
+  if (RadixIconComponent) {
+    // If the stored icon name maps to a Radix component, render it.
+    finalIconContent = <RadixIconComponent />;
+  } else if (column.icon) {
+    // If there's an icon string but it's not a Radix component, it's an emoji.
+    finalIconContent = column.icon;
+  } else if (isMeisterTask) {
+    // For MeisterTask boards with no icon set, use the default getter.
+    finalIconContent = getMeisterTaskColumnIcon(column.title);
+  } else {
+    // Absolute fallback for any other case.
+    finalIconContent = '📄';
+  }
+
+  const columnColor = isMeisterTask ? column.color || getMeisterTaskColumnColor(column.title) : null;
 
   const handleAddTask = async () => {
-    if (!newTitle.trim()) return;
+    if (!newTaskTitle.trim()) return;
     try {
-      const taskData: any = {
-        title: newTitle,
-        description: newDesc,
-        columnId: column.id,
-      };
-
-      // Add default priority for MeisterTask boards
-      if (isMeisterTask) {
-        taskData.priority = 'medium';
-      }
-
-      await tasksApi.createTask(taskData);
-      setNewTitle("");
-      setNewDesc("");
+      await columnsApi.createTask(column.id, { title: newTaskTitle });
+      setNewTaskTitle("");
       setAdding(false);
       refetch();
     } catch (err) {
@@ -96,6 +106,7 @@ export function Column({
   };
 
   const handleDeleteColumn = async () => {
+    if (deleting) return;
     try {
       setDeleting(true);
       await columnsApi.deleteColumn(column.id);
@@ -109,23 +120,26 @@ export function Column({
     }
   };
 
+  const handleUpdateColumn = async (data: Partial<ColumnType>) => {
+    try {
+      await columnsApi.updateColumn(column.id, data);
+      onColumnUpdated();
+    } catch (err) {
+      console.error("Failed to update column", err);
+      toast.error("Update failed", "Could not update the column.");
+    }
+  };
+
   const handleUpdateColumnTitle = async () => {
     if (!currentTitle.trim() || currentTitle.trim() === column.title) {
       setIsEditingTitle(false);
       setCurrentTitle(column.title);
       return;
     }
-    try {
-      await columnsApi.updateColumn(column.id, { title: currentTitle.trim() });
-      onColumnUpdated();
-    } catch (err) {
-      console.error("Failed to update column title", err);
-    } finally {
-      setIsEditingTitle(false);
-    }
+    await handleUpdateColumn({ title: currentTitle.trim() });
+    setIsEditingTitle(false);
   };
 
-  // Split tasks into active / archived
   const activeTasks = tasks.filter((t) => !t.archived);
   const archivedTasks = tasks.filter((t) => t.archived);
 
@@ -133,23 +147,18 @@ export function Column({
     <div
       ref={setNodeRef}
       className={`w-80 flex-shrink-0 ${
-        isMeisterTask 
-          ? 'bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-700 shadow-lg' 
-          : 'bg-zinc-900/70 border border-zinc-800'
+        isMeisterTask
+          ? "bg-white/95 dark:bg-zinc-900/95 border border-zinc-200 dark:border-zinc-700 shadow-lg"
+          : "bg-zinc-900/70 border border-zinc-800"
       } backdrop-blur rounded-xl p-4 space-y-4 flex flex-col transition-all duration-200 ${
         isDragging ? "opacity-50 rotate-2 scale-105" : "opacity-100"
       }`}
-      style={isMeisterTask && columnColor ? {
-        borderTopColor: columnColor,
-        borderTopWidth: '3px'
-      } : {}}
+      style={isMeisterTask && columnColor ? { borderTopColor: columnColor, borderTopWidth: "3px" } : {}}
       onKeyDown={(e) => {
         if (e.key.toLowerCase() === "n" && !adding) {
           setAdding(true);
           setTimeout(() => {
-            const input = document.querySelector<HTMLInputElement>(
-              "input[placeholder='Task title']"
-            );
+            const input = document.querySelector<HTMLInputElement>("input[placeholder='Task title']");
             input?.focus();
           }, 0);
         }
@@ -161,22 +170,21 @@ export function Column({
           <div
             {...listeners}
             className={`cursor-grab transition-colors ${
-              isMeisterTask 
-                ? 'text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300' 
-                : 'text-zinc-500 hover:text-white'
+              isMeisterTask
+                ? "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                : "text-zinc-500 hover:text-white"
             }`}
             aria-label="Drag to reorder column"
           >
             <GripVertical className="w-4 h-4" />
           </div>
-          
-          {/* MeisterTask column icon */}
+
           {isMeisterTask && (
-            <span className="text-lg" style={{ color: columnColor || '#9E9E9E' }}>
-              {columnIcon || '📄'}
-            </span>
+            <div className="text-lg" style={{ color: columnColor || "#9E9E9E" }}>
+              {finalIconContent}
+            </div>
           )}
-          
+
           {isEditingTitle ? (
             <input
               ref={titleInputRef}
@@ -186,18 +194,16 @@ export function Column({
               onKeyDown={(e) => e.key === "Enter" && handleUpdateColumnTitle()}
               className={`text-sm font-semibold border rounded-md px-2 py-1 truncate focus:outline-none w-full ${
                 isMeisterTask
-                  ? 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:border-teal-500'
-                  : 'bg-zinc-800 border-teal-500 text-white'
+                  ? "bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white focus:border-teal-500"
+                  : "bg-zinc-800 border-teal-500 text-white"
               }`}
               placeholder="Column title"
               aria-label="Column title"
             />
           ) : (
-            <h3 
+            <h3
               className={`text-sm font-semibold truncate ${
-                isMeisterTask 
-                  ? 'text-zinc-900 dark:text-white' 
-                  : 'text-white'
+                isMeisterTask ? "text-zinc-900 dark:text-white" : "text-white"
               }`}
               style={isMeisterTask && columnColor ? { color: columnColor } : {}}
             >
@@ -205,43 +211,39 @@ export function Column({
             </h3>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {/* Task count badge */}
-          <span 
+
+        <div className="flex items-center gap-1">
+          <span
             className={`text-xs px-2 py-1 rounded-full ${
               isMeisterTask
-                ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
-                : 'bg-zinc-800 text-zinc-400'
+                ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
+                : "bg-zinc-800 text-zinc-400"
             }`}
-            style={isMeisterTask && columnColor ? {
-              backgroundColor: columnColor + '20',
-              color: columnColor
-            } : {}}
           >
             {activeTasks.length}
           </span>
-          
+
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button
-                className={`p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                className={`p-1 rounded-md transition-colors ${
                   isMeisterTask
-                    ? 'text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-600 dark:hover:text-zinc-300'
-                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+                    ? "hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                    : "hover:bg-zinc-800 text-zinc-400 hover:text-white"
                 }`}
-                aria-label="More actions"
-                title="More actions"
+                aria-label="Column options"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
             </DropdownMenu.Trigger>
+
             <DropdownMenu.Portal>
               <DropdownMenu.Content
                 sideOffset={5}
                 className={`border rounded-md shadow-lg p-1 text-sm min-w-[150px] z-[1000] ${
                   isMeisterTask
-                    ? 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200'
-                    : 'bg-zinc-800 border-zinc-700 text-zinc-200'
+                    ? "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200"
+                    : "bg-zinc-800 border-zinc-700 text-zinc-200"
                 }`}
               >
                 <DropdownMenu.Item
@@ -251,223 +253,141 @@ export function Column({
                   <Pencil className="w-3.5 h-3.5" />
                   <span>Edit title</span>
                 </DropdownMenu.Item>
-                {!isMeisterTask && (
-                  <>
-                    <DropdownMenu.Separator className="h-[1px] bg-zinc-700 my-1" />
+
+                {isMeisterTask && (
+                  <IconPicker
+                    onSelect={(iconName) => {
+                      startTransition(() => {
+                        handleUpdateColumn({ icon: iconName });
+                      });
+                    }}
+                    isMeisterTask={isMeisterTask}
+                  >
                     <DropdownMenu.Item
-                      onSelect={() => setShowDeleteConfirm(true)}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-red-600 hover:text-white cursor-pointer focus:outline-none focus:bg-red-600"
+                      onSelect={(e) => e.preventDefault()}
+                      className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-teal-600 hover:text-white cursor-pointer focus:outline-none focus:bg-teal-600"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete column</span>
+                      <Smile className="w-3.5 h-3.5" />
+                      <span>Change icon</span>
                     </DropdownMenu.Item>
-                  </>
+                  </IconPicker>
                 )}
+
+                <DropdownMenu.Separator
+                  className={`h-[1px] my-1 ${isMeisterTask ? "bg-zinc-200 dark:bg-zinc-700" : "bg-zinc-700"}`}
+                />
+                <DropdownMenu.Item
+                  onSelect={() => setShowDeleteConfirm(true)}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-red-600 hover:text-white cursor-pointer focus:outline-none focus:bg-red-600"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete column</span>
+                </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
         </div>
       </div>
 
-      {isDoneColumn ? (
-        <Collapsible.Root open={showArchive} onOpenChange={setShowArchive}>
-          <Collapsible.Trigger asChild>
-            <button className="text-[10px] text-teal-400 hover:underline mb-1">
-              {showArchive ? "Hide" : "Show"} archive ({archivedTasks.length})
-            </button>
-          </Collapsible.Trigger>
-
-          <div className="space-y-4">
-            <SortableContext
-              id={column.id}
-              items={activeTasks.map((t) => t.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {loading ? (
-                <div className={`text-sm ${isMeisterTask ? 'text-zinc-500' : 'text-zinc-400'}`}>Loading tasks...</div>
-              ) : activeTasks.length === 0 ? (
-                <div className={`text-sm ${isMeisterTask ? 'text-zinc-400' : 'text-zinc-500'}`}>No tasks</div>
-              ) : (
-                activeTasks.map((task: Task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    isDoneColumn
-                    onUpdated={refetch}
-                    isMeisterTask={isMeisterTask}
-                  />
-                ))
-              )}
-            </SortableContext>
-
-            <Collapsible.Content className="overflow-hidden data-[state=open]:animate-slideDown data-[state=closed]:animate-slideUp">
-              {archivedTasks.length > 0 && (
-                <div className={`pt-2 border-t space-y-2 ${isMeisterTask ? 'border-zinc-200 dark:border-zinc-700' : 'border-zinc-700'}`}>
-                  {archivedTasks.map((task: Task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      isArchived
-                      onUpdated={refetch}
-                      isMeisterTask={isMeisterTask}
-                    />
-                  ))}
-                </div>
-              )}
-            </Collapsible.Content>
-
-            {adding ? (
-              <div className="mt-4 space-y-2">
-                <input
-                  className={`w-full rounded-md border p-2 text-sm focus:outline-none focus:border-teal-500 ${
-                    isMeisterTask
-                      ? 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white'
-                      : 'bg-zinc-800 border-zinc-700 text-white'
-                  }`}
-                  placeholder="Task title"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                />
-                <textarea
-                  className={`w-full rounded-md border p-2 text-sm h-16 focus:outline-none focus:border-teal-500 ${
-                    isMeisterTask
-                      ? 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white'
-                      : 'bg-zinc-800 border-zinc-700 text-white'
-                  }`}
-                  placeholder="Description (optional)"
-                  value={newDesc}
-                  onChange={(e) => setNewDesc(e.target.value)}
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleAddTask}
-                    className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2 rounded-md transition-colors"
-                  >
-                    Add
-                  </button>
-                  <button
-                    onClick={() => {
-                      setAdding(false);
-                      setNewTitle("");
-                      setNewDesc("");
-                    }}
-                    className={`flex-1 text-xs py-2 rounded-md transition-colors ${
-                      isMeisterTask
-                        ? 'bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-white'
-                        : 'bg-zinc-700 hover:bg-zinc-600 text-white'
-                    }`}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => setAdding(true)}
-                className={`mt-4 w-full flex items-center justify-center gap-1 text-xs transition-colors ${
-                  isMeisterTask
-                    ? 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
-                    : 'text-zinc-300 hover:text-white'
-                }`}
-              >
-                <Plus className="w-3 h-3" /> Add task
-              </button>
-            )}
-          </div>
-        </Collapsible.Root>
-      ) : (
-        <div className="space-y-4">
-          <SortableContext
-            id={column.id}
-            items={activeTasks.map((t) => t.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {loading ? (
-              <div className={`text-sm ${isMeisterTask ? 'text-zinc-500' : 'text-zinc-400'}`}>Loading tasks...</div>
-            ) : activeTasks.length === 0 ? (
-              <div className={`text-sm ${isMeisterTask ? 'text-zinc-400' : 'text-zinc-500'}`}>No tasks</div>
-            ) : (
-              activeTasks.map((task: Task) => (
-                <TaskCard 
-                  key={task.id} 
-                  task={task} 
-                  onUpdated={refetch}
-                  isMeisterTask={isMeisterTask}
-                />
-              ))
-            )}
-          </SortableContext>
-
-          {adding ? (
-            <div className="mt-4 space-y-2">
-              <input
-                className={`w-full rounded-md border p-2 text-sm focus:outline-none focus:border-teal-500 ${
-                  isMeisterTask
-                    ? 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white'
-                    : 'bg-zinc-800 border-zinc-700 text-white'
-                }`}
-                placeholder="Task title"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
-              <textarea
-                className={`w-full rounded-md border p-2 text-sm h-16 focus:outline-none focus:border-teal-500 ${
-                  isMeisterTask
-                    ? 'bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white'
-                    : 'bg-zinc-800 border-zinc-700 text-white'
-                }`}
-                placeholder="Description (optional)"
-                value={newDesc}
-                onChange={(e) => setNewDesc(e.target.value)}
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAddTask}
-                  className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2 rounded-md transition-colors"
-                >
-                  Add
-                </button>
-                <button
-                  onClick={() => {
-                    setAdding(false);
-                    setNewTitle("");
-                    setNewDesc("");
-                  }}
-                  className={`flex-1 text-xs py-2 rounded-md transition-colors ${
-                    isMeisterTask
-                      ? 'bg-zinc-200 dark:bg-zinc-700 hover:bg-zinc-300 dark:hover:bg-zinc-600 text-zinc-700 dark:text-white'
-                      : 'bg-zinc-700 hover:bg-zinc-600 text-white'
-                  }`}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setAdding(true)}
-              className={`mt-4 w-full flex items-center justify-center gap-1 text-xs transition-colors ${
-                isMeisterTask
-                  ? 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
-                  : 'text-zinc-300 hover:text-white'
+      <div className="flex-1 space-y-3 overflow-y-auto max-h-[calc(100vh-300px)]">
+        <SortableContext items={activeTasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+          {loading ? (
+            <div className="text-center text-zinc-400 text-sm py-4">Loading tasks...</div>
+          ) : activeTasks.length === 0 ? (
+            <div
+              className={`text-center text-sm py-8 ${
+                isMeisterTask ? "text-zinc-400 dark:text-zinc-500" : "text-zinc-500"
               }`}
             >
-              <Plus className="w-3 h-3" /> Add task
-            </button>
+              No tasks yet
+            </div>
+          ) : (
+            activeTasks.map((task: Task) => (
+              <TaskCard key={task.id} task={task} onTaskUpdated={refetch} isMeisterTask={isMeisterTask} />
+            ))
           )}
+        </SortableContext>
+
+        {isDoneColumn && archivedTasks.length > 0 && (
+          <Collapsible.Root open={showArchive} onOpenChange={setShowArchive}>
+            <Collapsible.Trigger asChild>
+              <button
+                className={`w-full text-left text-xs font-medium py-2 px-3 rounded-md transition-colors ${
+                  isMeisterTask
+                    ? "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
+                aria-label="Toggle archived tasks"
+              >
+                <div className="flex items-center justify-between">
+                  <span>Archived ({archivedTasks.length})</span>
+                  {showArchive ? (
+                    <Trash2 className="w-3 h-3" />
+                  ) : (
+                    <Plus className="w-3 h-3" />
+                  )}
+                </div>
+              </button>
+            </Collapsible.Trigger>
+            <Collapsible.Content className="pt-2 space-y-2">
+              {archivedTasks.map((task) => (
+                <TaskCard key={task.id} task={task} onTaskUpdated={refetch} isMeisterTask={isMeisterTask} />
+              ))}
+            </Collapsible.Content>
+          </Collapsible.Root>
+        )}
+      </div>
+
+      {adding ? (
+        <div className="mt-auto pt-2">
+          <input
+            ref={addTaskInputRef}
+            className={`w-full rounded-md p-2 text-sm focus:outline-none ${
+              isMeisterTask
+                ? "bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:border-teal-500"
+                : "bg-zinc-800 border border-zinc-700 text-white focus:border-teal-500"
+            }`}
+            placeholder="Task title"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddTask();
+              if (e.key === "Escape") setAdding(false);
+            }}
+          />
+          <div className="flex gap-2 mt-2">
+            <button onClick={handleAddTask} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs py-2 rounded-md">
+              Add Task
+            </button>
+            <button
+              onClick={() => setAdding(false)}
+              className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white text-xs py-2 rounded-md"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
+      ) : (
+        <button
+          onClick={() => setAdding(true)}
+          className={`w-full mt-auto rounded-md py-2 text-xs transition-colors flex items-center justify-center ${
+            isMeisterTask
+              ? "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800"
+              : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+          }`}
+        >
+          <Plus className="w-3.5 h-3.5 mr-1" /> Add task
+        </button>
       )}
-      
-      {!isMeisterTask && (
-        <DeleteConfirmationModal
-          open={showDeleteConfirm}
-          onOpenChange={setShowDeleteConfirm}
-          onConfirm={handleDeleteColumn}
-          itemName={column.title}
-          itemType="column"
-          loading={deleting}
-        />
-      )}
+
+      <DeleteConfirmationModal
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleDeleteColumn}
+        itemName={column.title}
+        itemType="column"
+        loading={deleting}
+      />
     </div>
   );
 }

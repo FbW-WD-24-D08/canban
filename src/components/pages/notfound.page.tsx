@@ -1,8 +1,8 @@
-import { Link } from "react-router";
+import { siteConfig } from "@/config/site.ts";
+import { Link } from "react-router-dom";
+import { Button } from "../atoms/button.comp.tsx";
 import { MetaTags } from "../atoms/metatags.comp.tsx";
 import { DefaultLayout } from "../layouts/default.layout.tsx";
-import { Button } from "../atoms/button.comp.tsx";
-import { siteConfig } from "@/config/site.ts";
 
 export default function NotFoundPage() {
   return (

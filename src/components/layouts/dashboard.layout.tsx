@@ -1,7 +1,7 @@
-import { Outlet, useLocation } from "react-router";
-import { Sidebar } from "../organisms/sidebar.org";
 import { useBoard } from "@/hooks/useBoard";
 import { useUser } from "@clerk/clerk-react";
+import { Outlet, useLocation } from "react-router-dom";
+import { Sidebar } from "../organisms/sidebar.org";
 
 export default function DashboardLayout() {
   const location = useLocation();

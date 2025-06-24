@@ -14,8 +14,8 @@ class PreviewCache {
    * - If URL: fetch and temporarily store in database
    */
   async preparePreview(
-    taskId: string, 
-    attachment: Attachment, 
+    taskId: string,
+    attachment: Attachment,
     allAttachments: Attachment[]
   ): Promise<string> {
     // Already has cached data
@@ -27,9 +27,9 @@ class PreviewCache {
     let previewData: string;
 
     // Handle file input (user just selected file)
-    if (attachment.url?.startsWith('#')) {
+    if (attachment.url?.startsWith("#")) {
       // This is a placeholder - we need the user to re-select the file
-      throw new Error('Please re-select the file for preview');
+      throw new Error("Please re-select the file for preview");
     }
 
     // Handle external URL
@@ -43,12 +43,12 @@ class PreviewCache {
         throw new Error(`Failed to fetch file: ${error}`);
       }
     } else {
-      throw new Error('No file data or URL available');
+      throw new Error("No file data or URL available");
     }
 
     // Temporarily store in database for preview
     const updatedAttachment = { ...attachment, data: previewData };
-    const updatedAttachments = allAttachments.map(att => 
+    const updatedAttachments = allAttachments.map((att) =>
       att.id === attachment.id ? updatedAttachment : att
     );
 
@@ -62,16 +62,17 @@ class PreviewCache {
    * Clean up preview data after preview closes
    */
   async cleanupPreview(
-    taskId: string, 
-    attachmentId: string, 
+    taskId: string,
+    attachmentId: string,
     allAttachments: Attachment[]
   ): Promise<void> {
     if (!this.openPreviews.has(attachmentId)) return;
 
     // Remove data but keep metadata
-    const cleanedAttachments = allAttachments.map(att => {
+    const cleanedAttachments = allAttachments.map((att) => {
       if (att.id === attachmentId) {
-        const { data: _data, ...cleanAttachment } = att;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { data: _, ...cleanAttachment } = att;
         return cleanAttachment;
       }
       return att;
@@ -86,12 +87,12 @@ class PreviewCache {
    */
   async handleFileSelection(file: File): Promise<Attachment> {
     const base64 = await this.fileToBase64(file);
-    
+
     return {
       id: crypto.randomUUID(),
       name: file.name,
       type: file.type,
-      data: base64 // Store temporarily for immediate preview
+      data: base64, // Store temporarily for immediate preview
     };
   }
 
@@ -112,7 +113,7 @@ class PreviewCache {
    */
   private arrayBufferToBase64(buffer: ArrayBuffer): string {
     const bytes = new Uint8Array(buffer);
-    let binary = '';
+    let binary = "";
     for (let i = 0; i < bytes.byteLength; i++) {
       binary += String.fromCharCode(bytes[i]);
     }
@@ -122,12 +123,16 @@ class PreviewCache {
   /**
    * Cleanup all open previews (emergency cleanup)
    */
-  async cleanupAllPreviews(taskId: string, allAttachments: Attachment[]): Promise<void> {
+  async cleanupAllPreviews(
+    taskId: string,
+    allAttachments: Attachment[]
+  ): Promise<void> {
     if (this.openPreviews.size === 0) return;
 
-    const cleanedAttachments = allAttachments.map(att => {
+    const cleanedAttachments = allAttachments.map((att) => {
       if (this.openPreviews.has(att.id)) {
-        const { data: _data, ...cleanAttachment } = att;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { data: _, ...cleanAttachment } = att;
         return cleanAttachment;
       }
       return att;

@@ -2,7 +2,7 @@ import { CommandPalette } from "@/components/molecules/command-palette.comp";
 import { HelpOverlay } from "@/components/molecules/help-overlay.comp";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Route, Routes, useLocation } from "react-router";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 import "./App.css";
 import { ToastProvider } from "./components/contexts/toast.context.tsx";

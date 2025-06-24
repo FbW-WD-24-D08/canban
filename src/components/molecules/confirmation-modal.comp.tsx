@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { AlertTriangle, Info, Trash2 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -56,11 +56,16 @@ export function ConfirmationModal({
     onOpenChange(false);
   };
 
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] animate-in fade-in-0 duration-200" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl z-[9999] animate-in fade-in-0 zoom-in-95 duration-200">
+        <Dialog.Content
+          initialFocus={cancelRef}
+          className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl z-[9999] animate-in fade-in-0 zoom-in-95 duration-200"
+        >
           
           {/* Header with Icon */}
           <div className="flex items-center gap-4 p-6 pb-4">
@@ -81,6 +86,7 @@ export function ConfirmationModal({
           <div className="flex items-center justify-end gap-3 p-6 pt-2 border-t border-zinc-800/50">
             <Dialog.Close asChild>
               <button
+                ref={cancelRef}
                 disabled={loading}
                 className="px-4 py-2 rounded-lg bg-zinc-800 text-zinc-200 text-sm font-medium hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >

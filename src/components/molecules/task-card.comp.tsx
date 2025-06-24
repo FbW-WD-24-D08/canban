@@ -1,11 +1,11 @@
 import { tasksApi } from "@/api/tasks.api";
-import type { Task } from "@/types/api.types";
+import type { Attachment, Task } from "@/types/api.types";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MoreVertical, Paperclip, Eye } from "lucide-react";
+import { Eye, MoreVertical, Paperclip } from "lucide-react";
 import type React from "react";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { AvatarGroup } from "../atoms/avatar.comp";
 import { ChecklistProgress } from "../atoms/checklist-progress.comp";
 import { DueDateIndicator } from "../atoms/due-date-indicator.comp";
@@ -31,7 +31,7 @@ export function TaskCard({
   isMeisterTask = false 
 }: TaskCardProps) {
   const [open, setOpen] = useState(false);
-  const [previewAttachment, setPreviewAttachment] = useState<any>(null);
+  const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_archiving, setArchiving] = useState(false);

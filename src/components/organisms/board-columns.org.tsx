@@ -2,7 +2,7 @@ import { columnsApi } from "@/api/columns.api";
 import { tasksApi } from "@/api/tasks.api";
 import { useColumns } from "@/hooks/useColumns";
 import { getMeisterTaskColumnColor, getMeisterTaskColumnIcon } from "@/lib/meistertask-setup";
-import type { Column as ColumnType, Task } from "@/types/api.types";
+import type { Board, Column as ColumnType, CreateColumnData, Task } from "@/types/api.types";
 import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from "@dnd-kit/core";
 import {
   closestCorners,
@@ -16,7 +16,7 @@ import {
 import { arrayMove, horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Plus } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Column } from "./column.org";
 
 // Wrapper component to make columns sortable
@@ -46,10 +46,12 @@ function SortableColumn({ id, column, children }: { id: UniqueIdentifier; column
 
 interface BoardColumnsProps {
   boardId: string;
+  board: Board | null;
   isMeisterTask?: boolean;
+  onSetupComplete?: boolean;
 }
 
-export function BoardColumns({ boardId, isMeisterTask = false }: BoardColumnsProps) {
+export function BoardColumns({ boardId, isMeisterTask = false, onSetupComplete }: BoardColumnsProps) {
   const { columns, loading, refetch } = useColumns(boardId);
   const [sortedColumns, setSortedColumns] = useState<ColumnType[]>([]);
   const [adding, setAdding] = useState(false);
@@ -57,12 +59,27 @@ export function BoardColumns({ boardId, isMeisterTask = false }: BoardColumnsPro
   const [refreshToken, setRefreshToken] = useState(0);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
+  const [isCreating] = useState(false);
+  const addInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (onSetupComplete) {
+      refetch();
+    }
+  }, [onSetupComplete]);
 
   useEffect(() => {
     if (columns) {
       setSortedColumns(columns);
     }
   }, [columns]);
+
+  // Focus input when adding starts
+  useEffect(() => {
+    if (adding && addInputRef.current) {
+      addInputRef.current.focus();
+    }
+  }, [adding]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 10 } }),
@@ -79,10 +96,11 @@ export function BoardColumns({ boardId, isMeisterTask = false }: BoardColumnsPro
   };
 
   const handleAddColumn = async () => {
-    if (!title.trim()) return;
+    if (!title.trim() || isCreating) return;
+
     try {
       const position = sortedColumns.length;
-      const columnData: any = { title, boardId, position };
+      const columnData: CreateColumnData = { title, boardId, position };
       
       // Add MeisterTask styling if it's a MeisterTask board
       if (isMeisterTask) {
@@ -217,14 +235,15 @@ export function BoardColumns({ boardId, isMeisterTask = false }: BoardColumnsPro
           </SortableContext>
         )}
 
-        {/* Add column UI - Enhanced for MeisterTask */}
-        {!isMeisterTask && (adding ? (
+        {/* Add column UI - now available for all boards */}
+        {adding ? (
           <div className="w-72 flex-shrink-0 bg-zinc-900 border border-zinc-800 rounded-lg p-4">
             <input
               className="w-full rounded-md bg-zinc-800 border border-zinc-700 text-white p-2 text-sm focus:border-teal-500 focus:outline-none"
               placeholder="Column title"
               value={title}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+              ref={addInputRef}
             />
             <div className="flex gap-2 mt-2">
               <button
@@ -251,7 +270,7 @@ export function BoardColumns({ boardId, isMeisterTask = false }: BoardColumnsPro
           >
             <Plus className="w-4 h-4 mr-1" /> Add column
           </button>
-        ))}
+        )}
       </div>
 
       <DragOverlay dropAnimation={null}>
